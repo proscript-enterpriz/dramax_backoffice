@@ -89,22 +89,6 @@ export const menuData: Record<string, SubMenuItemType[]> = {
   system_settings: [...systemAdminRoutes],
 };
 
-export const permissionsByRoute: Record<string, string[]> = flattenDeep(
-  Object.values(menuData).map((c) => {
-    const arr = c.map((cc) => cc.children || []);
-    return [...arr, ...c];
-  }),
-).reduce(
-  (acc: any, cur: any) => ({
-    ...acc,
-    [cur.url
-      .split('/')
-      .filter((cc: any) => !!cc)
-      .join('/')]: cur.permissions,
-  }),
-  {},
-);
-
 export function flattenDeep(arr: any[]) {
   return arr.reduce(
     (acc, val) => acc.concat(Array.isArray(val) ? flattenDeep(val) : val),

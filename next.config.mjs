@@ -25,6 +25,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'example.com',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
         hostname: '*.cloudflarestream.com',
         pathname: '**',
       },
