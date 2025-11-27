@@ -70,10 +70,10 @@ export default function CreateMovie() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const solveResult = (
-    result: PromiseSettledResult<any>,
-    fallbackData: any,
-  ) => {
+  const solveResult = <T,>(
+    result: PromiseSettledResult<{ status: string; data?: T }>,
+    fallbackData: T,
+  ): T => {
     const isSuccess =
       result.status === 'fulfilled' && result.value.status === 'success';
     if (!isSuccess) console.error('Failed to fetch:', result);
@@ -117,6 +117,7 @@ export default function CreateMovie() {
   const isPremium = !!form.watch('is_premium');
 
   async function onSubmitMovie(d: MovieCreateType) {
+    setIsLoading(true);
     const body = {
       title: d.title,
       description: d.description,
@@ -139,11 +140,16 @@ export default function CreateMovie() {
       if (movieCreated.status === 'success') {
         toast.success('Кино амжилттай нэмэгдлээ');
         handleCloseDrawer();
+      } else if (movieCreated.status === 'error') {
+        toast.error(movieCreated.message || 'Кино оруулахад алдаа гарлаа');
       }
-    } catch (_error) {
-      toast.error('Кино оруулахад алдаа гарлаа');
+    } catch (error) {
+      console.error('Failed to create movie:', error);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Кино оруулахад алдаа гарлаа';
+      toast.error(errorMessage);
     } finally {
-      setIsLoading(true);
+      setIsLoading(false);
     }
   }
 

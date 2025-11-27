@@ -19,7 +19,9 @@ export async function createMovieAction(body: MovieCreateType) {
   );
 
   const { body: response, error } = res;
+
   if (error) throw new Error(error);
+  console.log(error);
   await executeRevalidate([RVK_MOVIES]);
   return response;
 }
