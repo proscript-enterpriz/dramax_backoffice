@@ -40,7 +40,7 @@ export function UpdateDialog({
     startTransition(() => {
       updateGenre(initialData.id, values)
         .then(() => {
-          toast.success('Updated successfully');
+          toast.success('Жанр амжилттай засагдлаа.');
           dialogRef?.current?.close();
           form.reset();
         })

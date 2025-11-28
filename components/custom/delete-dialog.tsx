@@ -50,10 +50,10 @@ export const DeleteDialog = forwardRef<DeleteDialogRef, DeleteDialogProps>(
         <AlertDialogContent>
           <AlertDialogHeader className="mb-4">
             <AlertDialogTitle>
-              {title || 'Are you absolutely sure?'}
+              {title || 'Энэ үйлдлийг хийхэд итгэлтэй байна уу?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {description || 'This action cannot be undone.'}
+              {description || 'Энэ үйлдлийг буцаах боломжгүй.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -64,7 +64,7 @@ export const DeleteDialog = forwardRef<DeleteDialogRef, DeleteDialogProps>(
                 disabled={loading}
                 size="cxs"
               >
-                {cancelText || 'Cancel'}
+                {cancelText || 'Цуцлах'}
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -76,7 +76,7 @@ export const DeleteDialog = forwardRef<DeleteDialogRef, DeleteDialogProps>(
                 size="cxs"
               >
                 {loading && <Loader2 size={10} className="animate-spin" />}
-                {confirmText || 'Continue'}
+                {confirmText || 'Үргэжлүүлэх'}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
