@@ -29,7 +29,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
     startTransition(() => {
       createGenre(values)
         .then(() => {
-          toast.success('Created successfully');
+          toast.success('Жанр амжилттай орууллаа.');
           dialogRef?.current?.close();
           form.reset();
         })
@@ -44,7 +44,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       onSubmit={onSubmit}
       loading={isPending}
       title="Шинэ жанр оруулах"
-      submitText="Create"
+      submitText="Үргэлжлүүлэх"
       trigger={children}
     >
       <FormField

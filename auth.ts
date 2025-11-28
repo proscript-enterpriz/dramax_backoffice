@@ -168,7 +168,7 @@ async function refreshAccessToken(token: any) {
     if (refreshAttempts > 3) throw new Error('Max refresh attempts exceeded');
 
     const response = await fetch(
-      `${process.env.FILMORA_DOMAIN || 'http://localhost:3000/api/v1'}/auth/employee-refresh-token`,
+      `${process.env.FILMORA_DOMAIN || 'http://localhost:3000/api/v1/dashboard'}/auth/employee-refresh-token`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

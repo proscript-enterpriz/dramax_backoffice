@@ -25,7 +25,7 @@ export default async function GenresPage(props: {
   return (
     <>
       <div className="flex items-start justify-between">
-        <Heading title={`Genres list (${total_count ?? data?.length})`} />
+        <Heading title={`Кино жанрууд (${total_count ?? data?.length})`} />
         {hasPermission(session, 'genres', 'create') && (
           <CreateDialog>
             <Button className="text-xs md:text-sm" variant="outline">

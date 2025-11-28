@@ -54,7 +54,7 @@ const Action = ({ row }: CellContext<CategoryResponseType, unknown>) => {
               key={JSON.stringify(row.original)}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="h-4 w-4" /> Edit
+                <Edit className="h-4 w-4" /> Засварлах
               </DropdownMenuItem>
             </UpdateDialog>
           )}
@@ -75,15 +75,15 @@ const Action = ({ row }: CellContext<CategoryResponseType, unknown>) => {
               }}
               description={
                 <>
-                  Are you sure you want to delete this item? &#34;
+                  Устгахдаа итгэлтэй байна уу? &#34;
                   {row.original.name}&#34;
-                  <br /> This action cannot be undone.
+                  <br /> Энэ үйлдлийг буцаах боломжгүй.
                 </>
               }
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash className="h-4 w-4" />
-                Delete
+                Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}

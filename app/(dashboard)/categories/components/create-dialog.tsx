@@ -26,6 +26,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
 
   const form = useForm<CategoryCreateType>({
     resolver: zodResolver(categoryCreateSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      is_adult: false,
+    },
   });
 
   function onSubmit(values: CategoryCreateType) {
@@ -36,7 +41,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           dialogRef?.current?.close();
           form.reset();
         })
-        .catch((e) => toast.error(e.message));
+        .catch((e) => {
+          const errorMessage =
+            e instanceof Error ? e.message : 'Failed to create category';
+          toast.error(errorMessage);
+        });
     });
   }
 
@@ -46,9 +55,12 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Create new Category"
-      submitText="Create"
+      title="Шинэ ангилал оруулах"
+      submitText="Оруулах"
       trigger={children}
+      onOpenChange={(open) => {
+        form.reset();
+      }}
     >
       <FormField
         control={form.control}
@@ -91,7 +103,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       <FormField
         control={form.control}
         name="description"
-        render={({ field }) => <HtmlTipTapItem field={field} />}
+        render={({ field }) => <HtmlTipTapItem field={field} label="Тайлбар" />}
       />
     </FormDialog>
   );

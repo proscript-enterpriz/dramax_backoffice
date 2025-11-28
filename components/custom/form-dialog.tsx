@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { forwardRef, ReactNode, useImperativeHandle, useState } from 'react';
-import { SaveIcon } from 'lucide-react';
 
 import { LoaderIcon } from '@/components/custom/icons';
 import { Button } from '@/components/ui/button';
@@ -111,7 +110,7 @@ const FormSheet = forwardRef<FormDialogRef, FormSheetProps>(
                   className={submitClassName}
                   disabled={loading || disabled}
                 >
-                  {loading ? <LoaderIcon /> : <SaveIcon size="sm" />}
+                  {loading && <LoaderIcon />}
                   {submitText}
                 </Button>
               </SheetFooter>
