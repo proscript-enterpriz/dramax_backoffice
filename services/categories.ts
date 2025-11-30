@@ -1,3 +1,5 @@
+'use server';
+
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
 import { RVK_CATEGORIES } from './rvk';
@@ -18,86 +20,97 @@ export type GetCategoriesSearchParams = {
 };
 
 export async function getCategories(searchParams?: GetCategoriesSearchParams) {
-  const res =
-    await actions.get<BaseResponseListUnionCategoryResponseNoneTypeType>(
-      `/categories`,
-      {
-        searchParams,
-        next: {
-          tags: [RVK_CATEGORIES],
+  try {
+    const res =
+      await actions.get<BaseResponseListUnionCategoryResponseNoneTypeType>(
+        `/categories`,
+        {
+          searchParams,
+          next: {
+            tags: [RVK_CATEGORIES],
+          },
         },
-      },
-    );
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: 'Failed to fetch categories',
+      data: [],
+    };
+  }
 }
 
 export async function createCategory(body: CategoryCreateType) {
-  const res = await actions.post<BaseResponseUnionCategoryResponseNoneTypeType>(
-    `/categories`,
-    body,
-  );
+  try {
+    const res =
+      await actions.post<BaseResponseUnionCategoryResponseNoneTypeType>(
+        `/categories`,
+        body,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_CATEGORIES]);
+    executeRevalidate([RVK_CATEGORIES]);
 
-  return response;
-}
+    return response;
+  } catch (e) {
+    console.error(e);
 
-export async function getCategory(categoryId: number) {
-  const res = await actions.get<BaseResponseUnionCategoryResponseNoneTypeType>(
-    `/categories/${categoryId}`,
-    {
-      next: {
-        tags: [RVK_CATEGORIES, `${RVK_CATEGORIES}_category_id_${categoryId}`],
-      },
-    },
-  );
-
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
-
-  return response;
+    return null;
+  }
 }
 
 export async function updateCategory(
   categoryId: number,
   body: CategoryUpdateType,
 ) {
-  const res = await actions.put<BaseResponseUnionCategoryResponseNoneTypeType>(
-    `/categories/${categoryId}`,
-    body,
-  );
+  try {
+    const res =
+      await actions.put<BaseResponseUnionCategoryResponseNoneTypeType>(
+        `/categories/${categoryId}`,
+        body,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([
-    RVK_CATEGORIES,
-    `${RVK_CATEGORIES}_category_id_${categoryId}`,
-  ]);
-
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: 'Failed to update category',
+      data: null,
+    };
+  }
 }
 
 export async function deleteCategory(categoryId: number) {
-  const res =
-    await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
-      `/categories/${categoryId}`,
-    );
+  try {
+    const res =
+      await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
+        `/categories/${categoryId}`,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([
-    RVK_CATEGORIES,
-    `${RVK_CATEGORIES}_category_id_${categoryId}`,
-  ]);
-
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: 'Failed to delete category',
+      data: null,
+    };
+  }
 }

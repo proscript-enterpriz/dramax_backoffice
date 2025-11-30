@@ -1,5 +1,8 @@
+'use server';
+
+import { executeRevalidate } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
 import { RVK_GENRES } from './rvk';
 import {
   AppModelsBaseBaseResponseUnionDictNoneTypeType,
@@ -17,76 +20,135 @@ export type GetGenresSearchParams = {
 };
 
 export async function getGenres(searchParams?: GetGenresSearchParams) {
-  const res = await actions.get<BaseResponseUnionListGenreResponseNoneTypeType>(
-    `/genres`,
-    {
-      searchParams,
-      next: {
-        tags: [RVK_GENRES],
-      },
-    },
-  );
+  try {
+    const res =
+      await actions.get<BaseResponseUnionListGenreResponseNoneTypeType>(
+        `/genres`,
+        {
+          searchParams,
+          next: {
+            tags: [RVK_GENRES],
+          },
+        },
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while fetching the genres.',
+      data: [],
+    };
+  }
 }
 
 export async function createGenre(body: GenreCreateType) {
-  const res = await actions.post<BaseResponseUnionGenreResponseNoneTypeType>(
-    `/genres`,
-    body,
-  );
+  try {
+    const res = await actions.post<BaseResponseUnionGenreResponseNoneTypeType>(
+      `/genres`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_GENRES]);
-
-  return response;
+    await executeRevalidate([RVK_GENRES]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while creating the genre.',
+      data: null,
+    };
+  }
 }
 
 export async function getGenre(genreId: number) {
-  const res = await actions.get<BaseResponseUnionGenreResponseNoneTypeType>(
-    `/genres/${genreId}`,
-    {
-      next: {
-        tags: [RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`],
+  try {
+    const res = await actions.get<BaseResponseUnionGenreResponseNoneTypeType>(
+      `/genres/${genreId}`,
+      {
+        next: {
+          tags: [RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`],
+        },
       },
-    },
-  );
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while fetching the genre.',
+      data: null,
+    };
+  }
 }
 
 export async function updateGenre(genreId: number, body: GenreUpdateType) {
-  const res = await actions.put<BaseResponseUnionGenreResponseNoneTypeType>(
-    `/genres/${genreId}`,
-    body,
-  );
+  try {
+    const res = await actions.put<BaseResponseUnionGenreResponseNoneTypeType>(
+      `/genres/${genreId}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`]);
-
-  return response;
+    await executeRevalidate([RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while updating the genre.',
+      data: null,
+    };
+  }
 }
 
 export async function deleteGenre(genreId: number) {
-  const res =
-    await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
-      `/genres/${genreId}`,
-    );
+  try {
+    const res =
+      await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
+        `/genres/${genreId}`,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`]);
+    await executeRevalidate([RVK_GENRES, `${RVK_GENRES}_genre_id_${genreId}`]);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while deleting the genre.',
+      data: null,
+    };
+  }
 }

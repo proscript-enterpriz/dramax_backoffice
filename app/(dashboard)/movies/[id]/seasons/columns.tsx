@@ -26,12 +26,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { hasPagePermission, hasPermission } from '@/lib/permission';
 import { cn, removeHTML } from '@/lib/utils';
-import { SeriesSeasonType } from '@/services/schema';
+import { SeasonType } from '@/services/schema';
 import { deleteSeriesSeason } from '@/services/season';
 
 import { UpdateDialog } from './components/update-dialog';
 
-const Action = ({ row }: CellContext<SeriesSeasonType, unknown>) => {
+const Action = ({ row }: CellContext<SeasonType, unknown>) => {
   const [loading, setLoading] = useState(false);
   const deleteDialogRef = useRef<DeleteDialogRef>(null);
   const { data } = useSession();
@@ -70,7 +70,7 @@ const Action = ({ row }: CellContext<SeriesSeasonType, unknown>) => {
                 setLoading(true);
                 // TODO: Please check after generate
                 deleteSeriesSeason(row.original.id)
-                  .then((c) => toast.success(c.data.message))
+                  .then((c) => toast.success(c.message))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {
                     deleteDialogRef.current?.close();
@@ -99,7 +99,7 @@ const Action = ({ row }: CellContext<SeriesSeasonType, unknown>) => {
   );
 };
 
-const Navigation = ({ row }: CellContext<SeriesSeasonType, unknown>) => {
+const Navigation = ({ row }: CellContext<SeasonType, unknown>) => {
   const { data } = useSession();
   const params = useParams();
 
@@ -114,7 +114,7 @@ const Navigation = ({ row }: CellContext<SeriesSeasonType, unknown>) => {
   );
 };
 
-export const seasonsColumns: ColumnDef<SeriesSeasonType>[] = [
+export const seasonsColumns: ColumnDef<SeasonType>[] = [
   {
     id: 'id',
     accessorKey: 'id',
@@ -166,7 +166,9 @@ export const seasonsColumns: ColumnDef<SeriesSeasonType>[] = [
     id: 'cover_image_url',
     accessorKey: 'cover_image_url',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => <ZoomableImage src={row.original.cover_image_url} />,
+    cell: ({ row }) => (
+      <ZoomableImage src={row.original.cover_image_url || ''} />
+    ),
     enableSorting: true,
     enableColumnFilter: true,
   },

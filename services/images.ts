@@ -1,5 +1,8 @@
+'use server';
+
+import { executeRevalidate } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
 import { RVK_IMAGES } from './rvk';
 import { ImageListResponseType } from './schema';
 
@@ -14,26 +17,50 @@ export type GetUploadedImagesSearchParams = {
 export async function getUploadedImages(
   searchParams?: GetUploadedImagesSearchParams,
 ) {
-  const res = await actions.get<ImageListResponseType>(`/images`, {
-    searchParams,
-    next: {
-      tags: [RVK_IMAGES],
-    },
-  });
+  try {
+    const res = await actions.get<ImageListResponseType>(`/images`, {
+      searchParams,
+      next: {
+        tags: [RVK_IMAGES],
+      },
+    });
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while fetching the uploaded images.',
+      data: [],
+    };
+  }
 }
 
 export async function deleteImage(imageId: string) {
-  const res = await actions.destroy<any>(`/images/${imageId}`);
+  try {
+    const res = await actions.destroy<any>(`/images/${imageId}`);
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_IMAGES, `${RVK_IMAGES}_image_id_${imageId}`]);
+    await executeRevalidate([RVK_IMAGES]);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error).message ||
+        'An error occurred while deleting the image.',
+      data: null,
+    };
+  }
 }

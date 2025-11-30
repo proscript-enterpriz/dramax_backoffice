@@ -1,4 +1,7 @@
+'use server';
+
 import * as actions from './api/actions';
+import { RVK_RENTALS } from './rvk';
 import { BaseResponseUnionListMovieRentalDataNoneTypeType } from './schema';
 
 // Auto-generated service for rentals
@@ -11,15 +14,29 @@ export type GetRentalCountsByUsersSearchParams = {
 export async function getRentalCountsByUsers(
   searchParams?: GetRentalCountsByUsersSearchParams,
 ) {
-  const res = await actions.get<any>(`/rentals/users`, {
-    searchParams,
-    cache: 'no-store',
-  });
+  try {
+    const res = await actions.get<any>(`/rentals/users`, {
+      searchParams,
+      next: {
+        tags: [RVK_RENTALS],
+      },
+    });
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message ||
+        'An error occurred while fetching rental counts by users.',
+      data: [],
+    };
+  }
 }
 
 export type GetMoviesRentalCountsSearchParams = {
@@ -30,17 +47,31 @@ export type GetMoviesRentalCountsSearchParams = {
 export async function getMoviesRentalCounts(
   searchParams?: GetMoviesRentalCountsSearchParams,
 ) {
-  const res =
-    await actions.get<BaseResponseUnionListMovieRentalDataNoneTypeType>(
-      `/rentals/movies`,
-      {
-        searchParams,
-        cache: 'no-store',
-      },
-    );
+  try {
+    const res =
+      await actions.get<BaseResponseUnionListMovieRentalDataNoneTypeType>(
+        `/rentals/movies`,
+        {
+          searchParams,
+          next: {
+            tags: [RVK_RENTALS],
+          },
+        },
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message ||
+        'An error occurred while fetching movies rental counts.',
+      data: null,
+    };
+  }
 }

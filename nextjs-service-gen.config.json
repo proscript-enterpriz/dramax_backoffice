@@ -1,0 +1,21 @@
+{
+  "openApiUrl": "http://localhost:8000/api/v1/openapi.json",
+  "outputDir": "./services",
+  "endpointPrefix": "/api/v1/dashboard",
+  "skipFiles": [
+    "types",
+    "fetch-client",
+    "actions",
+    "register",
+    "auth",
+    "webhook",
+    "gen",
+    "current-employee",
+    "dm",
+    "movie",
+    "upload-video",
+    "videos"
+  ],
+  "runLinter": true,
+  "runFormatter": true
+}

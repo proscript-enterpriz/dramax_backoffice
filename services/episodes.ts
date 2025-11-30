@@ -1,69 +1,145 @@
+'use server';
+
+import { executeRevalidate } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
 import { RVK_EPISODES } from './rvk';
 import {
-  BaseResponseDictType,
-  BaseResponseListSeriesEpisodeType,
-  BaseResponseUnionSeriesEpisodeNoneTypeType,
+  BaseResponseEpisodeType,
+  CreateEpisodeType,
+  ListResponseEpisodeType,
+  SingleItemResponseEpisodeType,
+  UpdateEpisodeType,
 } from './schema';
 
 // Auto-generated service for episodes
 
-export async function getSeriesEpisodes(seasonId: string) {
-  const res = await actions.get<BaseResponseListSeriesEpisodeType>(
-    `/episodes/${seasonId}`,
-    {
-      next: {
-        tags: [RVK_EPISODES, `${RVK_EPISODES}_season_number_${seasonId}`],
+export async function getEpisodeList(seasonId: string) {
+  try {
+    const res = await actions.get<ListResponseEpisodeType>(
+      `/episodes/${seasonId}`,
+      {
+        next: {
+          tags: [RVK_EPISODES, `${RVK_EPISODES}_season_id_${seasonId}`],
+        },
       },
-    },
-  );
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: [],
+      total_count: 0,
+    };
+  }
 }
 
-export async function getSeriesEpisode(episodeId: string) {
-  const res = await actions.get<BaseResponseUnionSeriesEpisodeNoneTypeType>(
-    `/episodes/${episodeId}/details`,
-    {
-      next: {
-        tags: [RVK_EPISODES, `${RVK_EPISODES}_episode_id_${episodeId}`],
+export async function getEpisodeDetail(episodeId: string) {
+  try {
+    const res = await actions.get<SingleItemResponseEpisodeType>(
+      `/episodes/${episodeId}/detail`,
+      {
+        next: {
+          tags: [RVK_EPISODES, `${RVK_EPISODES}_episode_id_${episodeId}`],
+        },
       },
-    },
-  );
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    };
+  }
 }
 
-export async function updateEpisode(episodeId: string, body: any) {
-  const res = await actions.patch<BaseResponseUnionSeriesEpisodeNoneTypeType>(
-    `/episodes/${episodeId}`,
-    body,
-  );
+export async function createEpisode(body: CreateEpisodeType) {
+  try {
+    const res = await actions.post<SingleItemResponseEpisodeType>(
+      `/episodes`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+    await executeRevalidate([RVK_EPISODES]);
 
-  executeRevalidate([RVK_EPISODES, `${RVK_EPISODES}_episode_id_${episodeId}`]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    };
+  }
+}
 
-  return response;
+export async function updateEpisode(
+  episodeId: string,
+  body: UpdateEpisodeType,
+) {
+  try {
+    const res = await actions.patch<SingleItemResponseEpisodeType>(
+      `/episodes/${episodeId}`,
+      body,
+    );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+    await executeRevalidate([
+      RVK_EPISODES,
+      `${RVK_EPISODES}_episode_id_${episodeId}`,
+    ]);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    };
+  }
 }
 
 export async function deleteEpisode(episodeId: string) {
-  const res = await actions.destroy<BaseResponseDictType>(
-    `/episodes/${episodeId}`,
-  );
+  try {
+    const res = await actions.destroy<BaseResponseEpisodeType>(
+      `/episodes/${episodeId}`,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_EPISODES, `${RVK_EPISODES}_episode_id_${episodeId}`]);
-
-  return response;
+    await executeRevalidate([
+      RVK_EPISODES,
+      `${RVK_EPISODES}_episode_id_${episodeId}`,
+    ]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      data: null,
+    };
+  }
 }

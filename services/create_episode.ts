@@ -1,27 +1,28 @@
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
-import { RVK_CREATE_EPISODE, RVK_EPISODES } from './rvk';
-import {
-  BaseResponseUnionSeriesEpisodeNoneTypeType,
-  SeriesEpisodeCreateType,
-} from './schema';
+import { RVK_EPISODES } from './rvk';
+import { CreateSeasonType, ListResponseSeasonType } from './schema';
 
 // Auto-generated service for create_episode
 
-export async function createEpisode(body: SeriesEpisodeCreateType) {
-  const res = await actions.post<BaseResponseUnionSeriesEpisodeNoneTypeType>(
-    `/episodes`,
-    body,
-  );
+export async function createEpisode(body: CreateSeasonType) {
+  try {
+    const res = await actions.post<ListResponseSeasonType>(`/episodes`, body);
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([
-    RVK_CREATE_EPISODE,
-    RVK_EPISODES,
-    `${RVK_EPISODES}_season_id_${body.season_id}`,
-  ]);
+    await executeRevalidate([RVK_EPISODES]);
 
-  return response;
+    return response;
+  } catch (e) {
+    console.error(e);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (e as Error).message || 'An error occurred while creating the episode.',
+      data: null,
+    };
+  }
 }
