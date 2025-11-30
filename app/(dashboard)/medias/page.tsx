@@ -18,13 +18,13 @@ export default async function ImagesPage(props: {
   }>;
 }) {
   const searchParams = await props.searchParams;
-  const { data, total_count, pagination } = await getUploadedImages(
+  const { data, pagination } = await getUploadedImages(
     // Check and fix, its generated and might be dumb
     searchParams,
   );
 
   const list = data || [];
-  const count = total_count ?? list.length;
+  const count = pagination.total ?? list.length;
 
   return (
     <>

@@ -9,7 +9,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "gen:dashboard-route": "plop route --plopfile dev-only/dashboard-route/index.js",
-    "gen:services": "npx nextjs-service-gen"
+    "gen:services": "npx nextjs-service-gen",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

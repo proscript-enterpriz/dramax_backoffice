@@ -69,7 +69,11 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Ангилалын нэр</FormLabel>
             <FormControl>
-              <Input placeholder="Enter category name" {...field} />
+              <Input
+                placeholder="Enter category name"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -66,7 +66,7 @@ const Action = ({ row }: CellContext<CategoryResponseType, unknown>) => {
                 setLoading(true);
                 // TODO: Please check after generate
                 deleteCategory(row.original.id)
-                  .then((c) => toast.success(c.data.message))
+                  .then((c) => toast.success(c.message))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {
                     deleteDialogRef.current?.close();

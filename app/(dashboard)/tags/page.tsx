@@ -36,7 +36,7 @@ export default async function TagsPage(props: { searchParams?: SearchParams }) {
       <Suspense fallback="Loading">
         <DataTable
           columns={tagsColumns}
-          data={data}
+          data={data ?? []}
           rowCount={total_count ?? data?.length}
         />
       </Suspense>

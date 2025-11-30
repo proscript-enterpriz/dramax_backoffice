@@ -38,6 +38,10 @@ export async function getUploadedImages(
         (error as Error).message ||
         'An error occurred while fetching the uploaded images.',
       data: [],
+      pagination: {
+        total: 0,
+        total_pages: 1,
+      },
     };
   }
 }

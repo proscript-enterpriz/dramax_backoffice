@@ -63,7 +63,7 @@ export function UpdateDialog({
       employeeUpdateSchema.extend({
         full_name: z
           .string()
-          .optional()
+          .nullish()
           .refine((val) => !val?.toLowerCase().includes('filmora'), {
             message: "Full name-д 'Filmora' үг оруулах боломжгүй.",
           }),
@@ -115,7 +115,11 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Овог нэх</FormLabel>
             <FormControl>
-              <Input placeholder="Овог нэх" {...field} />
+              <Input
+                placeholder="Овог нэх"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -128,7 +132,12 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-2">
             <FormLabel>И-мэйл</FormLabel>
             <FormControl>
-              <Input placeholder="И-мэйл" type="email" {...field} />
+              <Input
+                placeholder="И-мэйл"
+                type="email"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -145,6 +154,7 @@ export function UpdateDialog({
                 placeholder="Leave blank to keep"
                 type="password"
                 {...field}
+                value={field.value ?? undefined}
               />
             </FormControl>
             <FormMessage />
