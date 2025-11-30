@@ -86,9 +86,9 @@ export default function CreateMovie() {
         Promise.allSettled([getGenres(), getTags(), getCategories()]).then(
           ([genreRes, tagRes, catRes]) => {
             setDropdownData((prev) => ({
-              genres: solveResult(genreRes, prev.genres),
-              tags: solveResult(tagRes, prev.tags),
-              categories: solveResult(catRes, prev.categories),
+              genres: solveResult(genreRes, prev.genres)!,
+              tags: solveResult(tagRes, prev.tags)!,
+              categories: solveResult(catRes, prev.categories)!,
             }));
           },
         );
@@ -322,7 +322,7 @@ export default function CreateMovie() {
                       <FormLabel>Trailer:</FormLabel>
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
-                          hlsUrl={field.value}
+                          hlsUrl={field.value ?? undefined}
                           onChange={(c) => field.onChange(c.playback?.hls)}
                         />
                       </div>

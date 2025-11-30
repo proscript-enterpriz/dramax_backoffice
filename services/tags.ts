@@ -6,7 +6,7 @@ import * as actions from './api/actions';
 import { RVK_TAGS } from './rvk';
 import {
   AppModelsBaseBaseResponseUnionDictNoneTypeType,
-  AppModelsBaseBaseResponseUnionListTagResponseNoneTypeType,
+  AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type,
   BaseResponseUnionTagResponseNoneTypeType,
   TagCreateType,
   TagUpdateType,
@@ -22,7 +22,7 @@ export type GetTagsSearchParams = {
 export async function getTags(searchParams?: GetTagsSearchParams) {
   try {
     const res =
-      await actions.get<AppModelsBaseBaseResponseUnionListTagResponseNoneTypeType>(
+      await actions.get<AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type>(
         `/tags`,
         {
           searchParams,

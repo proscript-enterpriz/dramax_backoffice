@@ -84,7 +84,7 @@ export default function UpdateMovie({
     try {
       const response = await getMovie(id);
       if (response.status === 'success') {
-        setInitialData(response.data);
+        setInitialData(response.data!);
       }
       return response?.data;
     } catch (err) {
@@ -157,8 +157,8 @@ export default function UpdateMovie({
     try {
       const response = await updateMovie(id, {
         ...omit(d, ['categories', 'genres', 'tags', 'created_at']),
-        category_ids: d.categories?.map((cat) => Number(cat.id)),
-        genre_ids: d.genres?.map((genre) => Number(genre.id)),
+        categories: d.categories?.map((cat) => Number(cat.id)),
+        genres: d.genres?.map((genre) => Number(genre.id)),
         tag_ids: d.tags?.map((tag) => Number(tag.id)),
       });
 
@@ -388,7 +388,7 @@ export default function UpdateMovie({
                       <FormLabel>Trailer:</FormLabel>
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
-                          hlsUrl={field.value}
+                          hlsUrl={field.value ?? undefined}
                           onChange={(c) => field.onChange(c.playback?.hls)}
                         />
                       </div>
