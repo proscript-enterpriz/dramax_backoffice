@@ -18,7 +18,7 @@ export default function CloudflarePreview({
   initialTitle,
   onChange,
 }: {
-  cfId?: string;
+  cfId?: string | null;
   initialTitle?: string;
   onChange?: (video: StreamVideo) => void;
 }) {
@@ -27,7 +27,9 @@ export default function CloudflarePreview({
   const [error, setError] = useState('');
   const [loading, startLoading] = useTransition();
   const streamsDrawerRef = useRef<StreamsDrawerRef>(null);
-  const [selectedCfId, setSelectedCfId] = useState<string | undefined>(cfId);
+  const [selectedCfId, setSelectedCfId] = useState<string | undefined | null>(
+    cfId,
+  );
 
   useEffect(() => {
     const idToUse = selectedCfId || cfId;

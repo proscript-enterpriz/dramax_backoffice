@@ -20,9 +20,9 @@ import { Input } from '@/components/ui/input';
 import { pickChangedValues } from '@/lib/utils';
 import { updateEpisode } from '@/services/episodes';
 import {
-  SeriesEpisodeType,
-  seriesEpisodeUpdateSchema,
-  SeriesEpisodeUpdateType,
+  EpisodeType,
+  updateEpisodeSchema,
+  UpdateEpisodeType,
 } from '@/services/schema';
 
 export function UpdateDialog({
@@ -30,19 +30,22 @@ export function UpdateDialog({
   initialData,
 }: {
   children: ReactNode;
-  initialData: SeriesEpisodeType;
+  initialData: EpisodeType;
 }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<SeriesEpisodeUpdateType>({
-    resolver: zodResolver(seriesEpisodeUpdateSchema),
+  const form = useForm<UpdateEpisodeType>({
+    resolver: zodResolver(updateEpisodeSchema),
     defaultValues: initialData,
   });
 
-  function onSubmit(values: SeriesEpisodeUpdateType) {
+  function onSubmit(values: UpdateEpisodeType) {
     startTransition(() => {
-      updateEpisode(initialData.id, pickChangedValues(initialData, values))
+      updateEpisode(
+        initialData.episode_id,
+        pickChangedValues(initialData, values),
+      )
         .then(() => {
           toast.success('Updated successfully');
           dialogRef?.current?.close();
@@ -69,7 +72,7 @@ export function UpdateDialog({
           <FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -146,7 +149,7 @@ export function UpdateDialog({
           name="cloudflare_video_id"
           render={({ field }) => (
             <CloudflarePreview
-              cfId={field.value}
+              cfId={field.value ?? undefined}
               onChange={(c) => {
                 field.onChange(c.uid);
                 if (form.getValues('duration') !== Math.round(c.duration))

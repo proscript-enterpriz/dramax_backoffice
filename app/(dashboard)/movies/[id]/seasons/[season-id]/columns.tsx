@@ -25,11 +25,11 @@ import {
 import { hasPermission } from '@/lib/permission';
 import { removeHTML } from '@/lib/utils';
 import { deleteEpisode } from '@/services/episodes';
-import { SeriesEpisodeType } from '@/services/schema';
+import { EpisodeType } from '@/services/schema';
 
 import { UpdateDialog } from './components/update-dialog';
 
-const Action = ({ row }: CellContext<SeriesEpisodeType, unknown>) => {
+const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
   const [loading, setLoading] = useState(false);
   const deleteDialogRef = useRef<DeleteDialogRef>(null);
   const { data } = useSession();
@@ -67,8 +67,8 @@ const Action = ({ row }: CellContext<SeriesEpisodeType, unknown>) => {
               loading={loading}
               action={() => {
                 setLoading(true);
-                deleteEpisode(row.original.id)
-                  .then((c) => toast.success(c.data?.message || 'Deleted'))
+                deleteEpisode(row.original.episode_id)
+                  .then((c) => toast.success(c.message || 'Deleted'))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {
                     deleteDialogRef.current?.close();
@@ -88,12 +88,12 @@ const Action = ({ row }: CellContext<SeriesEpisodeType, unknown>) => {
   );
 };
 
-export const episodesColumns: ColumnDef<SeriesEpisodeType>[] = [
+export const episodesColumns: ColumnDef<EpisodeType>[] = [
   {
     id: 'id',
-    accessorKey: 'id',
+    accessorKey: 'episode_id',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => row.original.id,
+    cell: ({ row }) => row.original.episode_id,
     enableSorting: true,
     enableColumnFilter: true,
   },

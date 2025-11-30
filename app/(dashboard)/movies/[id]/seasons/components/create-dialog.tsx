@@ -18,10 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  seriesSeasonCreateSchema,
-  SeriesSeasonCreateType,
-} from '@/services/schema';
+import { createSeasonSchema, CreateSeasonType } from '@/services/schema';
 import { createSeriesSeason } from '@/services/season';
 
 export function CreateDialog({ children }: { children: ReactNode }) {
@@ -29,14 +26,14 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const [isPending, startTransition] = useTransition();
   const params = useParams();
 
-  const form = useForm<SeriesSeasonCreateType>({
-    resolver: zodResolver(seriesSeasonCreateSchema),
+  const form = useForm<CreateSeasonType>({
+    resolver: zodResolver(createSeasonSchema),
     defaultValues: {
       season_number: 1,
     },
   });
 
-  function onSubmit(values: SeriesSeasonCreateType) {
+  function onSubmit(values: CreateSeasonType) {
     startTransition(() => {
       createSeriesSeason(params.id as unknown as string, values)
         .then(() => {
@@ -92,7 +89,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Title (optional)</FormLabel>
             <FormControl>
-              <Input placeholder="Season title" {...field} />
+              <Input
+                placeholder="Season title"
+                {...field}
+                value={field.value ?? ''}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

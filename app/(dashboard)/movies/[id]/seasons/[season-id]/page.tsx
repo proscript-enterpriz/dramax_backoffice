@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
 import { hasPermission } from '@/lib/permission';
-import { getSeriesEpisodes } from '@/services/episodes';
+import { getEpisodeList } from '@/services/episodes';
 import { getMovie } from '@/services/movies-generated';
 import { getSeriesSeason } from '@/services/seasons';
 
@@ -23,7 +23,7 @@ export default async function SeasonEpisodesPage(props: {
   const params = await props.params;
   const { data: movie } = await getMovie(params.id);
   const { data } = await getSeriesSeason(params['season-id']);
-  const { data: episodesData, total_count } = await getSeriesEpisodes(
+  const { data: episodesData, total_count } = await getEpisodeList(
     params['season-id'],
   );
 
@@ -31,7 +31,7 @@ export default async function SeasonEpisodesPage(props: {
   const count = total_count ?? list.length;
   const session = await auth();
 
-  if (movie.type !== 'series') return notFound();
+  if (!movie || movie.type !== 'series') return notFound();
 
   return (
     <>

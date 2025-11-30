@@ -1,13 +1,16 @@
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
 import { RVK_EPISODES } from './rvk';
-import { CreateSeasonType, ListResponseSeasonType } from './schema';
+import { CreateEpisodeType, SingleItemResponseEpisodeType } from './schema';
 
 // Auto-generated service for create_episode
 
-export async function createEpisode(body: CreateSeasonType) {
+export async function createEpisode(body: CreateEpisodeType) {
   try {
-    const res = await actions.post<ListResponseSeasonType>(`/episodes`, body);
+    const res = await actions.post<SingleItemResponseEpisodeType>(
+      `/episodes`,
+      body,
+    );
 
     const { body: response, error } = res;
     if (error) throw new Error(error);

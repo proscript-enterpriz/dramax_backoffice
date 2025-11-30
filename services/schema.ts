@@ -223,7 +223,7 @@ export type AppApiApiV1EndpointsDashboardCategoriesTagResponseType = z.infer<
   typeof appApiApiV1EndpointsDashboardCategoriesTagResponseSchema
 >;
 
-export const appModelsBaseBaseResponseUnionListTagResponseNoneTypeSchema =
+export const appModelsBaseBaseResponseUnionListTagResponseNoneType_1Schema =
   z.object({
     status: z.string(),
     message: z.string(),
@@ -233,9 +233,8 @@ export const appModelsBaseBaseResponseUnionListTagResponseNoneTypeSchema =
     total_count: z.int().nullish(),
   });
 
-export type AppModelsBaseBaseResponseUnionListTagResponseNoneTypeType = z.infer<
-  typeof appModelsBaseBaseResponseUnionListTagResponseNoneTypeSchema
->;
+export type AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type =
+  z.infer<typeof appModelsBaseBaseResponseUnionListTagResponseNoneType_1Schema>;
 
 export const baseResponseUnionTagResponseNoneTypeSchema = z.object({
   status: z.string(),
@@ -481,6 +480,15 @@ export const updateSeasonSchema = z.object({
 
 export type UpdateSeasonType = z.infer<typeof updateSeasonSchema>;
 
+export const bulkCreateSeasonResponseSchema = z.object({
+  items: z.array(seasonSchema),
+  count: z.int(),
+});
+
+export type BulkCreateSeasonResponseType = z.infer<
+  typeof bulkCreateSeasonResponseSchema
+>;
+
 export const episodeSchema = z.object({
   title: z.string().min(1).max(200),
   episode_number: z.int(),
@@ -623,7 +631,7 @@ export type BaseResponseUnionDictStrAnyNoneTypeType = z.infer<
   typeof baseResponseUnionDictStrAnyNoneTypeSchema
 >;
 
-export const fastapiCompatV2BodyDashboardUploadVideo_1Schema = z.object({
+export const fastapiCompatV2BodyDashboardUploadVideoSchema = z.object({
   file: z.instanceof(Blob),
   movie_id: z.string(),
   season_id: z.string().nullish(),
@@ -631,8 +639,8 @@ export const fastapiCompatV2BodyDashboardUploadVideo_1Schema = z.object({
   is_trailer: z.boolean().nullish(),
 });
 
-export type FastapiCompatV2BodyDashboardUploadVideo_1Type = z.infer<
-  typeof fastapiCompatV2BodyDashboardUploadVideo_1Schema
+export type FastapiCompatV2BodyDashboardUploadVideoType = z.infer<
+  typeof fastapiCompatV2BodyDashboardUploadVideoSchema
 >;
 
 export const baseResponseUnionListDictStrAnyNoneTypeSchema = z.object({
@@ -722,14 +730,14 @@ export const taskResponseSchema = z.object({
 
 export type TaskResponseType = z.infer<typeof taskResponseSchema>;
 
-export const fastapiCompatV2BodyDashboardUploadVideoSchema = z.object({
+export const fastapiCompatV2BodyDashboardUploadVideo_2Schema = z.object({
   file: z.instanceof(Blob),
   custom_name: z.string().nullish(),
   require_signed_url: z.boolean().nullish(),
 });
 
-export type FastapiCompatV2BodyDashboardUploadVideoType = z.infer<
-  typeof fastapiCompatV2BodyDashboardUploadVideoSchema
+export type FastapiCompatV2BodyDashboardUploadVideo_2Type = z.infer<
+  typeof fastapiCompatV2BodyDashboardUploadVideo_2Schema
 >;
 
 export const taskStatusResponseSchema = z.object({

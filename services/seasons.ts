@@ -5,6 +5,7 @@ import { executeRevalidate } from '@/services/api/helpers';
 import * as actions from './api/actions';
 import { RVK_SEASONS } from './rvk';
 import {
+  BulkCreateSeasonResponseType,
   CreateSeasonType,
   ListResponseSeasonType,
   SingleItemResponseSeasonType,
@@ -100,7 +101,10 @@ export async function createSeasonsBatch(
   body: CreateSeasonType,
 ) {
   try {
-    const res = await actions.post<any>(`/seasons/batch/${movieId}`, body);
+    const res = await actions.post<BulkCreateSeasonResponseType>(
+      `/seasons/batch/${movieId}`,
+      body,
+    );
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
@@ -113,7 +117,28 @@ export async function createSeasonsBatch(
       status: 'error',
       message:
         (error as Error)?.message ||
-        'An error occurred while creating seasons batch.',
+        'An error occurred while creating seasons in batch.',
+      data: null,
+    };
+  }
+}
+
+export async function deleteSingleSeason(seasonId: string) {
+  try {
+    const res = await actions.destroy<any>(`/seasons/single/${seasonId}`);
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message ||
+        'An error occurred while deleting the season.',
       data: null,
     };
   }

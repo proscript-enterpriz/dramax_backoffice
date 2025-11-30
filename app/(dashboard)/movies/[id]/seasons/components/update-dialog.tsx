@@ -18,9 +18,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  SeriesSeasonType,
-  seriesSeasonUpdateSchema,
-  SeriesSeasonUpdateType,
+  SeasonType,
+  updateSeasonSchema,
+  UpdateSeasonType,
 } from '@/services/schema';
 import { updateSeriesSeason } from '@/services/season';
 
@@ -29,17 +29,17 @@ export function UpdateDialog({
   initialData,
 }: {
   children: ReactNode;
-  initialData: SeriesSeasonType;
+  initialData: SeasonType;
 }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<SeriesSeasonUpdateType>({
-    resolver: zodResolver(seriesSeasonUpdateSchema),
+  const form = useForm<UpdateSeasonType>({
+    resolver: zodResolver(updateSeasonSchema),
     defaultValues: initialData,
   });
 
-  function onSubmit(values: SeriesSeasonUpdateType) {
+  function onSubmit(values: UpdateSeasonType) {
     startTransition(() => {
       updateSeriesSeason(initialData.id, values)
         .then(() => {
@@ -95,7 +95,11 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Title (optional)</FormLabel>
             <FormControl>
-              <Input placeholder="Season title" {...field} />
+              <Input
+                placeholder="Season title"
+                {...field}
+                value={field.value ?? ''}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
