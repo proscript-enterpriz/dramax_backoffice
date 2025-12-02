@@ -9,8 +9,11 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
-import CurrencyItem from '@/components/custom/currency-item';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  CurrencyItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,7 +55,6 @@ import {
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
 
-import { UploadCover } from '../components/upload-cover';
 import { UploadPoster } from '../components/upload-poster';
 
 // import { UploadCover } from './upload-cover';
@@ -191,7 +193,12 @@ export default function UpdateMovie({
                 <FormField
                   control={form.control}
                   name="load_image_url"
-                  render={({ field }) => <UploadCover field={field} />}
+                  render={({ field }) => (
+                    <MediaPickerItem
+                      field={field}
+                      availableRatios={['1.96:1', '16:9', '21:9']}
+                    />
+                  )}
                 />
                 <FormField
                   control={form.control}

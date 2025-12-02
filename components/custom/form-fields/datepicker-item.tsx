@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
-export default function DatePickerItem({
+export function DatePickerItem({
   field,
   label,
   description,
@@ -65,8 +65,14 @@ export default function DatePickerItem({
         <PopoverContent className="p-0" align="start">
           <Calendar
             mode="single"
-            selected={field.value}
-            onSelect={(c) => field.onChange(c?.toISOString())}
+            selected={
+              field.value
+                ? typeof field.value === 'string'
+                  ? new Date(field.value)
+                  : field.value
+                : undefined
+            }
+            onSelect={(c) => field.onChange(c || undefined)}
             disabled={calcDisable}
             captionLayout="dropdown"
             className="w-full"

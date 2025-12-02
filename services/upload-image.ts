@@ -1,21 +1,30 @@
 'use server';
+// ignore-generate
+import { stringifyError, validateSchema } from '@/lib/utils';
+import { executeRevalidate, fileSchema } from '@/services/api/helpers';
+import { RVK_IMAGES } from '@/services/rvk';
 
 import * as actions from './api/actions';
-import { BaseResponseDictType, BodyDashboardUploadImageType } from './schema';
+import { BaseResponseDictType, ImageInfoType } from './schema';
 
 // Auto-generated service for upload-image
 
-export async function uploadImage(body: BodyDashboardUploadImageType) {
+export async function uploadImage(body: FormData) {
   try {
-    const res = await actions.post<BaseResponseDictType>(`/upload-image`, body);
+    validateSchema(fileSchema, body);
+    const res = await actions.post<
+      Omit<BaseResponseDictType, 'data'> & {
+        data?: ImageInfoType;
+      }
+    >(`/upload-image`, body);
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
+    await executeRevalidate([RVK_IMAGES]);
     return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
+  } catch (error: any) {
+    console.error(String(error));
+    stringifyError(error);
   }
 }

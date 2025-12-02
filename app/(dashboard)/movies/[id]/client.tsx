@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import { HtmlTipTapItem } from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { Button } from '@/components/ui/button';
 import {

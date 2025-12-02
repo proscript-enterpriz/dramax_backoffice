@@ -97,7 +97,7 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
       </DropdownMenu>
       {canEdit && (
         <UpdateMovie
-          id={row.original.id.toString()}
+          id={row.original.id}
           editDrawerOpen={editDrawerOpen}
           setEditDrawerOpen={setEditDrawerOpen}
         />

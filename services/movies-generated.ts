@@ -1,3 +1,5 @@
+'use server';
+
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
 import { RVK_MOVIES } from './rvk';

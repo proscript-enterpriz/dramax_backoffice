@@ -6,9 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
-import DatePickerItem from '@/components/custom/datepicker-item';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  DatePickerItem,
+  HtmlTipTapItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,

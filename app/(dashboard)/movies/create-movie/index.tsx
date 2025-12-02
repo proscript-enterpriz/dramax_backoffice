@@ -8,8 +8,7 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
-import CurrencyItem from '@/components/custom/currency-item';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import { CurrencyItem, HtmlTipTapItem } from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { Button } from '@/components/ui/button';
 import {

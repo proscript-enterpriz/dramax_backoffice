@@ -10,9 +10,9 @@ import {
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 
-import { MinimalTiptapEditor } from './minimal-tiptap';
+import { MinimalTiptapEditor } from '../minimal-tiptap';
 
-export default function HtmlTipTapItem({
+export function HtmlTipTapItem({
   field,
   label,
 }: {

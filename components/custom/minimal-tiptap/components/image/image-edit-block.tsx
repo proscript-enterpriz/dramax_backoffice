@@ -4,7 +4,7 @@ import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { uploadImage } from '@/lib/functions';
+import { useFileUploader } from '@/hooks/use-file-upload';
 import { cn } from '@/lib/utils';
 
 interface ImageEditBlockProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -19,54 +19,27 @@ const ImageEditBlock = ({
   ...props
 }: ImageEditBlockProps) => {
   const [error, setError] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [link, setLink] = React.useState<string>('');
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    fileInputRef.current?.click();
-  };
-
-  const handleLink = () => {
-    editor.chain().focus().setImage({ src: link }).run();
+  const handleSetImage = (src: string) => {
+    editor.chain().focus().setImage({ src }).run();
     close();
   };
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      setLoading(true);
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('prefix', 'image_block');
-
-      if (file?.size >= 5000000) throw new Error('Зургийн хэмжээ том байна.');
-
-      const { data } = (await uploadImage(formData))!;
-
-      editor.chain().focus().setImage({ src: data.url }).run();
-
-      close();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleLink();
-  };
+  const { loading, handleFileSelect, accept } = useFileUploader({
+    onUploadComplete: (urls) => handleSetImage(urls[0]!),
+    onError: setError,
+  });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (link) handleSetImage(link);
+      }}
+    >
       <div className={cn('space-y-6', className)} {...props}>
         <div className="space-y-1">
           <Label>Attach an image link</Label>
@@ -79,12 +52,19 @@ const ImageEditBlock = ({
               className="grow"
               onChange={(e) => setLink(e.target.value)}
             />
-            <Button type="submit" className="ml-2 inline-block h-11">
-              Submit
-            </Button>
+            <Button className="ml-2 inline-block h-11">Submit</Button>
           </div>
         </div>
-        <Button className="w-full" onClick={handleClick} disabled={loading}>
+        <Button
+          className="w-full"
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInputRef.current?.click();
+          }}
+          disabled={loading}
+        >
           {loading ? 'Uploading...' : 'Upload from your computer'}
         </Button>
         {!!error && (
@@ -94,11 +74,10 @@ const ImageEditBlock = ({
         )}
         <input
           type="file"
-          accept="image/*"
+          accept={accept}
           ref={fileInputRef}
-          multiple
           className="hidden"
-          onChange={handleFile}
+          onChange={(e) => handleFileSelect(e.target.files?.[0])}
         />
       </div>
     </form>
