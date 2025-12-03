@@ -16,6 +16,7 @@ import {
 } from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
 import { UploadCoverComponent } from '@/components/partials/upload-movie-cover';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -55,8 +56,6 @@ import {
   MovieResponseType,
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
-
-import { UploadPoster } from '../components/upload-poster';
 
 // import { UploadCover } from './upload-cover';
 // import { UploadPoster } from './upload-poster';
@@ -206,9 +205,10 @@ export default function UpdateMovie({
                   control={form.control}
                   name="poster_url"
                   render={({ field }) => (
-                    <UploadPoster
+                    <MediaPickerItem
                       field={field}
-                      className="flex flex-col gap-1"
+                      forceRatio="0.7:1"
+                      mediaListComponent={UploadPosterComponent}
                     />
                   )}
                 />

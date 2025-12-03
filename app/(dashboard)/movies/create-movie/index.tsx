@@ -181,7 +181,6 @@ export default function CreateMovie() {
                 className="space-y-4"
                 id="create-movie-form"
               >
-                {' '}
                 <FormField
                   control={form.control}
                   name="load_image_url"

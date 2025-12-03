@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
   DatePickerItem,
   HtmlTipTapItem,
+  MediaPickerItem,
 } from '@/components/custom/form-fields';
 import {
   FormControl,
@@ -66,7 +66,9 @@ export function UpdateDialog({
       <FormField
         control={form.control}
         name="cover_image_url"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <FormField

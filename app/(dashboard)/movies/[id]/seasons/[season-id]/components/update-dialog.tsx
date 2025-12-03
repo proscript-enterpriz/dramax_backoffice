@@ -5,10 +5,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import { HtmlTipTapItem } from '@/components/custom/form-fields';
+import {
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -140,7 +142,9 @@ export function UpdateDialog({
       <FormField
         control={form.control}
         name="thumbnail"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <div className="border-destructive/15 bg-destructive/5 !my-6 space-y-4 rounded-md border p-4">

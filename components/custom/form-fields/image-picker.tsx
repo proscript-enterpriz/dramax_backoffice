@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
+import { ImagePlus } from 'lucide-react';
 
 import { CropDialog } from '@/components/partials/crop-dialog';
 import {
@@ -204,28 +205,39 @@ function DefaultMediasRenderer({
   openMediaDialog,
   openCropDialog,
   aspectRatioStyle,
+  accept,
 }: ImageListComponentProps) {
   return (
-    <div className="relative">
+    <div className="relative rounded-md bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15">
       <div
         className={cn({
           'grid grid-cols-4 gap-2 md:grid-cols-6': isMultiple,
         })}
         style={aspectRatioStyle}
       >
-        {medias.map((preview, idx) => (
-          <img
-            src={preview}
-            alt=""
-            key={idx}
-            className={cn(
-              'mb-2 rounded-md object-cover',
-              isMultiple ? 'h-32 w-32' : 'h-full w-full',
-              idx < medias.length - 1 ? 'mr-2' : '',
-              preview.startsWith('blob') ? 'opacity-70' : 'opacity-100',
-            )}
-          />
-        ))}
+        {medias.length ? (
+          medias.map((preview, idx) => (
+            <img
+              src={preview}
+              alt=""
+              key={idx}
+              className={cn(
+                'mb-2 rounded-md object-cover',
+                isMultiple ? 'h-32 w-32' : 'h-full w-full',
+                idx < medias.length - 1 ? 'mr-2' : '',
+                preview.startsWith('blob') ? 'opacity-70' : 'opacity-100',
+              )}
+            />
+          ))
+        ) : (
+          <div className="h-f absolute inset-0 flex w-full flex-col items-center justify-center gap-2">
+            <ImagePlus size={20} />
+            <p className="text-center">
+              Энд дарж файл аа оруулна уу? <br /> (
+              {accept.replace(/image\//g, '')})
+            </p>
+          </div>
+        )}
       </div>
       <div
         className={cn(

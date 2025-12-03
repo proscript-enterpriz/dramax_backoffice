@@ -6,11 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
   DatePickerItem,
   HtmlTipTapItem,
+  MediaPickerItem,
 } from '@/components/custom/form-fields';
 import {
   FormControl,
@@ -60,7 +60,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       <FormField
         control={form.control}
         name="cover_image_url"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <FormField
