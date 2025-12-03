@@ -4,6 +4,7 @@ import { ReactNode, useRef, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import {
   HtmlTipTapItem,
   MediaPickerItem,
@@ -147,23 +148,22 @@ export function CreateOverlay({ children, movieId }: CreateOverlayProps) {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="cloudflare_video_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Cloudflare Video ID</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder="Cloudflare видео ID"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="border-destructive/15 bg-destructive/5 !my-6 space-y-4 rounded-md border p-4">
+        <FormField
+          control={form.control}
+          name="cloudflare_video_id"
+          render={({ field }) => (
+            <CloudflarePreview
+              cfId={field.value ?? undefined}
+              onChange={(c) => {
+                field.onChange(c.uid);
+                if (form.getValues('duration') !== Math.round(c.duration))
+                  form.setValue('duration', Math.round(c.duration));
+              }}
+            />
+          )}
+        />
+      </div>
     </FormOverlay>
   );
 }
