@@ -178,3 +178,31 @@ export function splitByVideoExt(input: string) {
 
   return { base, extension };
 }
+
+export function splitByImageExt(input: string) {
+  const re = /^(.*?)(\.(png|jpe?g|gif|bmp|webp|svg|tiff?))(?:([?#].*))?$/i;
+  const m = input.match(re);
+
+  if (!m) return { base: input, extension: null as string | null };
+
+  const base = m[1];
+  const extension = m[3].toLowerCase();
+
+  return { base, extension };
+}
+
+export const maskFieldValue = (
+  fieldValue: string,
+  firstChars = 4,
+  lastChars = 4,
+) => {
+  if (fieldValue.length <= lastChars) {
+    return '*'.repeat(fieldValue.length);
+  }
+  const maskedLength = fieldValue.length - (lastChars + firstChars);
+  return (
+    fieldValue.slice(0, firstChars) +
+    '*'.repeat(maskedLength) +
+    fieldValue.slice(-lastChars)
+  );
+};

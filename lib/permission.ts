@@ -12,7 +12,7 @@ export const role = {
   admin: 'Admin',
   editor: 'Editor',
   moderator: 'Moderator',
-  support: 'Moderator',
+  support: 'Support',
 };
 
 type AdminMenuItemType = (typeof systemAdminRoutes)[number];
