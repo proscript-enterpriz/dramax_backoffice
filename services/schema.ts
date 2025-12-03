@@ -595,6 +595,7 @@ export const createMovieEpisodeSchema = z.object({
   description: z.string().max(500).nullish(),
   movie_id: z.uuid(),
   cloudflare_video_id: z.string().nullish(),
+  thumbnail: z.string().nullish(),
   duration: z.int().nullish(),
 });
 

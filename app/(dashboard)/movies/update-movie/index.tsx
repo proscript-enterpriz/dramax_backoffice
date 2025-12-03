@@ -152,7 +152,7 @@ export default function UpdateMovie({
   });
 
   const isPremium = !!form.watch('is_premium');
-  const isSeriesMovie = form.watch('type') === 'series';
+  const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
 
   const onSubmit = async (d: MovieResponseType) => {
     setIsLoading(true);
@@ -422,8 +422,11 @@ export default function UpdateMovie({
                               <SelectValue placeholder="Select Type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="movie">Movie</SelectItem>
-                              <SelectItem value="series">Series</SelectItem>
+                              <SelectItem value="movie">Кино</SelectItem>
+                              <SelectItem value="series">Цуврал</SelectItem>
+                              <SelectItem value="mini-series">
+                                Олон ангит кино
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>

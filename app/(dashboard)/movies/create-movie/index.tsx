@@ -115,7 +115,7 @@ export default function CreateMovie() {
     },
   });
 
-  const isSeriesMovie = form.watch('type') === 'series';
+  const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
   const isPremium = !!form.watch('is_premium');
 
   async function onSubmitMovie(d: MovieCreateType) {
@@ -346,8 +346,11 @@ export default function CreateMovie() {
                               <SelectValue placeholder="Select Type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="movie">Movie</SelectItem>
-                              <SelectItem value="series">Series</SelectItem>
+                              <SelectItem value="movie">Кино</SelectItem>
+                              <SelectItem value="series">Цуврал</SelectItem>
+                              <SelectItem value="mini-series">
+                                Олон ангит кино
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
