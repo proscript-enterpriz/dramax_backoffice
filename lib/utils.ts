@@ -126,15 +126,18 @@ export function stringifyError(error: Error & { error?: string }) {
 }
 
 export const imageResize = (
-  src: string,
-  size: 'original' | 'tiny' | 'small' | 'medium' = 'original',
+  src: string = '',
+  size: 'original' | 'tiny' | 'small' | 'medium' | 'blur' = 'original',
 ) => {
+  if (!src) return '';
+
   if (src.includes('tmdb.org'))
     return src.replace(
       '/original/',
       `/${
         {
           original: 'original',
+          blur: 'w154',
           tiny: 'w154',
           small: 'w300',
           medium: 'w500',

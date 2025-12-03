@@ -15,6 +15,7 @@ import {
   MediaPickerItem,
 } from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
+import { UploadCoverComponent } from '@/components/partials/upload-movie-cover';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -197,6 +198,7 @@ export default function UpdateMovie({
                     <MediaPickerItem
                       field={field}
                       availableRatios={['1.96:1', '16:9', '21:9']}
+                      mediaListComponent={UploadCoverComponent}
                     />
                   )}
                 />

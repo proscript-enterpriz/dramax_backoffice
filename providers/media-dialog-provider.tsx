@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { Loader2, Search, Upload } from 'lucide-react';
+import { Loader2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { CropDialog } from '@/components/partials/crop-dialog';
@@ -17,9 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFileUploader } from '@/hooks/use-file-upload';
+import { imageResize } from '@/lib/utils';
 import { getUploadedImages } from '@/services/images';
 import type { ImageInfoType } from '@/services/schema';
 
@@ -66,7 +66,6 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [media, setMedia] = useState<ImageInfoType[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<ImageInfoType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // cropper state
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
@@ -114,7 +113,6 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const closeDialog = useCallback(() => {
     setIsOpen(false);
     setSelectedMedia([]);
-    setSearchQuery('');
   }, []);
 
   const handleSelect = useCallback(
@@ -237,17 +235,6 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
               )}
             </label>
 
-            {/* Search */}
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-              <Input
-                placeholder="Search media..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
             {/* Media Grid */}
             <ScrollArea className="h-[400px]">
               {isLoading ? (
@@ -294,12 +281,19 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                             ? 'border-primary ring-primary ring-2'
                             : 'hover:border-primary/50 border-transparent'
                         }`}
+                        style={{
+                          backgroundImage: `url(${imageResize(item.image_url, 'blur')})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                        }}
                       >
-                        <div className="relative aspect-square">
+                        <div className="relative aspect-square backdrop-blur-md">
                           <img
-                            src={item.image_url}
+                            src={imageResize(item.image_url, 'small')}
                             alt={item.file_name}
                             className="h-full w-full object-cover"
+                            loading="lazy"
                           />
                           {isSelected && (
                             <div className="bg-primary/20 absolute inset-0 flex items-center justify-center">

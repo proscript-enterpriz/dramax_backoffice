@@ -25,11 +25,16 @@ import { ImageInfoType } from '@/services/schema';
 export interface ImageListComponentProps {
   medias: string[];
   isMultiple: boolean;
+  uploading: boolean;
   forceRatio?: RatioType;
   availableRatios?: RatioType[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field: ControllerRenderProps<any, any>;
   openCropDialog?: (imageSrc: string) => void;
+  openMediaDialog?: () => void;
+  getInputRef?: () => HTMLInputElement;
+  aspectRatioStyle?: { aspectRatio: string };
+  accept: string;
 }
 
 export interface ImagePickerItemProps {
@@ -52,6 +57,7 @@ export function MediaPickerItem({
   availableRatios,
   mediaListComponent: MediasRenderer = DefaultMediasRenderer,
 }: ImagePickerItemProps) {
+  const { openDialog } = useMediaDialog();
   const { clearErrors, setError } = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [[imageToCrop], setBlobUrl] = useState<string[]>([]);
@@ -81,6 +87,39 @@ export function MediaPickerItem({
       setError(field.name, { message }, { shouldFocus: true }),
   });
 
+  const getInputRef = () => fileInputRef.current!;
+
+  const aspectRatioStyle = forceRatio
+    ? forceRatio.split(':').join(' / ')
+    : availableRatios?.length
+      ? availableRatios[0].split(':').join(' / ')
+      : '1 / 1';
+
+  const openMediaDialog = (e?: MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    openDialog({
+      multiple: isMultiple,
+      canCrop: !isMultiple,
+      forceRatio,
+      availableRatios,
+      onSelect: (selectedMedias) => {
+        if (isMultiple) {
+          const newMedias = Array.from(
+            new Set([
+              ...(field.value || []),
+              ...(selectedMedias as ImageInfoType[]).map((c) => c.image_url),
+            ]),
+          );
+          field.onChange(newMedias);
+        } else {
+          field.onChange((selectedMedias as ImageInfoType).image_url);
+        }
+      },
+    });
+  };
+
   return (
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
@@ -100,6 +139,7 @@ export function MediaPickerItem({
                 setBlobUrl(
                   Array.from(files).map((file) => URL.createObjectURL(file)),
                 );
+                setCropDialogOpen(true);
               } else {
                 handleFileSelect(files);
               }
@@ -111,16 +151,23 @@ export function MediaPickerItem({
             forceRatio={forceRatio}
             availableRatios={availableRatios}
             field={field}
+            getInputRef={getInputRef}
+            uploading={loading}
+            accept={accept}
             medias={Array.from(
               new Set([
                 ...previews,
-                ...initialUrls.filter((c) => !previews.includes(c)),
+                ...initialUrls.filter((c) => !previews?.includes(c)),
               ]),
             )}
+            aspectRatioStyle={
+              isMultiple ? undefined : { aspectRatio: aspectRatioStyle }
+            }
             openCropDialog={(imageSrc) => {
               setCropDialogOpen(true);
               setBlobUrl([imageSrc]);
             }}
+            openMediaDialog={openMediaDialog}
           />
         </div>
       </FormControl>
@@ -154,30 +201,17 @@ export function MediaPickerItem({
 function DefaultMediasRenderer({
   medias,
   isMultiple,
-  forceRatio,
-  availableRatios,
-  field,
+  openMediaDialog,
   openCropDialog,
+  aspectRatioStyle,
 }: ImageListComponentProps) {
-  const { openDialog } = useMediaDialog();
-
   return (
     <div className="relative">
       <div
         className={cn({
           'grid grid-cols-4 gap-2 md:grid-cols-6': isMultiple,
         })}
-        style={
-          isMultiple
-            ? {}
-            : {
-                aspectRatio: forceRatio
-                  ? forceRatio.split(':').join(' / ')
-                  : availableRatios?.length
-                    ? availableRatios[0].split(':').join(' / ')
-                    : '1 / 1',
-              }
-        }
+        style={aspectRatioStyle}
       >
         {medias.map((preview, idx) => (
           <img
@@ -196,7 +230,7 @@ function DefaultMediasRenderer({
       <div
         className={cn(
           'flex items-center justify-end gap-2',
-          isMultiple ? 'w-full' : 'absolute top-4 right-4',
+          isMultiple ? 'w-full' : 'absolute right-4 bottom-4',
         )}
       >
         {!isMultiple && !!openCropDialog && medias?.length > 0 && (
@@ -208,32 +242,7 @@ function DefaultMediasRenderer({
             Зураг засах
           </Button>
         )}
-        <Button
-          type="button"
-          onClick={() =>
-            openDialog({
-              multiple: isMultiple,
-              canCrop: !isMultiple,
-              forceRatio,
-              availableRatios,
-              onSelect: (selectedMedias) => {
-                if (isMultiple) {
-                  const newMedias = Array.from(
-                    new Set([
-                      ...(field.value || []),
-                      ...(selectedMedias as ImageInfoType[]).map(
-                        (c) => c.image_url,
-                      ),
-                    ]),
-                  );
-                  field.onChange(newMedias);
-                } else {
-                  field.onChange((selectedMedias as ImageInfoType).image_url);
-                }
-              },
-            })
-          }
-        >
+        <Button type="button" onClick={openMediaDialog}>
           Зураг сонгох
         </Button>
       </div>

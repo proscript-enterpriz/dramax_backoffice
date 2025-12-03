@@ -8,8 +8,14 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
-import { CurrencyItem, HtmlTipTapItem } from '@/components/custom/form-fields';
+import {
+  CurrencyItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
+import { UploadCoverComponent } from '@/components/partials/upload-movie-cover';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -51,9 +57,6 @@ import {
   MovieCreateType,
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
-
-import { UploadCover } from '../components/upload-cover';
-import { UploadPoster } from '../components/upload-poster';
 
 export default function CreateMovie() {
   const [{ tags, categories, genres }, setDropdownData] = useState<{
@@ -178,18 +181,26 @@ export default function CreateMovie() {
                 className="space-y-4"
                 id="create-movie-form"
               >
+                {' '}
                 <FormField
                   control={form.control}
                   name="load_image_url"
-                  render={({ field }) => <UploadCover field={field} />}
+                  render={({ field }) => (
+                    <MediaPickerItem
+                      field={field}
+                      availableRatios={['1.96:1', '16:9', '21:9']}
+                      mediaListComponent={UploadCoverComponent}
+                    />
+                  )}
                 />
                 <FormField
                   control={form.control}
                   name="poster_url"
                   render={({ field }) => (
-                    <UploadPoster
+                    <MediaPickerItem
                       field={field}
-                      className="flex flex-col gap-1"
+                      forceRatio="0.7:1"
+                      mediaListComponent={UploadPosterComponent}
                     />
                   )}
                 />
@@ -210,7 +221,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="description"
@@ -223,7 +233,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="category_ids"
@@ -246,7 +255,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="genre_ids"
@@ -268,7 +276,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="tag_ids"
@@ -292,7 +299,6 @@ export default function CreateMovie() {
                     );
                   }}
                 />
-
                 <FormField
                   control={form.control}
                   name="year"
@@ -312,7 +318,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="trailer_url"
