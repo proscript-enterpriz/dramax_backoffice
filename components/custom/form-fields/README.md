@@ -1474,7 +1474,7 @@ useEffect(() => {
 
 ### Issue: Form validation not triggering
 
-**Solution:** Validation happens in service layer with Zod schemas from `@/services/schema.ts`:
+**Solution:** Schema and type definition happens in service layer with Zod schemas from `@/services/schema.ts`:
 
 ```tsx
 import { createMovie } from '@/services/movies';

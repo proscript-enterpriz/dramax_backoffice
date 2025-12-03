@@ -5,7 +5,7 @@
 described in a tree structure:
 
 ```
-gobatar-nextjs-admin/
+filmora_backoffice/
 ├── app/
 │   ├── (auth)/           # Authentication routes (login, logout)
 │   ├── (dashboard)/      # Protected dashboard routes
@@ -73,7 +73,9 @@ describe route before generate, based on endpoints relations or endpoint filters
 ## Services
 
 - services/[resource].ts  - Server actions for resource (get, create (check exists), update (check exists), delete (check exists))
-- services/schema.ts     - Zod schemas and types
+- services/schema.ts     - Zod schemas and types (auto-generated from API)
 - services/rvk.ts        - Revalidation keys for cache invalidation
 - services/api/*         - Shared fetch client and server actions
+
+**Note**: Required validation happens in service layer.
 
