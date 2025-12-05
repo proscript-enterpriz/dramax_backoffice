@@ -164,6 +164,10 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
               cfId={field.value ?? undefined}
               onChange={(c) => {
                 field.onChange(c.uid);
+                if (c.input) {
+                  form.setValue('video_width', c.input.width);
+                  form.setValue('video_height', c.input.height);
+                }
                 if (form.getValues('duration') !== Math.round(c.duration))
                   form.setValue('duration', Math.round(c.duration));
               }}

@@ -44,9 +44,10 @@ export function UpdateDialog({
 
   function onSubmit(values: UpdateEpisodeType) {
     startTransition(() => {
+      const { episode_id, ...initialValues } = initialData;
       updateEpisode(
-        initialData.episode_id,
-        pickChangedValues(initialData, values),
+        episode_id,
+        pickChangedValues(initialValues, values as EpisodeType),
       )
         .then(() => {
           toast.success('Updated successfully');
@@ -156,6 +157,10 @@ export function UpdateDialog({
               cfId={field.value ?? undefined}
               onChange={(c) => {
                 field.onChange(c.uid);
+                if (c.input) {
+                  form.setValue('video_width', c.input.width);
+                  form.setValue('video_height', c.input.height);
+                }
                 if (form.getValues('duration') !== Math.round(c.duration))
                   form.setValue('duration', Math.round(c.duration));
               }}

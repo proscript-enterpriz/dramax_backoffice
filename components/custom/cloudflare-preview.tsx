@@ -185,6 +185,17 @@ export default function CloudflarePreview({
             </div>
           )}
 
+          {cloudflareData.input && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Orientation:</span>
+              <span>
+                {cloudflareData.input.width > cloudflareData.input.height
+                  ? 'Landscape'
+                  : 'Portrait'}
+              </span>
+            </div>
+          )}
+
           {cloudflareData.uploaded && (
             <div className="flex items-center gap-2">
               <span className="font-medium">uploaded:</span>

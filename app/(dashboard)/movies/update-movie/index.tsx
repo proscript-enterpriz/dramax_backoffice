@@ -512,7 +512,17 @@ export default function UpdateMovie({
                       render={({ field }) => (
                         <CloudflarePreview
                           cfId={field.value}
-                          onChange={(c) => field.onChange(c.uid)}
+                          onChange={(c) => {
+                            field.onChange(c.uid);
+                            if (c.input) {
+                              form.setValue(
+                                'orientation',
+                                c.input.width >= c.input.height
+                                  ? 'landscape'
+                                  : 'portrait',
+                              );
+                            }
+                          }}
                           initialTitle={initialData?.title}
                         />
                       )}
