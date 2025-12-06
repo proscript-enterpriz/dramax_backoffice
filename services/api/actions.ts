@@ -93,7 +93,7 @@ export async function destroy<T>(url: string, options?: FetchOptions) {
 }
 
 export async function revalidate(tagName: string) {
-  revalidateTag(tagName);
+  revalidateTag(tagName, 'max');
 }
 
 export async function revalidateLocal() {
