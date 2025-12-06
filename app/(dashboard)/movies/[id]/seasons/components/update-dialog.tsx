@@ -5,10 +5,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
-import DatePickerItem from '@/components/custom/datepicker-item';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  DatePickerItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -18,9 +20,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-  SeriesSeasonType,
-  seriesSeasonUpdateSchema,
-  SeriesSeasonUpdateType,
+  SeasonType,
+  updateSeasonSchema,
+  UpdateSeasonType,
 } from '@/services/schema';
 import { updateSeriesSeason } from '@/services/season';
 
@@ -29,17 +31,17 @@ export function UpdateDialog({
   initialData,
 }: {
   children: ReactNode;
-  initialData: SeriesSeasonType;
+  initialData: SeasonType;
 }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<SeriesSeasonUpdateType>({
-    resolver: zodResolver(seriesSeasonUpdateSchema),
+  const form = useForm<UpdateSeasonType>({
+    resolver: zodResolver(updateSeasonSchema),
     defaultValues: initialData,
   });
 
-  function onSubmit(values: SeriesSeasonUpdateType) {
+  function onSubmit(values: UpdateSeasonType) {
     startTransition(() => {
       updateSeriesSeason(initialData.id, values)
         .then(() => {
@@ -64,7 +66,9 @@ export function UpdateDialog({
       <FormField
         control={form.control}
         name="cover_image_url"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <FormField
@@ -95,7 +99,11 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Title (optional)</FormLabel>
             <FormControl>
-              <Input placeholder="Season title" {...field} />
+              <Input
+                placeholder="Season title"
+                {...field}
+                value={field.value ?? ''}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

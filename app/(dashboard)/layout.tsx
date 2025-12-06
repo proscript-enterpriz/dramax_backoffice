@@ -12,6 +12,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import Dayjs from '@/lib/dayjs';
+import { MediaDialogProvider } from '@/providers';
 
 import BreadcrumbLastPage from './breadcrumb';
 
@@ -35,7 +36,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-6 pt-0">{children}</div>
+        <div className="flex flex-1 flex-col gap-4 p-6 pt-0">
+          <MediaDialogProvider>{children}</MediaDialogProvider>
+        </div>
       </div>
     </SidebarProvider>
   );

@@ -9,7 +9,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "gen:dashboard-route": "plop route --plopfile dev-only/dashboard-route/index.js",
-    "gen:openapi-services": "plop gen-openapi-services --plopfile dev-only/openapi/plopfile.js"
+    "gen:services": "npx nextjs-service-gen",
+    "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -97,6 +98,7 @@
   },
   "devDependencies": {
     "@interpriz/eslint-config": "^0.1.0",
+    "@interpriz/nextjs-service-generator": "^0.1.8",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.4.0",
     "@types/react": "19.1.13",

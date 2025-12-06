@@ -1,3 +1,5 @@
+'use server';
+
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
 import { RVK_MOVIES } from './rvk';
@@ -7,7 +9,6 @@ import {
   BaseResponseUnionMovieResponseNoneTypeType,
   MovieCreateType,
   MovieUpdateType,
-  SingleItemReponseMovieResponseType,
 } from './schema';
 
 // Auto-generated service for movies
@@ -57,7 +58,7 @@ export async function getMovies(
 }
 
 export async function getMovie(movieId: string) {
-  const res = await actions.get<SingleItemReponseMovieResponseType>(
+  const res = await actions.get<BaseResponseUnionMovieResponseNoneTypeType>(
     `/movies/${movieId}`,
     {
       next: {

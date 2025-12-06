@@ -6,10 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
-import DatePickerItem from '@/components/custom/datepicker-item';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  DatePickerItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -18,10 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  seriesSeasonCreateSchema,
-  SeriesSeasonCreateType,
-} from '@/services/schema';
+import { createSeasonSchema, CreateSeasonType } from '@/services/schema';
 import { createSeriesSeason } from '@/services/season';
 
 export function CreateDialog({ children }: { children: ReactNode }) {
@@ -29,14 +28,14 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const [isPending, startTransition] = useTransition();
   const params = useParams();
 
-  const form = useForm<SeriesSeasonCreateType>({
-    resolver: zodResolver(seriesSeasonCreateSchema),
+  const form = useForm<CreateSeasonType>({
+    resolver: zodResolver(createSeasonSchema),
     defaultValues: {
       season_number: 1,
     },
   });
 
-  function onSubmit(values: SeriesSeasonCreateType) {
+  function onSubmit(values: CreateSeasonType) {
     startTransition(() => {
       createSeriesSeason(params.id as unknown as string, values)
         .then(() => {
@@ -61,7 +60,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       <FormField
         control={form.control}
         name="cover_image_url"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <FormField
@@ -92,7 +93,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Title (optional)</FormLabel>
             <FormControl>
-              <Input placeholder="Season title" {...field} />
+              <Input
+                placeholder="Season title"
+                {...field}
+                value={field.value ?? ''}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

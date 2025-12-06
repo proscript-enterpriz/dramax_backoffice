@@ -65,7 +65,11 @@ export function UpdateDialog({
           <FormItem>
             <FormLabel>Name</FormLabel>
             <FormControl>
-              <Input placeholder="Enter Name" {...field} />
+              <Input
+                placeholder="Enter Name"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

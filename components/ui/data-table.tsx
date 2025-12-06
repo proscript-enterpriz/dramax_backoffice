@@ -44,7 +44,7 @@ import { DataTablePagination } from './data-table-pagination';
 
 export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data?: TData[];
+  data?: TData[] | null;
   hidePagination?: boolean;
   infinite?: boolean;
   pageNumber?: number;
@@ -118,7 +118,7 @@ export function DataTable<TData, TValue>({
 
   // Memoized table configuration
   const table = useReactTable({
-    data,
+    data: data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),

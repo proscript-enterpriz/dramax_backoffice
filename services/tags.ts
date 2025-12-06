@@ -1,9 +1,12 @@
+'use server';
+
+import { executeRevalidate } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
 import { RVK_TAGS } from './rvk';
 import {
   AppModelsBaseBaseResponseUnionDictNoneTypeType,
-  AppModelsBaseBaseResponseUnionListTagResponseNoneTypeType,
+  AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type,
   BaseResponseUnionTagResponseNoneTypeType,
   TagCreateType,
   TagUpdateType,
@@ -17,77 +20,129 @@ export type GetTagsSearchParams = {
 };
 
 export async function getTags(searchParams?: GetTagsSearchParams) {
-  const res =
-    await actions.get<AppModelsBaseBaseResponseUnionListTagResponseNoneTypeType>(
+  try {
+    const res =
+      await actions.get<AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type>(
+        `/tags`,
+        {
+          searchParams,
+          next: {
+            tags: [RVK_TAGS],
+          },
+        },
+      );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message || 'An error occurred while fetching tags.',
+      data: [],
+    };
+  }
+}
+
+export async function createTag(body: TagCreateType) {
+  try {
+    const res = await actions.post<BaseResponseUnionTagResponseNoneTypeType>(
       `/tags`,
+      body,
+    );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    await executeRevalidate([RVK_TAGS]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message || 'An error occurred while creating tag.',
+      data: null,
+    };
+  }
+}
+
+export async function getTag(tagId: number) {
+  try {
+    const res = await actions.get<BaseResponseUnionTagResponseNoneTypeType>(
+      `/tags/${tagId}`,
       {
-        searchParams,
         next: {
-          tags: [RVK_TAGS],
+          tags: [RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`],
         },
       },
     );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
-}
-
-export async function createTag(body: TagCreateType) {
-  const res = await actions.post<BaseResponseUnionTagResponseNoneTypeType>(
-    `/tags`,
-    body,
-  );
-
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
-
-  executeRevalidate([RVK_TAGS]);
-
-  return response;
-}
-
-export async function getTag(tagId: number) {
-  const res = await actions.get<BaseResponseUnionTagResponseNoneTypeType>(
-    `/tags/${tagId}`,
-    {
-      next: {
-        tags: [RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`],
-      },
-    },
-  );
-
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
-
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message || 'An error occurred while fetching tag.',
+      data: null,
+    };
+  }
 }
 
 export async function updateTag(tagId: number, body: TagUpdateType) {
-  const res = await actions.put<BaseResponseUnionTagResponseNoneTypeType>(
-    `/tags/${tagId}`,
-    body,
-  );
+  try {
+    const res = await actions.put<BaseResponseUnionTagResponseNoneTypeType>(
+      `/tags/${tagId}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
-
-  return response;
+    await executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message || 'An error occurred while updating tag.',
+      data: null,
+    };
+  }
 }
 
 export async function deleteTag(tagId: number) {
-  const res =
-    await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
-      `/tags/${tagId}`,
-    );
+  try {
+    const res =
+      await actions.destroy<AppModelsBaseBaseResponseUnionDictNoneTypeType>(
+        `/tags/${tagId}`,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
-
-  return response;
+    await executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message || 'An error occurred while deleting tag.',
+      data: null,
+    };
+  }
 }

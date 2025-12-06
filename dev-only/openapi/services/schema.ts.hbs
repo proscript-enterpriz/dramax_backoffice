@@ -1,9 +1,0 @@
-import { z } from 'zod';
-
-{{#each schemas}}
-
-export const {{this.schemaName}} = {{{this.schemaString}}};
-
-export type {{this.schemaTypeName}} = z.infer<typeof {{this.schemaName}}>;
-
-{{/each}}

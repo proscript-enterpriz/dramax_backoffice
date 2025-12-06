@@ -1,3 +1,5 @@
+'use server';
+
 import * as actions from './api/actions';
 import { BaseResponseUnionListSubscriptionUserDataNoneTypeType } from './schema';
 
@@ -15,17 +17,29 @@ export type GetSubscriptionUsersSearchParams = {
 export async function getSubscriptionUsers(
   searchParams?: GetSubscriptionUsersSearchParams,
 ) {
-  const res =
-    await actions.get<BaseResponseUnionListSubscriptionUserDataNoneTypeType>(
-      `/subscriptions/users`,
-      {
-        searchParams,
-        cache: 'no-store',
-      },
-    );
+  try {
+    const res =
+      await actions.get<BaseResponseUnionListSubscriptionUserDataNoneTypeType>(
+        `/subscriptions/users`,
+        {
+          searchParams,
+          cache: 'no-store',
+        },
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    // implement custom error handler here
+    return {
+      status: 'error',
+      message:
+        (error as Error)?.message ||
+        'An error occurred while fetching subscription users.',
+      data: [],
+    };
+  }
 }

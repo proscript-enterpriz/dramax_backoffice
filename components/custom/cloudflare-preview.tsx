@@ -18,7 +18,7 @@ export default function CloudflarePreview({
   initialTitle,
   onChange,
 }: {
-  cfId?: string;
+  cfId?: string | null;
   initialTitle?: string;
   onChange?: (video: StreamVideo) => void;
 }) {
@@ -27,7 +27,9 @@ export default function CloudflarePreview({
   const [error, setError] = useState('');
   const [loading, startLoading] = useTransition();
   const streamsDrawerRef = useRef<StreamsDrawerRef>(null);
-  const [selectedCfId, setSelectedCfId] = useState<string | undefined>(cfId);
+  const [selectedCfId, setSelectedCfId] = useState<string | undefined | null>(
+    cfId,
+  );
 
   useEffect(() => {
     const idToUse = selectedCfId || cfId;
@@ -179,6 +181,17 @@ export default function CloudflarePreview({
               <span className="font-medium">modified:</span>
               <span>
                 {dayjs(cloudflareData.modified).format('YYYY-MM-DD HH:mm:ss')}
+              </span>
+            </div>
+          )}
+
+          {cloudflareData.input && (
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Orientation:</span>
+              <span>
+                {cloudflareData.input.width > cloudflareData.input.height
+                  ? 'Landscape'
+                  : 'Portrait'}
               </span>
             </div>
           )}

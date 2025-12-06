@@ -126,15 +126,18 @@ export function stringifyError(error: Error & { error?: string }) {
 }
 
 export const imageResize = (
-  src: string,
-  size: 'original' | 'tiny' | 'small' | 'medium' = 'original',
+  src: string = '',
+  size: 'original' | 'tiny' | 'small' | 'medium' | 'blur' = 'original',
 ) => {
+  if (!src) return '';
+
   if (src.includes('tmdb.org'))
     return src.replace(
       '/original/',
       `/${
         {
           original: 'original',
+          blur: 'w154',
           tiny: 'w154',
           small: 'w300',
           medium: 'w500',
@@ -175,3 +178,31 @@ export function splitByVideoExt(input: string) {
 
   return { base, extension };
 }
+
+export function splitByImageExt(input: string) {
+  const re = /^(.*?)(\.(png|jpe?g|gif|bmp|webp|svg|tiff?))(?:([?#].*))?$/i;
+  const m = input.match(re);
+
+  if (!m) return { base: input, extension: null as string | null };
+
+  const base = m[1];
+  const extension = m[3].toLowerCase();
+
+  return { base, extension };
+}
+
+export const maskFieldValue = (
+  fieldValue: string,
+  firstChars = 4,
+  lastChars = 4,
+) => {
+  if (fieldValue.length <= lastChars) {
+    return '*'.repeat(fieldValue.length);
+  }
+  const maskedLength = fieldValue.length - (lastChars + firstChars);
+  return (
+    fieldValue.slice(0, firstChars) +
+    '*'.repeat(maskedLength) +
+    fieldValue.slice(-lastChars)
+  );
+};

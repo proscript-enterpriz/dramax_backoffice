@@ -1,20 +1,20 @@
 import * as actions from './api/actions';
 import { executeRevalidate } from './api/helpers';
-import { RVK_SEASON } from './rvk';
+import { RVK_SEASONS } from './rvk';
 import {
   BaseResponseDictType,
-  BaseResponseUnionSeriesSeasonNoneTypeType,
-  SeriesSeasonCreateType,
-  SeriesSeasonUpdateType,
+  CreateSeasonType,
+  SingleItemResponseSeasonType,
+  UpdateSeasonType,
 } from './schema';
 
 // Auto-generated service for season
 
 export async function createSeriesSeason(
   movieId: string,
-  body: SeriesSeasonCreateType,
+  body: CreateSeasonType,
 ) {
-  const res = await actions.post<BaseResponseUnionSeriesSeasonNoneTypeType>(
+  const res = await actions.post<SingleItemResponseSeasonType>(
     `/seasons/${movieId}`,
     body,
   );
@@ -22,15 +22,15 @@ export async function createSeriesSeason(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  executeRevalidate([RVK_SEASON]);
+  await executeRevalidate([RVK_SEASONS]);
   return response;
 }
 
 export async function updateSeriesSeason(
   seasonId: string,
-  body: SeriesSeasonUpdateType,
+  body: UpdateSeasonType,
 ) {
-  const res = await actions.put<BaseResponseUnionSeriesSeasonNoneTypeType>(
+  const res = await actions.put<SingleItemResponseSeasonType>(
     `/seasons/${seasonId}`,
     body,
   );
@@ -38,7 +38,10 @@ export async function updateSeriesSeason(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([RVK_SEASON, `${RVK_SEASON}_season_id_${seasonId}`]);
+  await executeRevalidate([
+    RVK_SEASONS,
+    `${RVK_SEASONS}_season_id_${seasonId}`,
+  ]);
 
   return response;
 }
@@ -51,7 +54,10 @@ export async function deleteSeriesSeason(seasonId: string) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  executeRevalidate([RVK_SEASON, `${RVK_SEASON}_season_id_${seasonId}`]);
+  await executeRevalidate([
+    RVK_SEASONS,
+    `${RVK_SEASONS}_season_id_${seasonId}`,
+  ]);
 
   return response;
 }

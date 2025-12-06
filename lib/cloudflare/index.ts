@@ -17,10 +17,6 @@ import {
   SupportedCaptionLanguages,
 } from './type';
 
-export const revalidateByTag = async (cacheTag: string) => {
-  revalidateTag(cacheTag, '');
-};
-
 const cfInfo = async () => {
   try {
     const session = await auth();

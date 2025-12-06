@@ -53,9 +53,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       employeeCreateSchema.extend({
         full_name: z
           .string()
-          .optional()
-          .refine((val) => !val?.toLowerCase().includes('filmora'), {
-            message: "Full name-д 'Filmora' үг оруулах боломжгүй.",
+          .nullish()
+          .refine((val) => !val?.toLowerCase().includes('dramax'), {
+            message: "Full name-д 'Dramax' үг оруулах боломжгүй.",
           }),
       }),
     ),
@@ -97,7 +97,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <FormItem className="flex flex-col gap-2">
             <FormLabel>Овог нэр</FormLabel>
             <FormControl>
-              <Input placeholder="Овог нэр" {...field} />
+              <Input
+                placeholder="Овог нэр"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

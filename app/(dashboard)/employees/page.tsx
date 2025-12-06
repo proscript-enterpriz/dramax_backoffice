@@ -38,7 +38,7 @@ export default async function EmployeesPage(props: {
       <Suspense fallback="Loading">
         <DataTable
           columns={employeesColumns}
-          data={data}
+          data={data ?? []}
           rowCount={total_count ?? data?.length}
         />
       </Suspense>

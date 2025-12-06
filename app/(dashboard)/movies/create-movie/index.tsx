@@ -8,9 +8,14 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
-import CurrencyItem from '@/components/custom/currency-item';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  CurrencyItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
+import { UploadCoverComponent } from '@/components/partials/upload-movie-cover';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -53,9 +58,6 @@ import {
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
 
-import { UploadCover } from '../components/upload-cover';
-import { UploadPoster } from '../components/upload-poster';
-
 export default function CreateMovie() {
   const [{ tags, categories, genres }, setDropdownData] = useState<{
     tags: AppApiApiV1EndpointsDashboardCategoriesTagResponseType[];
@@ -86,9 +88,9 @@ export default function CreateMovie() {
         Promise.allSettled([getGenres(), getTags(), getCategories()]).then(
           ([genreRes, tagRes, catRes]) => {
             setDropdownData((prev) => ({
-              genres: solveResult(genreRes, prev.genres),
-              tags: solveResult(tagRes, prev.tags),
-              categories: solveResult(catRes, prev.categories),
+              genres: solveResult(genreRes, prev.genres)!,
+              tags: solveResult(tagRes, prev.tags)!,
+              categories: solveResult(catRes, prev.categories)!,
             }));
           },
         );
@@ -113,7 +115,7 @@ export default function CreateMovie() {
     },
   });
 
-  const isSeriesMovie = form.watch('type') === 'series';
+  const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
   const isPremium = !!form.watch('is_premium');
 
   async function onSubmitMovie(d: MovieCreateType) {
@@ -182,15 +184,22 @@ export default function CreateMovie() {
                 <FormField
                   control={form.control}
                   name="load_image_url"
-                  render={({ field }) => <UploadCover field={field} />}
+                  render={({ field }) => (
+                    <MediaPickerItem
+                      field={field}
+                      availableRatios={['1.96:1', '16:9', '21:9']}
+                      mediaListComponent={UploadCoverComponent}
+                    />
+                  )}
                 />
                 <FormField
                   control={form.control}
                   name="poster_url"
                   render={({ field }) => (
-                    <UploadPoster
+                    <MediaPickerItem
                       field={field}
-                      className="flex flex-col gap-1"
+                      forceRatio="0.7:1"
+                      mediaListComponent={UploadPosterComponent}
                     />
                   )}
                 />
@@ -211,7 +220,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="description"
@@ -224,7 +232,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="category_ids"
@@ -247,7 +254,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="genre_ids"
@@ -269,7 +275,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="tag_ids"
@@ -293,7 +298,6 @@ export default function CreateMovie() {
                     );
                   }}
                 />
-
                 <FormField
                   control={form.control}
                   name="year"
@@ -313,7 +317,6 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="trailer_url"
@@ -322,7 +325,7 @@ export default function CreateMovie() {
                       <FormLabel>Trailer:</FormLabel>
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
-                          hlsUrl={field.value}
+                          hlsUrl={field.value ?? undefined}
                           onChange={(c) => field.onChange(c.playback?.hls)}
                         />
                       </div>
@@ -343,8 +346,11 @@ export default function CreateMovie() {
                               <SelectValue placeholder="Select Type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="movie">Movie</SelectItem>
-                              <SelectItem value="series">Series</SelectItem>
+                              <SelectItem value="movie">Кино</SelectItem>
+                              <SelectItem value="series">Цуврал</SelectItem>
+                              <SelectItem value="mini-series">
+                                Олон ангит кино
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -427,7 +433,17 @@ export default function CreateMovie() {
                       render={({ field }) => (
                         <CloudflarePreview
                           cfId={field.value}
-                          onChange={(c) => field.onChange(c.uid)}
+                          onChange={(c) => {
+                            field.onChange(c.uid);
+                            if (c.input) {
+                              form.setValue(
+                                'orientation',
+                                c.input.width >= c.input.height
+                                  ? 'landscape'
+                                  : 'portrait',
+                              );
+                            }
+                          }}
                         />
                       )}
                     />

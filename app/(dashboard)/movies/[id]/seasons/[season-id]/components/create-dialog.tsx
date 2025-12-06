@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import { HtmlTipTapItem } from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -18,24 +18,21 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { createEpisode } from '@/services/create_episode';
-import {
-  seriesEpisodeCreateSchema,
-  SeriesEpisodeCreateType,
-} from '@/services/schema';
+import { createEpisodeSchema, CreateEpisodeType } from '@/services/schema';
 
 export function CreateDialog({ children }: { children: ReactNode }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
   const params = useParams();
 
-  const form = useForm<SeriesEpisodeCreateType>({
-    resolver: zodResolver(seriesEpisodeCreateSchema),
+  const form = useForm<CreateEpisodeType>({
+    resolver: zodResolver(createEpisodeSchema),
     defaultValues: {
       season_id: params['season-id'] as unknown as string,
     },
   });
 
-  function onSubmit(values: SeriesEpisodeCreateType) {
+  function onSubmit(values: CreateEpisodeType) {
     startTransition(() => {
       createEpisode(values)
         .then(() => {
@@ -147,9 +144,13 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           name="cloudflare_video_id"
           render={({ field }) => (
             <CloudflarePreview
-              cfId={field.value}
+              cfId={field.value ?? undefined}
               onChange={(c) => {
                 field.onChange(c.uid);
+                if (c.input) {
+                  form.setValue('video_width', c.input.width);
+                  form.setValue('video_height', c.input.height);
+                }
                 if (form.getValues('duration') !== Math.round(c.duration))
                   form.setValue('duration', Math.round(c.duration));
               }}

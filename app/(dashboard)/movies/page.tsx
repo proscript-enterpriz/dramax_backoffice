@@ -50,7 +50,7 @@ export default async function MoviesPage(props: {
   return (
     <>
       <div className="flex items-start justify-between">
-        <Heading title={`Кинонууд (${total_count ?? data.length})`} />
+        <Heading title={`Кинонууд (${total_count ?? data?.length ?? 0})`} />
         {hasPermission(session, 'movies', 'create') && <CreateMovie />}
       </div>
 
@@ -59,7 +59,7 @@ export default async function MoviesPage(props: {
       <Suspense fallback="Loading">
         <DataTable
           columns={moviesColumns}
-          data={data}
+          data={data ?? []}
           rowCount={total_count ?? data?.length}
           disableUrlUpdates={true}
         >

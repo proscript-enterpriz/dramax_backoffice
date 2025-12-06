@@ -5,10 +5,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { UploadCover } from '@/app/(dashboard)/movies/components/upload-cover';
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -20,9 +22,9 @@ import { Input } from '@/components/ui/input';
 import { pickChangedValues } from '@/lib/utils';
 import { updateEpisode } from '@/services/episodes';
 import {
-  SeriesEpisodeType,
-  seriesEpisodeUpdateSchema,
-  SeriesEpisodeUpdateType,
+  EpisodeType,
+  updateEpisodeSchema,
+  UpdateEpisodeType,
 } from '@/services/schema';
 
 export function UpdateDialog({
@@ -30,19 +32,23 @@ export function UpdateDialog({
   initialData,
 }: {
   children: ReactNode;
-  initialData: SeriesEpisodeType;
+  initialData: EpisodeType;
 }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<SeriesEpisodeUpdateType>({
-    resolver: zodResolver(seriesEpisodeUpdateSchema),
+  const form = useForm<UpdateEpisodeType>({
+    resolver: zodResolver(updateEpisodeSchema),
     defaultValues: initialData,
   });
 
-  function onSubmit(values: SeriesEpisodeUpdateType) {
+  function onSubmit(values: UpdateEpisodeType) {
     startTransition(() => {
-      updateEpisode(initialData.id, pickChangedValues(initialData, values))
+      const { episode_id, ...initialValues } = initialData;
+      updateEpisode(
+        episode_id,
+        pickChangedValues(initialValues, values as EpisodeType),
+      )
         .then(() => {
           toast.success('Updated successfully');
           dialogRef?.current?.close();
@@ -69,7 +75,7 @@ export function UpdateDialog({
           <FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} value={field.value ?? ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -137,7 +143,9 @@ export function UpdateDialog({
       <FormField
         control={form.control}
         name="thumbnail"
-        render={({ field }) => <UploadCover field={field} />}
+        render={({ field }) => (
+          <MediaPickerItem field={field} forceRatio="16:9" />
+        )}
       />
 
       <div className="border-destructive/15 bg-destructive/5 !my-6 space-y-4 rounded-md border p-4">
@@ -146,9 +154,13 @@ export function UpdateDialog({
           name="cloudflare_video_id"
           render={({ field }) => (
             <CloudflarePreview
-              cfId={field.value}
+              cfId={field.value ?? undefined}
               onChange={(c) => {
                 field.onChange(c.uid);
+                if (c.input) {
+                  form.setValue('video_width', c.input.width);
+                  form.setValue('video_height', c.input.height);
+                }
                 if (form.getValues('duration') !== Math.round(c.duration))
                   form.setValue('duration', Math.round(c.duration));
               }}

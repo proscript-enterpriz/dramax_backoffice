@@ -9,9 +9,14 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
-import CurrencyItem from '@/components/custom/currency-item';
-import HtmlTipTapItem from '@/components/custom/html-tiptap-item';
+import {
+  CurrencyItem,
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import { MultiSelect } from '@/components/custom/multi-select';
+import { UploadCoverComponent } from '@/components/partials/upload-movie-cover';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -52,9 +57,6 @@ import {
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
 
-import { UploadCover } from '../components/upload-cover';
-import { UploadPoster } from '../components/upload-poster';
-
 // import { UploadCover } from './upload-cover';
 // import { UploadPoster } from './upload-poster';
 
@@ -84,7 +86,7 @@ export default function UpdateMovie({
     try {
       const response = await getMovie(id);
       if (response.status === 'success') {
-        setInitialData(response.data);
+        setInitialData(response.data!);
       }
       return response?.data;
     } catch (err) {
@@ -150,15 +152,15 @@ export default function UpdateMovie({
   });
 
   const isPremium = !!form.watch('is_premium');
-  const isSeriesMovie = form.watch('type') === 'series';
+  const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
 
   const onSubmit = async (d: MovieResponseType) => {
     setIsLoading(true);
     try {
       const response = await updateMovie(id, {
         ...omit(d, ['categories', 'genres', 'tags', 'created_at']),
-        category_ids: d.categories?.map((cat) => Number(cat.id)),
-        genre_ids: d.genres?.map((genre) => Number(genre.id)),
+        categories: d.categories?.map((cat) => Number(cat.id)),
+        genres: d.genres?.map((genre) => Number(genre.id)),
         tag_ids: d.tags?.map((tag) => Number(tag.id)),
       });
 
@@ -191,15 +193,22 @@ export default function UpdateMovie({
                 <FormField
                   control={form.control}
                   name="load_image_url"
-                  render={({ field }) => <UploadCover field={field} />}
+                  render={({ field }) => (
+                    <MediaPickerItem
+                      field={field}
+                      availableRatios={['1.96:1', '16:9', '21:9']}
+                      mediaListComponent={UploadCoverComponent}
+                    />
+                  )}
                 />
                 <FormField
                   control={form.control}
                   name="poster_url"
                   render={({ field }) => (
-                    <UploadPoster
+                    <MediaPickerItem
                       field={field}
-                      className="flex flex-col gap-1"
+                      forceRatio="0.7:1"
+                      mediaListComponent={UploadPosterComponent}
                     />
                   )}
                 />
@@ -388,7 +397,7 @@ export default function UpdateMovie({
                       <FormLabel>Trailer:</FormLabel>
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
-                          hlsUrl={field.value}
+                          hlsUrl={field.value ?? undefined}
                           onChange={(c) => field.onChange(c.playback?.hls)}
                         />
                       </div>
@@ -413,8 +422,11 @@ export default function UpdateMovie({
                               <SelectValue placeholder="Select Type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="movie">Movie</SelectItem>
-                              <SelectItem value="series">Series</SelectItem>
+                              <SelectItem value="movie">Кино</SelectItem>
+                              <SelectItem value="series">Цуврал</SelectItem>
+                              <SelectItem value="mini-series">
+                                Олон ангит кино
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -500,7 +512,17 @@ export default function UpdateMovie({
                       render={({ field }) => (
                         <CloudflarePreview
                           cfId={field.value}
-                          onChange={(c) => field.onChange(c.uid)}
+                          onChange={(c) => {
+                            field.onChange(c.uid);
+                            if (c.input) {
+                              form.setValue(
+                                'orientation',
+                                c.input.width >= c.input.height
+                                  ? 'landscape'
+                                  : 'portrait',
+                              );
+                            }
+                          }}
                           initialTitle={initialData?.title}
                         />
                       )}

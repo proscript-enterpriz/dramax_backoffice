@@ -97,7 +97,7 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
       </DropdownMenu>
       {canEdit && (
         <UpdateMovie
-          id={row.original.id.toString()}
+          id={row.original.id}
           editDrawerOpen={editDrawerOpen}
           setEditDrawerOpen={setEditDrawerOpen}
         />
@@ -108,20 +108,32 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
 
 const Navigation = ({ row }: CellContext<MovieListResponseType, unknown>) => {
   const { data } = useSession();
+  const canAccessSeasons =
+    hasPagePermission(data, 'movies.seasons') && row.original.type === 'series';
+  const canAccessMiniSeries =
+    hasPagePermission(data, 'movies.movie-episodes') &&
+    row.original.type === 'mini-series';
 
-  if (
-    !hasPagePermission(data, 'movies.seasons') ||
-    row.original.type !== 'series'
-  )
-    return null;
-  return (
-    <Link
-      href={`/movies/${row.original.id}/seasons`}
-      className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
-    >
-      <GitBranch className="h-4 w-4" /> Цувралууд
-    </Link>
-  );
+  if (canAccessMiniSeries)
+    return (
+      <Link
+        href={`/movies/${row.original.id}/episodes`}
+        className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
+      >
+        <GitBranch className="h-4 w-4" /> Ангиуд
+      </Link>
+    );
+
+  if (canAccessSeasons)
+    return (
+      <Link
+        href={`/movies/${row.original.id}/seasons`}
+        className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
+      >
+        <GitBranch className="h-4 w-4" /> Цувралууд
+      </Link>
+    );
+  return null;
 };
 
 export const moviesColumns: ColumnDef<MovieListResponseType>[] = [

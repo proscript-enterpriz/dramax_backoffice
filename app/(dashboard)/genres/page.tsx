@@ -38,7 +38,7 @@ export default async function GenresPage(props: {
       <Suspense fallback="Loading">
         <DataTable
           columns={genresColumns}
-          data={data}
+          data={data ?? []}
           rowCount={total_count ?? data?.length}
         />
       </Suspense>
