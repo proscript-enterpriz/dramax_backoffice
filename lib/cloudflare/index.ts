@@ -18,7 +18,7 @@ import {
 } from './type';
 
 export const revalidateByTag = async (cacheTag: string) => {
-  revalidateTag(cacheTag);
+  revalidateTag(cacheTag, '');
 };
 
 const cfInfo = async () => {
@@ -161,8 +161,8 @@ export async function updateStream(streamId: string, payload: any) {
       );
     }
 
-    revalidateTag(`${RVK_STREAM_DETAIL}_${streamId}`);
-    revalidateTag(RVK_STREAMS);
+    revalidateTag(`${RVK_STREAM_DETAIL}_${streamId}`, 'max');
+    revalidateTag(RVK_STREAMS, 'max');
     return data;
   } catch (error) {
     console.error('Error updating Stream:', error);
@@ -228,7 +228,7 @@ export async function generateCaptions(
       );
     }
 
-    revalidateTag(RVK_CAPTIONS);
+    revalidateTag(RVK_CAPTIONS, 'max');
     return data;
   } catch (error) {
     console.error('Error generating captions:', error);
@@ -298,6 +298,6 @@ export async function uploadCaptionToCloudflare(
     );
   }
 
-  revalidateTag(`${RVK_CAPTIONS}_${language}`);
+  revalidateTag(`${RVK_CAPTIONS}_${language}`, 'max');
   return data;
 }
