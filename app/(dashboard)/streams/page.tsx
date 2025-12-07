@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { fetchStream } from '@/lib/cloudflare';
+import { fetchSignedThumbnails, fetchStream } from '@/lib/cloudflare';
 import { StreamSearchParams } from '@/lib/cloudflare/type';
 
 import { Client } from './client';
@@ -14,9 +14,12 @@ export default async function StreamsPage({ searchParams }: Props) {
 
   if (!data.errors) return null;
 
+  // Pre-fetch all signed thumbnails on the server
+  const videosWithThumbnails = await fetchSignedThumbnails(data.videos);
+
   return (
     <Suspense fallback="loading...">
-      <Client data={data.videos} />
+      <Client data={videosWithThumbnails} />
     </Suspense>
   );
 }

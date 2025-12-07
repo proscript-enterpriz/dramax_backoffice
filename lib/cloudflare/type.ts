@@ -59,6 +59,7 @@ export interface StreamVideo {
   uploaded?: string;
   uploadExpiry?: string;
   watermark?: StreamWatermark;
+  signedThumbnail?: string; // Pre-fetched signed thumbnail URL
 }
 
 export interface StreamResponseInfo {

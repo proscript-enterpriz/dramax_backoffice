@@ -1,1 +1,1 @@
-export { MediaDialogProvider, useMediaDialog } from "./media-dialog-provider";
+export { MediaDialogProvider, useMediaDialog } from './media-dialog-provider';

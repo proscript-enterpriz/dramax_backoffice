@@ -22,15 +22,22 @@ export default function Page() {
 
   useEffect(() => {
     if (state.status === 'failed') {
-      toast.error('Invalid credentials!');
+      toast.error(
+        'Invalid credentials! Please check your username and password.',
+      );
     } else if (state.status === 'invalid_data') {
-      toast.error('Failed validating your submission!');
+      toast.error(
+        'Failed validating your submission! Please check your input.',
+      );
     } else if (state.status === 'success') {
-      session.update();
-      router.refresh();
-      router.push('/');
+      // Wait a bit for the session to be updated
+      setTimeout(() => {
+        session.update();
+        router.refresh();
+        router.push('/');
+      }, 100);
     }
-  }, [state?.status, router]);
+  }, [state?.status, router, session]);
 
   const handleSubmit = (formData: FormData) => {
     formAction(formData);
