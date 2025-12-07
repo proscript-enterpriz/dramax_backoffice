@@ -98,7 +98,7 @@
   },
   "devDependencies": {
     "@interpriz/eslint-config": "^0.1.0",
-    "@interpriz/nextjs-service-generator": "^0.1.8",
+    "@interpriz/nextjs-service-generator": "^0.2.1",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.4.0",
     "@types/react": "19.1.13",
