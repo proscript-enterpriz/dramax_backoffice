@@ -5,7 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
-import { objToQs } from '@/lib/utils';
+import { objToQs, QueryParams } from '@/lib/utils';
 
 import { RVK_CAPTIONS, RVK_STREAM_DETAIL, RVK_STREAMS } from './rvk';
 import {
@@ -17,10 +17,14 @@ import {
   SupportedCaptionLanguages,
 } from './type';
 
+interface SessionUserWithToken {
+  access_token?: string | null;
+}
+
 const cfInfo = async () => {
   try {
     const session = await auth();
-    const accessToken = (session?.user as any)?.access_token as string | null;
+    const accessToken = (session?.user as SessionUserWithToken)?.access_token;
     if (!accessToken) throw new Error('Unauthorized');
   } catch (_) {
     redirect('/logout?redirectTo=/login');
@@ -63,6 +67,49 @@ export async function fetchSignedToken(videoId: string) {
   return data.result.token;
 }
 
+export async function fetchThumbnail(videoId: string) {
+  const signedToken = await fetchSignedToken(videoId);
+  const streamingBaseUrl =
+    'https://customer-lql1wsabxqunl47l.cloudflarestream.com';
+
+  const thumbnailUrl = `${streamingBaseUrl}/${signedToken}/thumbnails/thumbnail.jpg?time=2s&height=650`;
+  return thumbnailUrl;
+}
+
+// Batch fetch signed thumbnails for multiple videos
+export async function fetchSignedThumbnails(videos: StreamVideo[]) {
+  const videosNeedingSigned = videos.filter(
+    (video) => video.requireSignedURLs && video.uid,
+  );
+
+  // Fetch all signed thumbnails in parallel
+  const signedThumbnails = await Promise.allSettled(
+    videosNeedingSigned.map(async (video) => {
+      try {
+        const signedThumbnail = await fetchThumbnail(video.uid);
+        return { uid: video.uid, signedThumbnail };
+      } catch (error) {
+        console.error(`Failed to fetch thumbnail for ${video.uid}:`, error);
+        return { uid: video.uid, signedThumbnail: null };
+      }
+    }),
+  );
+
+  // Create a map of video uid to signed thumbnail URL
+  const thumbnailMap = new Map<string, string>();
+  signedThumbnails.forEach((result) => {
+    if (result.status === 'fulfilled' && result.value.signedThumbnail) {
+      thumbnailMap.set(result.value.uid, result.value.signedThumbnail);
+    }
+  });
+
+  // Return videos with signed thumbnails added
+  return videos.map((video) => ({
+    ...video,
+    signedThumbnail: thumbnailMap.get(video.uid) || undefined,
+  }));
+}
+
 export async function fetchStreamDetail(streamId: string) {
   const { defaultHeader, baseURL } = await cfInfo();
 
@@ -73,6 +120,7 @@ export async function fetchStreamDetail(streamId: string) {
       next: {
         tags: [`${RVK_STREAM_DETAIL}_${streamId}`],
       },
+      cache: 'force-cache',
     });
 
     if (!response.ok) {
@@ -99,7 +147,7 @@ export async function fetchStream(params: StreamSearchParams = {}) {
   // @ts-ignore
   delete params.include_counts;
 
-  const sp = objToQs(params as any);
+  const sp = objToQs(params as QueryParams);
 
   const url = `${baseURL}${sp && '?'}${sp}`;
 
@@ -137,7 +185,10 @@ export async function fetchStream(params: StreamSearchParams = {}) {
   }
 }
 
-export async function updateStream(streamId: string, payload: any) {
+export async function updateStream(
+  streamId: string,
+  payload: Record<string, unknown>,
+) {
   const { defaultHeader, baseURL } = await cfInfo();
 
   try {

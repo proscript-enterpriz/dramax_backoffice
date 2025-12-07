@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 import StreamItem from '@/components/custom/stream-item';
-import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { StreamVideo } from '@/lib/cloudflare/type';
 import { hasPermission } from '@/lib/permission';
@@ -17,6 +16,7 @@ const isTrailer = (video: StreamVideo) => {
 };
 
 export function Client({ data }: { data: StreamVideo[] }) {
+  const router = useRouter();
   const session = useSession();
   const [filter, setFilter] = useState<'all' | 'movie' | 'trailer'>('all');
 
@@ -41,12 +41,13 @@ export function Client({ data }: { data: StreamVideo[] }) {
           </div>
         </div>
         {hasPermission(session.data, 'streams.upload', 'create') && (
-          <Link
-            href="/streams/upload"
-            className="border-border h-10 rounded-lg border px-4 py-2 transition-all duration-200 hover:bg-black/90"
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/streams/upload') as any}
           >
             Видео оруулах
-          </Link>
+          </Button>
         )}
       </div>
 
@@ -75,23 +76,15 @@ export function Client({ data }: { data: StreamVideo[] }) {
         </Button>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2">
         {filteredData.length === 0 ? (
           <div className="text-muted-foreground py-8 text-center">
             Мэдээлэл олдсонгүй
           </div>
         ) : (
-          filteredData.map((video) => {
-            return (
-              <Accordion
-                type="multiple"
-                className="w-full cursor-pointer hover:bg-black/90"
-                key={video.uid}
-              >
-                <StreamItem video={video} />
-              </Accordion>
-            );
-          })
+          filteredData.map((video) => (
+            <StreamItem key={video.uid} video={video} />
+          ))
         )}
       </div>
     </div>

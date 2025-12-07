@@ -30,56 +30,94 @@ export const {
     Credentials({
       credentials: {},
       async authorize({ username, password }: any) {
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
+        try {
+          if (!process.env.FILMORA_DOMAIN) {
+            console.error('FILMORA_DOMAIN environment variable is not set');
+            throw new Error(
+              'Server configuration error: API endpoint not configured',
+            );
+          }
 
-        const apiUrl = `${process.env.FILMORA_DOMAIN}/auth/employee-login`;
+          const formData = new FormData();
+          formData.append('username', username);
+          formData.append('password', password);
 
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          body: formData,
-          cache: 'no-store',
-        });
+          const apiUrl = `${process.env.FILMORA_DOMAIN}/auth/employee-login`;
 
-        const body: any = await response.json();
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            body: formData,
+            cache: 'no-store',
+          });
 
-        if (!response.ok || !body?.status)
-          throw new Error(
-            body?.detail?.[0]?.msg ||
+          const body: any = await response.json();
+
+          if (!response.ok || !body?.status) {
+            const errorMessage =
+              body?.detail?.[0]?.msg ||
               body?.error ||
               (body as any)?.message ||
               (typeof body?.detail === 'string' ? body?.detail : undefined) ||
-              String(response.status),
-          );
+              `Authentication failed with status ${response.status}`;
 
-        if (body.access_token) {
-          const res = await fetch(
-            `${process.env.FILMORA_DOMAIN}/current-employee`,
-            {
-              headers: {
-                Authorization: `Bearer ${body.access_token}`,
+            console.error('Login API error:', {
+              status: response.status,
+              statusText: response.statusText,
+              body,
+              errorMessage,
+            });
+
+            throw new Error(errorMessage);
+          }
+
+          if (body.access_token) {
+            const res = await fetch(
+              `${process.env.FILMORA_DOMAIN}/current-employee`,
+              {
+                headers: {
+                  Authorization: `Bearer ${body.access_token}`,
+                },
+                cache: 'no-store',
               },
-            },
-          );
-          const userBody = await res.json();
+            );
 
-          if (!res.ok || !userBody?.status)
-            throw new Error(userBody?.error || 'Failed to fetch user');
+            const userBody = await res.json();
 
-          const user = userBody.data;
+            if (!res.ok || !userBody?.status) {
+              console.error('Failed to fetch user:', {
+                status: res.status,
+                statusText: res.statusText,
+                body: userBody,
+              });
+              throw new Error(
+                userBody?.error || 'Failed to fetch user information',
+              );
+            }
 
-          return {
-            access_token: body.access_token,
-            refresh_token: body.refresh_token,
-            expires_at: getExpDateFromJWT(body.access_token),
-            id: user.id || body.access_token,
-            role: user.role,
-            full_name: user.full_name,
-          } as any;
+            const user = userBody.data;
+
+            if (!user) {
+              console.error('User data is missing from response');
+              throw new Error('User information not found');
+            }
+
+            return {
+              access_token: body.access_token,
+              refresh_token: body.refresh_token,
+              expires_at: getExpDateFromJWT(body.access_token),
+              id: user.id || body.access_token,
+              role: user.role,
+              full_name: user.full_name,
+            } as any;
+          }
+
+          console.error('No access token in response:', body);
+          return null;
+        } catch (error) {
+          console.error('Authorization error:', error);
+          // Re-throw to let NextAuth handle it
+          throw error;
         }
-
-        return null;
       },
     }),
   ],
@@ -258,7 +296,7 @@ function getExpMsFromJWT(token: string | undefined): number {
       return d.getTime();
     }
     return expMs;
-  } catch (e) {
+  } catch (_) {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     return d.getTime();

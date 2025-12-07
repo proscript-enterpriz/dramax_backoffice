@@ -21,7 +21,8 @@
 }
 
 .minimal-tiptap-editor .ProseMirror a.link {
-  @apply cursor-pointer text-primary;
+  @apply cursor-pointer;
+  color: hsl(var(--primary));
 }
 
 .minimal-tiptap-editor .ProseMirror a.link:hover {

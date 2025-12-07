@@ -19,17 +19,31 @@ export const login = async (
   try {
     const validatedData = validateSchema(authFormSchema, formData);
 
-    await signIn('credentials', {
+    const result = await signIn('credentials', {
       username: validatedData.username,
       password: validatedData.password,
       redirect: false,
     });
 
+    // Check if signIn returned an error
+    if (result?.error) {
+      console.error('Sign in error:', result.error);
+      return { status: 'failed' };
+    }
+
     return { status: 'success' };
   } catch (error) {
-    console.log(error);
+    console.error('Login error:', error);
+
     if (error instanceof z.ZodError) {
+      console.error('Validation error:', error.message);
       return { status: 'invalid_data' };
+    }
+
+    // Log the actual error for debugging
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
     }
 
     return { status: 'failed' };
