@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { ArrowLeft, Film, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { UppyUpload } from '@/app/(dashboard)/streams/uppy';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +14,8 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+import { UppyUpload } from '../uppy';
 
 export default function Page() {
   const router = useRouter();
