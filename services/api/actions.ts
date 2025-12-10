@@ -1,7 +1,7 @@
 'use server';
 
 import { FetchOptions } from '@interpriz/lib/services';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
@@ -93,7 +93,7 @@ export async function destroy<T>(url: string, options?: FetchOptions) {
 }
 
 export async function revalidate(tagName: string) {
-  revalidateTag(tagName, 'max');
+  updateTag(tagName);
 }
 
 export async function revalidateLocal() {

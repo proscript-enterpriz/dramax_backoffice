@@ -8,6 +8,8 @@ import '@uppy/core/css/style.min.css';
 import '@uppy/dashboard/css/style.min.css';
 
 import { Input } from '@/components/ui/input';
+import { RVK_STREAMS } from '@/lib/cloudflare/rvk';
+import { revalidate } from '@/services/api/actions';
 
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
   const [name, setName] = useState<string | undefined>(undefined);
@@ -34,6 +36,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     uppy.on('file-added', (file) => setName(file.name ?? ''));
     uppy.on('file-removed', () => setName(undefined));
     uppy.on('upload', () => setName(undefined));
+    uppy.on('upload-success', () => revalidate(RVK_STREAMS));
     return () => {
       uppy.cancelAll();
     };
