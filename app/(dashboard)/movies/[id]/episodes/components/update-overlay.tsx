@@ -10,6 +10,7 @@ import {
   MediaPickerItem,
 } from '@/components/custom/form-fields';
 import FormOverlay, { FormOverlayRef } from '@/components/custom/form-overlay';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import {
   FormControl,
   FormField,
@@ -127,6 +128,7 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
             label="Зураг"
             description="Ангийн зураг"
             forceRatio="16:9"
+            mediaListComponent={UploadPosterComponent}
           />
         )}
       />

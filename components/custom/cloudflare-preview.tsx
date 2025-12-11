@@ -244,7 +244,7 @@ export default function CloudflarePreview({
           {cloudflareData.meta && (
             <div className="flex items-start gap-2">
               <span className="font-medium">metadata:</span>
-              <span>{JSON.stringify(cloudflareData.meta)}</span>
+              <pre>{JSON.stringify(cloudflareData.meta, null, 2)}</pre>
             </div>
           )}
         </div>

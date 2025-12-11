@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import { Heading } from '@/components/custom/heading';
+import { ReplaceBreadcrumdItem } from '@/components/custom/replace-breadcrumd-item';
 import { DataTable } from '@/components/ui/data-table';
 import { hasPermission } from '@/lib/permission';
 import { getMovieEpisodeList } from '@/services/movie-episodes';
+import { getMovie } from '@/services/movies-generated';
 
 import { columns } from './columns';
 import { CreateOverlay } from './components';
@@ -20,6 +23,7 @@ export default async function Page({
 }) {
   const session = await auth();
   const { id: movieId } = await params;
+  const { data: movie } = await getMovie(movieId);
   const sp = await searchParams;
 
   const page = sp?.page ? parseInt(sp.page) : 1;
@@ -31,9 +35,17 @@ export default async function Page({
   });
 
   const canCreate = hasPermission(session, 'movies.movie-episodes', 'create');
-
+  if (!movie || movie.type !== 'mini-series') return notFound();
   return (
     <>
+      <ReplaceBreadcrumdItem
+        data={{
+          movies: {
+            value: movie.title,
+            selector: movieId,
+          },
+        }}
+      />
       <div className="flex items-start justify-between">
         <Heading
           title={`Ангиуд (${total_count ?? 0})`}

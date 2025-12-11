@@ -11,6 +11,7 @@ import {
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import {
   FormControl,
   FormField,
@@ -144,7 +145,11 @@ export function UpdateDialog({
         control={form.control}
         name="thumbnail"
         render={({ field }) => (
-          <MediaPickerItem field={field} forceRatio="16:9" />
+          <MediaPickerItem
+            field={field}
+            forceRatio="16:9"
+            mediaListComponent={UploadPosterComponent}
+          />
         )}
       />
 

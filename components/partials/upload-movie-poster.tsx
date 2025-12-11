@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 import { ImageListComponentProps } from '@/components/custom/form-fields/image-picker';
 import { Button } from '@/components/ui/button';
-import { imageResize } from '@/lib/utils';
+import { cn, imageResize } from '@/lib/utils';
 
 export function UploadPosterComponent({
   uploading,
@@ -18,6 +18,10 @@ export function UploadPosterComponent({
 }: ImageListComponentProps) {
   const [poster] = medias || [];
   const inputRef = getInputRef?.();
+  const [w, h] = aspectRatioStyle?.aspectRatio
+    ? aspectRatioStyle.aspectRatio.split('/').map(Number)
+    : [0, 1];
+  const aspect = w / h;
 
   return (
     <div className="border-border flex w-full items-center justify-between gap-4 rounded-lg border p-4 pl-6">
@@ -39,7 +43,10 @@ export function UploadPosterComponent({
       </div>
 
       <div
-        className="relative h-full w-[156px] overflow-hidden rounded-lg bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15"
+        className={cn(
+          'relative h-full overflow-hidden rounded-lg bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15',
+          aspect && aspect >= 1 ? 'w-[200px]' : 'w-[156px]',
+        )}
         style={{
           backgroundImage: `url(${imageResize(poster, 'blur')})`,
           backgroundSize: 'cover',
@@ -64,8 +71,8 @@ export function UploadPosterComponent({
           />
         )}
         <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-sm">
-          <ImageIcon size={24} />
-          Постер зураг оруулна уу
+          <ImageIcon size={24} className="min-h-6 basis-6" />
+          <span>Постер зураг оруулна уу</span>
         </div>
       </div>
     </div>
