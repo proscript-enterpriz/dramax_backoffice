@@ -25,9 +25,14 @@ import { CreateMovieEpisodeType } from '@/services/schema';
 interface CreateOverlayProps {
   children: ReactNode;
   movieId: string;
+  epNum?: number;
 }
 
-export function CreateOverlay({ children, movieId }: CreateOverlayProps) {
+export function CreateOverlay({
+  children,
+  movieId,
+  epNum = 1,
+}: CreateOverlayProps) {
   const overlayRef = useRef<FormOverlayRef>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -35,7 +40,7 @@ export function CreateOverlay({ children, movieId }: CreateOverlayProps) {
     defaultValues: {
       movie_id: movieId,
       title: '',
-      episode_number: 1,
+      episode_number: epNum,
       description: '',
       thumbnail: '',
       duration: 0,
@@ -73,38 +78,42 @@ export function CreateOverlay({ children, movieId }: CreateOverlayProps) {
       trigger={children}
       displayType="drawer"
     >
-      <FormField
-        control={form.control}
-        name="title"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Гарчиг *</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="Ангийн гарчиг оруулна уу" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Гарчиг *</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Ангийн гарчиг оруулна уу" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="episode_number"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Ангийн дугаар *</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                {...field}
-                onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                placeholder="1"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="episode_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ангийн дугаар *</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value) || 1)
+                  }
+                  placeholder="1"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}

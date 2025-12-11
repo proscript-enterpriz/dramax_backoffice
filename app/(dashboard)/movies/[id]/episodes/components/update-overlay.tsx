@@ -71,47 +71,49 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
       trigger={children}
       displayType="drawer"
     >
-      <FormField
-        control={form.control}
-        name="title"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Гарчиг</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder="Ангийн гарчиг"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Гарчиг</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  placeholder="Ангийн гарчиг"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <FormField
-        control={form.control}
-        name="episode_number"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Ангийн дугаар</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                {...field}
-                value={field.value ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value ? parseInt(e.target.value) : null,
-                  )
-                }
-                placeholder="1"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+        <FormField
+          control={form.control}
+          name="episode_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ангийн дугаар</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ? parseInt(e.target.value) : null,
+                    )
+                  }
+                  placeholder="1"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}

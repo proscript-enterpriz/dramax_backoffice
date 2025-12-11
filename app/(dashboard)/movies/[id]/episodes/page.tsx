@@ -52,7 +52,10 @@ export default async function Page({
           description="Киноны ангиудын жагсаалт"
         />
         {canCreate && (
-          <CreateOverlay movieId={movieId}>
+          <CreateOverlay
+            movieId={movieId}
+            epNum={total_count ? (total_count as number) + 1 : 1}
+          >
             <button className="bg-primary text-primary-foreground rounded px-4 py-2">
               Анги нэмэх
             </button>

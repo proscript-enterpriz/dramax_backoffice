@@ -232,62 +232,41 @@ export default function CreateMovie() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="category_ids"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col gap-1">
-                      <FormLabel>Кино категори сонгох</FormLabel>
-                      <FormControl>
-                        <MultiSelect
-                          disabled={loadingData}
-                          options={categories.map((cat) => ({
-                            label: cat.name,
-                            value: cat.id.toString(),
-                          }))}
-                          onValueChange={(ids) =>
-                            field.onChange(ids.map((c) => Number(c)))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="genre_ids"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col gap-1">
-                      <FormLabel>Кино genre сонгох</FormLabel>
-                      <FormControl>
-                        <MultiSelect
-                          disabled={loadingData}
-                          options={genres.map((genre) => ({
-                            label: genre.name,
-                            value: genre.id.toString(),
-                          }))}
-                          onValueChange={(ids) =>
-                            field.onChange(ids.map((c) => Number(c)))
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="tag_ids"
-                  render={({ field }) => {
-                    return (
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="category_ids"
+                    render={({ field }) => (
                       <FormItem className="flex flex-col gap-1">
-                        <FormLabel>Кино tag сонгох</FormLabel>
+                        <FormLabel>Кино категори сонгох</FormLabel>
                         <FormControl>
                           <MultiSelect
                             disabled={loadingData}
-                            options={tags.map((tag) => ({
-                              label: tag.name,
-                              value: tag.id.toString(),
+                            options={categories.map((cat) => ({
+                              label: cat.name,
+                              value: cat.id.toString(),
+                            }))}
+                            onValueChange={(ids) =>
+                              field.onChange(ids.map((c) => Number(c)))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="genre_ids"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-1">
+                        <FormLabel>Кино genre сонгох</FormLabel>
+                        <FormControl>
+                          <MultiSelect
+                            disabled={loadingData}
+                            options={genres.map((genre) => ({
+                              label: genre.name,
+                              value: genre.id.toString(),
                             }))}
                             onValueChange={(ids) =>
                               field.onChange(ids.map((c) => Number(c)))
@@ -295,9 +274,32 @@ export default function CreateMovie() {
                           />
                         </FormControl>
                       </FormItem>
-                    );
-                  }}
-                />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tag_ids"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="flex flex-col gap-1">
+                          <FormLabel>Кино tag сонгох</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              disabled={loadingData}
+                              options={tags.map((tag) => ({
+                                label: tag.name,
+                                value: tag.id.toString(),
+                              }))}
+                              onValueChange={(ids) =>
+                                field.onChange(ids.map((c) => Number(c)))
+                              }
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="year"

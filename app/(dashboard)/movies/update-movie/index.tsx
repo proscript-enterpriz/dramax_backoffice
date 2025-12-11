@@ -243,131 +243,135 @@ export default function UpdateMovie({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="categories"
-                  render={({ field }) => {
-                    const currentValues = field.value?.map((cat) =>
-                      cat.id.toString(),
-                    );
-                    return (
-                      <FormItem className="flex flex-col gap-1">
-                        <FormLabel>Кино категори сонгох</FormLabel>
-                        <FormControl>
-                          <MultiSelect
-                            disabled={loadingData}
-                            options={categories.map((cat) => {
-                              return {
-                                label: cat.name,
-                                value: cat.id.toString(),
-                              };
-                            })}
-                            onValueChange={(selectedValues: string[]) => {
-                              const selectedCategories = selectedValues.map(
-                                (value) => {
-                                  const categoryId = Number(value);
-                                  const category = categories.find(
-                                    (cat) => cat.id === categoryId,
-                                  );
-                                  return {
-                                    id: categoryId,
-                                    name: category?.name || '',
-                                    description: '',
-                                    is_adult: false,
-                                  };
-                                },
-                              );
-                              field.onChange(selectedCategories);
-                            }}
-                            defaultValue={currentValues}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => {
+                      const currentValues = field.value?.map((cat) =>
+                        cat.id.toString(),
+                      );
+                      return (
+                        <FormItem className="flex flex-col gap-1">
+                          <FormLabel>Кино категори сонгох</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              disabled={loadingData}
+                              options={categories.map((cat) => {
+                                return {
+                                  label: cat.name,
+                                  value: cat.id.toString(),
+                                };
+                              })}
+                              onValueChange={(selectedValues: string[]) => {
+                                const selectedCategories = selectedValues.map(
+                                  (value) => {
+                                    const categoryId = Number(value);
+                                    const category = categories.find(
+                                      (cat) => cat.id === categoryId,
+                                    );
+                                    return {
+                                      id: categoryId,
+                                      name: category?.name || '',
+                                      description: '',
+                                      is_adult: false,
+                                    };
+                                  },
+                                );
+                                field.onChange(selectedCategories);
+                              }}
+                              defaultValue={currentValues}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="genres"
-                  render={({ field }) => {
-                    const currentValues = field.value?.map((genre) =>
-                      genre.id.toString(),
-                    );
-                    return (
-                      <FormItem className="flex flex-col gap-1">
-                        <FormLabel>Кино genre сонгох</FormLabel>
-                        <FormControl>
-                          <MultiSelect
-                            disabled={loadingData}
-                            options={genres.map((genre) => {
-                              return {
-                                label: genre.name,
-                                value: genre.id.toString(),
-                              };
-                            })}
-                            onValueChange={(selectedValues: string[]) => {
-                              const selectedGenres = selectedValues.map(
-                                (value) => {
-                                  const genreId = Number(value);
-                                  const genre = genres.find(
-                                    (g) => g.id === genreId,
-                                  );
-                                  return {
-                                    id: genreId,
-                                    name: genre?.name || '',
-                                  };
-                                },
-                              );
-                              field.onChange(selectedGenres);
-                            }}
-                            defaultValue={currentValues}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    );
-                  }}
-                />
+                  <FormField
+                    control={form.control}
+                    name="genres"
+                    render={({ field }) => {
+                      const currentValues = field.value?.map((genre) =>
+                        genre.id.toString(),
+                      );
+                      return (
+                        <FormItem className="flex flex-col gap-1">
+                          <FormLabel>Кино genre сонгох</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              disabled={loadingData}
+                              options={genres.map((genre) => {
+                                return {
+                                  label: genre.name,
+                                  value: genre.id.toString(),
+                                };
+                              })}
+                              onValueChange={(selectedValues: string[]) => {
+                                const selectedGenres = selectedValues.map(
+                                  (value) => {
+                                    const genreId = Number(value);
+                                    const genre = genres.find(
+                                      (g) => g.id === genreId,
+                                    );
+                                    return {
+                                      id: genreId,
+                                      name: genre?.name || '',
+                                    };
+                                  },
+                                );
+                                field.onChange(selectedGenres);
+                              }}
+                              defaultValue={currentValues}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="tags"
-                  render={({ field }) => {
-                    const currentValues = field.value?.map((tag) =>
-                      tag.id.toString(),
-                    );
-                    return (
-                      <FormItem className="flex flex-col gap-1">
-                        <FormLabel>Кино tag сонгох</FormLabel>
-                        <FormControl>
-                          <MultiSelect
-                            disabled={loadingData}
-                            options={tags.map((tag) => {
-                              return {
-                                label: tag.name,
-                                value: tag.id.toString(),
-                              };
-                            })}
-                            onValueChange={(selectedValues: string[]) => {
-                              field.onChange(
-                                selectedValues.map((value) => {
-                                  const tagId = Number(value);
-                                  const tag = tags.find((g) => g.id === tagId);
-                                  return {
-                                    id: tagId,
-                                    name: tag?.name || '',
-                                  };
-                                }),
-                              );
-                            }}
-                            defaultValue={currentValues}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    );
-                  }}
-                />
+                  <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => {
+                      const currentValues = field.value?.map((tag) =>
+                        tag.id.toString(),
+                      );
+                      return (
+                        <FormItem className="flex flex-col gap-1">
+                          <FormLabel>Кино tag сонгох</FormLabel>
+                          <FormControl>
+                            <MultiSelect
+                              disabled={loadingData}
+                              options={tags.map((tag) => {
+                                return {
+                                  label: tag.name,
+                                  value: tag.id.toString(),
+                                };
+                              })}
+                              onValueChange={(selectedValues: string[]) => {
+                                field.onChange(
+                                  selectedValues.map((value) => {
+                                    const tagId = Number(value);
+                                    const tag = tags.find(
+                                      (g) => g.id === tagId,
+                                    );
+                                    return {
+                                      id: tagId,
+                                      name: tag?.name || '',
+                                    };
+                                  }),
+                                );
+                              }}
+                              defaultValue={currentValues}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
