@@ -12,7 +12,6 @@ import {
   DeleteDialog,
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
-import { TableHeaderWrapper } from '@/components/custom/table-header-wrapper';
 import ZoomableImage from '@/components/custom/zoomable-image';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -140,7 +139,7 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
   {
     id: 'poster_url',
     accessorKey: 'poster_url',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
+    header: () => <h1>Зураг</h1>,
     cell: ({ row }) => <ZoomableImage src={row.original.poster_url!} />,
     enableSorting: false,
     enableColumnFilter: true,
@@ -160,15 +159,11 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'type',
     header: () => <h1>Төрөл</h1>,
     cell: ({ row }) =>
-      row.original.type === 'movie' ? 'Нэг ангит кино' : 'Олон ангит сериал',
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
-  {
-    id: 'year',
-    accessorKey: 'year',
-    header: () => <h1>Кино гарсан огноо</h1>,
-    cell: ({ row }) => row.original.year,
+      ({
+        movie: 'Нэг ангит кино',
+        series: 'Цуврал',
+        'mini-series': 'Олон ангит',
+      })[row.original.type],
     enableSorting: true,
     enableColumnFilter: true,
   },
@@ -189,7 +184,18 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     enableSorting: false,
     enableColumnFilter: true,
   },
-
+  {
+    id: 'orientation',
+    accessorKey: 'orientation',
+    header: () => <h1>Бичлэгийн чиглэл</h1>,
+    cell: ({ row }) =>
+      ({
+        landscape: 'Хэвтээ',
+        portrait: 'Босоо',
+      })[row.original.orientation ?? 'landscape'],
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
   {
     id: 'is_adult',
     accessorKey: 'is_adult',
@@ -203,6 +209,14 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
       );
     },
     enableSorting: false,
+    enableColumnFilter: true,
+  },
+  {
+    id: 'year',
+    accessorKey: 'year',
+    header: () => <h1>Кино гарсан огноо</h1>,
+    cell: ({ row }) => row.original.year,
+    enableSorting: true,
     enableColumnFilter: true,
   },
 
