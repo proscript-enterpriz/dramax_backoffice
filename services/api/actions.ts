@@ -102,12 +102,12 @@ export async function revalidateLocal() {
   revalidatePath('/', 'layout');
 }
 
-export async function revalidateClientFull() {
-  const url = 'https://www.dramax.mn';
+const CLIENT_REVALIDATE_URL = 'https://dramax.mn/api/revalidate?secret=aaa&';
 
-  const endpoint = `${url}/api/revalidate?secret=aaa&path=/`;
+export async function revalidateClientFull() {
+  const endpoint = `${CLIENT_REVALIDATE_URL}path=/`;
   try {
-    const res = await fetch(endpoint, { method: 'POST', cache: 'no-store' });
+    const res = await fetch(endpoint, { method: 'GET', cache: 'no-store' });
     const result = await res.json();
 
     if (!res.ok) throw new Error('Something went wrong:' + result.message);
@@ -123,12 +123,12 @@ export async function revalidateClient({
   type,
   path,
 }: FILMORARevalidateParams) {
-  let endpoint = 'https://www.dramax.mn/api/revalidate?secret=ps_ez&';
+  let endpoint = CLIENT_REVALIDATE_URL;
   try {
     if (!tag && !type && !path) endpoint += 'path=/';
     else endpoint += objToQs(clearObj({ tag, type, path }));
 
-    const res = await fetch(endpoint, { method: 'POST', cache: 'no-store' });
+    const res = await fetch(endpoint, { method: 'GET', cache: 'no-store' });
     const result = await res.json();
 
     if (!res.ok) throw new Error('Something went wrong:' + result.message);
