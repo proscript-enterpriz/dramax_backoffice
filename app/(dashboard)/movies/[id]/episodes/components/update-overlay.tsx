@@ -45,7 +45,11 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
   function onSubmit(values: UpdateMovieEpisodeType) {
     startTransition(async () => {
       try {
-        const result = await updateMovieEpisode(item.episode_id, values);
+        const result = await updateMovieEpisode(
+          item.episode_id,
+          item.movie_id,
+          values,
+        );
         if (result.status === 'error') {
           toast.error(result.message);
           return;

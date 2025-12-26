@@ -69,7 +69,7 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
               action={() => {
                 setLoading(true);
                 // TODO: Please check after generate
-                deleteSeriesSeason(row.original.id)
+                deleteSeriesSeason(row.original.id, row.original.movie_id!)
                   .then((c) => toast.success(c.message))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {

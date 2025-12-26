@@ -57,7 +57,7 @@ export async function createCategory(body: CategoryCreateType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    executeRevalidate([RVK_CATEGORIES]);
+    executeRevalidate([RVK_CATEGORIES, { tag: RVK_CATEGORIES }]);
 
     return response;
   } catch (e) {
@@ -81,6 +81,8 @@ export async function updateCategory(
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
+    executeRevalidate([RVK_CATEGORIES, { tag: RVK_CATEGORIES }]);
+
     return response;
   } catch (error) {
     console.error(error);
@@ -102,6 +104,8 @@ export async function deleteCategory(categoryId: number) {
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
+
+    executeRevalidate([RVK_CATEGORIES, { tag: RVK_CATEGORIES }]);
 
     return response;
   } catch (error) {

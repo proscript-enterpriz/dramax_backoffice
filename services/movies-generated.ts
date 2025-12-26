@@ -22,8 +22,7 @@ export async function createMovieAction(body: MovieCreateType) {
   const { body: response, error } = res;
 
   if (error) throw new Error(error);
-  console.log(error);
-  await executeRevalidate([RVK_MOVIES]);
+  executeRevalidate([RVK_MOVIES, { tag: RVK_MOVIES }]);
   return response;
 }
 
@@ -62,7 +61,7 @@ export async function getMovie(movieId: string) {
     `/movies/${movieId}`,
     {
       next: {
-        tags: [RVK_MOVIES, `${RVK_MOVIES}_movieId_${movieId}`],
+        tags: [RVK_MOVIES],
       },
     },
   );
@@ -84,7 +83,7 @@ export async function updateMovie(movieId: string, body: MovieUpdateType) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([RVK_MOVIES, `${RVK_MOVIES}_movieId_${movieId}`]);
+  executeRevalidate([RVK_MOVIES, { tag: `${RVK_MOVIES}_movie_id_${movieId}` }]);
 
   return response;
 }
@@ -95,7 +94,7 @@ export async function deleteMovie(movieId: string) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([RVK_MOVIES, `${RVK_MOVIES}_movieId_${movieId}`]);
+  executeRevalidate([RVK_MOVIES, { tag: `${RVK_MOVIES}_movie_id_${movieId}` }]);
 
   return response;
 }

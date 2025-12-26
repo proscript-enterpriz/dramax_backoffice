@@ -22,12 +22,16 @@ export async function createSeriesSeason(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([RVK_SEASONS]);
+  executeRevalidate([
+    RVK_SEASONS,
+    { tag: `${RVK_SEASONS}_movie_id_${movieId}_seasons` },
+  ]);
   return response;
 }
 
 export async function updateSeriesSeason(
   seasonId: string,
+  movieId: string,
   body: UpdateSeasonType,
 ) {
   const res = await actions.put<SingleItemResponseSeasonType>(
@@ -38,15 +42,15 @@ export async function updateSeriesSeason(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([
+  executeRevalidate([
     RVK_SEASONS,
-    `${RVK_SEASONS}_season_id_${seasonId}`,
+    { tag: `${RVK_SEASONS}_movie_id_${movieId}_seasons` },
   ]);
 
   return response;
 }
 
-export async function deleteSeriesSeason(seasonId: string) {
+export async function deleteSeriesSeason(seasonId: string, movieId: string) {
   const res = await actions.destroy<BaseResponseDictType>(
     `/season/${seasonId}`,
   );
@@ -54,9 +58,9 @@ export async function deleteSeriesSeason(seasonId: string) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
-  await executeRevalidate([
+  executeRevalidate([
     RVK_SEASONS,
-    `${RVK_SEASONS}_season_id_${seasonId}`,
+    { tag: `${RVK_SEASONS}_movie_id_${movieId}_seasons` },
   ]);
 
   return response;

@@ -1,43 +1,10 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
-
 import * as actions from './api/actions';
 import { RVK_SEASONS } from './rvk';
-import {
-  BulkCreateSeasonResponseType,
-  CreateSeasonType,
-  ListResponseSeasonType,
-  SingleItemResponseSeasonType,
-} from './schema';
+import { ListResponseSeasonType, SingleItemResponseSeasonType } from './schema';
 
 // Auto-generated service for seasons
-
-export async function createSeason(movieId: string, body: CreateSeasonType) {
-  try {
-    const res = await actions.post<SingleItemResponseSeasonType>(
-      `/seasons/${movieId}`,
-      body,
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    await executeRevalidate([RVK_SEASONS]);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message:
-        (error as Error)?.message ||
-        'An error occurred while creating the season.',
-      data: null,
-    };
-  }
-}
 
 export async function getSeasonsByMovie(movieId: string) {
   try {
@@ -45,7 +12,7 @@ export async function getSeasonsByMovie(movieId: string) {
       `/seasons/${movieId}`,
       {
         next: {
-          tags: [RVK_SEASONS, `${RVK_SEASONS}_movie_id_${movieId}`],
+          tags: [RVK_SEASONS],
         },
       },
     );
@@ -74,7 +41,7 @@ export async function getSeriesSeason(seasonId: string) {
       `/seasons/${seasonId}/details`,
       {
         next: {
-          tags: [RVK_SEASONS, `${RVK_SEASONS}_season_id_${seasonId}`],
+          tags: [RVK_SEASONS],
         },
       },
     );
@@ -91,54 +58,6 @@ export async function getSeriesSeason(seasonId: string) {
       message:
         (error as Error)?.message ||
         'An error occurred while fetching the season details.',
-      data: null,
-    };
-  }
-}
-
-export async function createSeasonsBatch(
-  movieId: string,
-  body: CreateSeasonType,
-) {
-  try {
-    const res = await actions.post<BulkCreateSeasonResponseType>(
-      `/seasons/batch/${movieId}`,
-      body,
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message:
-        (error as Error)?.message ||
-        'An error occurred while creating seasons in batch.',
-      data: null,
-    };
-  }
-}
-
-export async function deleteSingleSeason(seasonId: string) {
-  try {
-    const res = await actions.destroy<any>(`/seasons/single/${seasonId}`);
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message:
-        (error as Error)?.message ||
-        'An error occurred while deleting the season.',
       data: null,
     };
   }

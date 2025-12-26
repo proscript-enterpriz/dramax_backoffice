@@ -43,7 +43,7 @@ export function UpdateDialog({
 
   function onSubmit(values: UpdateSeasonType) {
     startTransition(() => {
-      updateSeriesSeason(initialData.id, values)
+      updateSeriesSeason(initialData.id, initialData.movie_id!, values)
         .then(() => {
           toast.success('Updated successfully');
           dialogRef?.current?.close();

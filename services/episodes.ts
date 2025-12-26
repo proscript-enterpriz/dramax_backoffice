@@ -6,7 +6,6 @@ import * as actions from './api/actions';
 import { RVK_EPISODES } from './rvk';
 import {
   BaseResponseEpisodeType,
-  CreateEpisodeType,
   ListResponseEpisodeType,
   SingleItemResponseEpisodeType,
   UpdateEpisodeType,
@@ -20,7 +19,7 @@ export async function getEpisodeList(seasonId: string) {
       `/episodes/${seasonId}`,
       {
         next: {
-          tags: [RVK_EPISODES, `${RVK_EPISODES}_season_id_${seasonId}`],
+          tags: [`${RVK_EPISODES}_season_id_${seasonId}`],
         },
       },
     );
@@ -41,57 +40,9 @@ export async function getEpisodeList(seasonId: string) {
   }
 }
 
-export async function getEpisodeDetail(episodeId: string) {
-  try {
-    const res = await actions.get<SingleItemResponseEpisodeType>(
-      `/episodes/${episodeId}/detail`,
-      {
-        next: {
-          tags: [RVK_EPISODES, `${RVK_EPISODES}_episode_id_${episodeId}`],
-        },
-      },
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      data: null,
-    };
-  }
-}
-
-export async function createEpisode(body: CreateEpisodeType) {
-  try {
-    const res = await actions.post<SingleItemResponseEpisodeType>(
-      `/episodes`,
-      body,
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-    await executeRevalidate([RVK_EPISODES]);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      data: null,
-    };
-  }
-}
-
 export async function updateEpisode(
   episodeId: string,
+  seasonId: string,
   body: UpdateEpisodeType,
 ) {
   try {
@@ -102,9 +53,9 @@ export async function updateEpisode(
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
-    await executeRevalidate([
-      RVK_EPISODES,
-      `${RVK_EPISODES}_episode_id_${episodeId}`,
+    executeRevalidate([
+      `${RVK_EPISODES}_season_number_${seasonId}`,
+      { tag: `${RVK_EPISODES}_season_number_${seasonId}` },
     ]);
 
     return response;
@@ -119,7 +70,7 @@ export async function updateEpisode(
   }
 }
 
-export async function deleteEpisode(episodeId: string) {
+export async function deleteEpisode(episodeId: string, seasonId: string) {
   try {
     const res = await actions.destroy<BaseResponseEpisodeType>(
       `/episodes/${episodeId}`,
@@ -128,9 +79,9 @@ export async function deleteEpisode(episodeId: string) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([
-      RVK_EPISODES,
-      `${RVK_EPISODES}_episode_id_${episodeId}`,
+    executeRevalidate([
+      `${RVK_EPISODES}_season_number_${seasonId}`,
+      { tag: `${RVK_EPISODES}_season_number_${seasonId}` },
     ]);
     return response;
   } catch (error) {

@@ -58,7 +58,7 @@ export async function createTag(body: TagCreateType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_TAGS]);
+    executeRevalidate([RVK_TAGS, { tag: RVK_TAGS }]);
     return response;
   } catch (error) {
     console.error(error);
@@ -67,33 +67,6 @@ export async function createTag(body: TagCreateType) {
       status: 'error',
       message:
         (error as Error)?.message || 'An error occurred while creating tag.',
-      data: null,
-    };
-  }
-}
-
-export async function getTag(tagId: number) {
-  try {
-    const res = await actions.get<BaseResponseUnionTagResponseNoneTypeType>(
-      `/tags/${tagId}`,
-      {
-        next: {
-          tags: [RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`],
-        },
-      },
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message:
-        (error as Error)?.message || 'An error occurred while fetching tag.',
       data: null,
     };
   }
@@ -109,7 +82,7 @@ export async function updateTag(tagId: number, body: TagUpdateType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
+    executeRevalidate([RVK_TAGS, { tag: RVK_TAGS }]);
     return response;
   } catch (error) {
     console.error(error);
@@ -133,7 +106,7 @@ export async function deleteTag(tagId: number) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_TAGS, `${RVK_TAGS}_tag_id_${tagId}`]);
+    executeRevalidate([RVK_TAGS, { tag: RVK_TAGS }]);
     return response;
   } catch (error) {
     console.error(error);
