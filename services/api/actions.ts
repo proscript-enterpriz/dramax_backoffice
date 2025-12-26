@@ -5,8 +5,10 @@ import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { clearObj, objToQs } from '@/lib/utils';
 
 import { ExtendedFetchClient } from './fetch-client';
+import { FILMORARevalidateParams } from './types';
 
 const apiServer = new ExtendedFetchClient({
   getAuthToken: async () => {
@@ -100,15 +102,32 @@ export async function revalidateLocal() {
   revalidatePath('/', 'layout');
 }
 
-export async function revalidateClient(origin: 'vercel' | 'filmora') {
-  const url = {
-    vercel:
-      process.env.FRONT_VERCEL_DOMAIN || 'https://filmora-client.vercel.app',
-    filmora: process.env.FRONT_DOMAIN || 'https://filmora.mn',
-  }[origin];
+export async function revalidateClientFull() {
+  const url = 'https://www.dramax.mn';
 
   const endpoint = `${url}/api/revalidate?secret=ps_ez&path=/`;
   try {
+    const res = await fetch(endpoint, { method: 'POST', cache: 'no-store' });
+    const result = await res.json();
+
+    if (!res.ok) throw new Error('Something went wrong:' + result.message);
+    return { result };
+  } catch (err) {
+    console.error('Revalidation url:', endpoint);
+    console.error('Revalidation error:', err);
+  }
+}
+
+export async function revalidateClient({
+  tag,
+  type,
+  path,
+}: FILMORARevalidateParams) {
+  let endpoint = 'https://www.dramax.mn/api/revalidate?secret=ps_ez&';
+  try {
+    if (!tag && !type && !path) endpoint += 'path=/';
+    else endpoint += objToQs(clearObj({ tag, type, path }));
+
     const res = await fetch(endpoint, { method: 'POST', cache: 'no-store' });
     const result = await res.json();
 

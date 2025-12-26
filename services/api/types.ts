@@ -34,3 +34,9 @@ export type SnakeCaseKeys<T> = {
     ? SnakeCaseKeys<T[K]>
     : T[K];
 };
+
+export type FILMORARevalidateParams = {
+  path?: string;
+  type?: 'page' | 'layout';
+  tag?: string;
+};

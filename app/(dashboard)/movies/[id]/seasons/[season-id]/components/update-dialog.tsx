@@ -48,6 +48,7 @@ export function UpdateDialog({
       const { episode_id, ...initialValues } = initialData;
       updateEpisode(
         episode_id,
+        initialData.season_id,
         pickChangedValues(initialValues, values as EpisodeType),
       )
         .then(() => {

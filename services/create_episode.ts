@@ -15,7 +15,7 @@ export async function createEpisode(body: CreateEpisodeType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_EPISODES]);
+    executeRevalidate([`${RVK_EPISODES}_season_id_${body.season_id}`]);
 
     return response;
   } catch (e) {

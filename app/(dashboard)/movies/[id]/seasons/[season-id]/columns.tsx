@@ -67,7 +67,7 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
               loading={loading}
               action={() => {
                 setLoading(true);
-                deleteEpisode(row.original.episode_id)
+                deleteEpisode(row.original.episode_id, row.original.season_id)
                   .then((c) => toast.success(c.message || 'Deleted'))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {

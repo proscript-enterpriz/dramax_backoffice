@@ -12,8 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { revalidateClient, revalidateLocal } from '@/services/api/actions';
-import { getOrigin } from '@/services/api/helpers';
+import { revalidateClientFull, revalidateLocal } from '@/services/api/actions';
 
 export default function RevalidateMenu() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +28,7 @@ export default function RevalidateMenu() {
               disabled={loading}
               onClick={() => {
                 setLoading(true);
-                Promise.all([revalidateLocal(), revalidateClient(getOrigin())])
+                Promise.allSettled([revalidateLocal(), revalidateClientFull()])
                   .then(() => toast.success('Revalidate successfully'))
                   .finally(() => setLoading(false));
               }}

@@ -67,6 +67,7 @@ function CellAction({ row }: CellContext<MovieEpisodeType>) {
                 try {
                   const result = await deleteMovieEpisode(
                     row.original.episode_id,
+                    row.original.movie_id,
                   );
                   if (result.status === 'error') {
                     toast.error(result.message);

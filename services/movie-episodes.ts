@@ -3,7 +3,7 @@
 import { executeRevalidate } from '@/services/api/helpers';
 
 import * as actions from './api/actions';
-import { RVK_MOVIE_EPISODES } from './rvk';
+import { RVK_MOVIES } from './rvk';
 import {
   BaseResponseType,
   CreateMovieEpisodeType,
@@ -29,10 +29,7 @@ export async function getMovieEpisodeList(
       {
         searchParams,
         next: {
-          tags: [
-            RVK_MOVIE_EPISODES,
-            `${RVK_MOVIE_EPISODES}_movie_id_${movieId}`,
-          ],
+          tags: [`${RVK_MOVIES}_movie_id_${movieId}_episodes`],
         },
       },
     );
@@ -53,36 +50,6 @@ export async function getMovieEpisodeList(
   }
 }
 
-export async function getMovieEpisodeDetail(episodeId: string) {
-  try {
-    const res = await actions.get<SingleItemResponseMovieEpisodeType>(
-      `/movie-episodes/${episodeId}/detail`,
-      {
-        next: {
-          tags: [
-            RVK_MOVIE_EPISODES,
-            `${RVK_MOVIE_EPISODES}_episode_id_${episodeId}`,
-          ],
-        },
-      },
-    );
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return {
-      status: 'error',
-      message:
-        (error as Error)?.message || 'Failed to fetch movie episode detail',
-      data: null,
-    };
-  }
-}
-
 export async function createMovieEpisode(body: CreateMovieEpisodeType) {
   try {
     const res = await actions.post<SingleItemResponseMovieEpisodeType>(
@@ -93,7 +60,10 @@ export async function createMovieEpisode(body: CreateMovieEpisodeType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_MOVIE_EPISODES]);
+    executeRevalidate([
+      `${RVK_MOVIES}_movie_id_${body.movie_id}_episodes`,
+      { tag: `${RVK_MOVIES}_movie_id_${body.movie_id}_episodes` },
+    ]);
 
     return response;
   } catch (error) {
@@ -109,6 +79,7 @@ export async function createMovieEpisode(body: CreateMovieEpisodeType) {
 
 export async function updateMovieEpisode(
   episodeId: string,
+  movieId: string,
   body: UpdateMovieEpisodeType,
 ) {
   try {
@@ -120,9 +91,9 @@ export async function updateMovieEpisode(
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([
-      RVK_MOVIE_EPISODES,
-      `${RVK_MOVIE_EPISODES}_episode_id_${episodeId}`,
+    executeRevalidate([
+      `${RVK_MOVIES}_movie_id_${movieId}_episodes`,
+      { tag: `${RVK_MOVIES}_movie_id_${movieId}_episodes` },
     ]);
 
     return response;
@@ -137,7 +108,7 @@ export async function updateMovieEpisode(
   }
 }
 
-export async function deleteMovieEpisode(episodeId: string) {
+export async function deleteMovieEpisode(episodeId: string, movieId: string) {
   try {
     const res = await actions.destroy<BaseResponseType>(
       `/movie-episodes/${episodeId}`,
@@ -146,9 +117,9 @@ export async function deleteMovieEpisode(episodeId: string) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([
-      RVK_MOVIE_EPISODES,
-      `${RVK_MOVIE_EPISODES}_episode_id_${episodeId}`,
+    executeRevalidate([
+      `${RVK_MOVIES}_movie_id_${movieId}_episodes`,
+      { tag: `${RVK_MOVIES}_movie_id_${movieId}_episodes` },
     ]);
 
     return response;

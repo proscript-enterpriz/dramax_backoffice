@@ -21,7 +21,7 @@ export async function uploadImage(body: FormData) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    await executeRevalidate([RVK_IMAGES]);
+    executeRevalidate([RVK_IMAGES]);
     return response;
   } catch (error: any) {
     console.error(String(error));

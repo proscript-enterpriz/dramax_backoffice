@@ -54,7 +54,7 @@ export async function createEmployee(body: EmployeeCreateType) {
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
-    await executeRevalidate([RVK_EMPLOYEES]);
+    executeRevalidate([RVK_EMPLOYEES]);
 
     return response;
   } catch (error) {
@@ -81,7 +81,7 @@ export async function updateEmployee(
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
-    await executeRevalidate([RVK_EMPLOYEES]);
+    executeRevalidate([RVK_EMPLOYEES]);
 
     return response;
   } catch (error) {
