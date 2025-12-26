@@ -105,7 +105,7 @@ export async function revalidateLocal() {
 export async function revalidateClientFull() {
   const url = 'https://www.dramax.mn';
 
-  const endpoint = `${url}/api/revalidate?secret=ps_ez&path=/`;
+  const endpoint = `${url}/api/revalidate?secret=aaa&path=/`;
   try {
     const res = await fetch(endpoint, { method: 'POST', cache: 'no-store' });
     const result = await res.json();
