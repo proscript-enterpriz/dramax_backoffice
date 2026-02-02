@@ -72,3 +72,8 @@ export function executeRevalidate(
     console.error('Revalidation failed:', revalidateError);
   }
 }
+
+export const truncateErrorMessage = (message: string, maxLength = 100) => {
+  if (message.length <= maxLength) return message;
+  return message.slice(0, maxLength) + '...';
+};

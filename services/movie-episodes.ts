@@ -1,6 +1,9 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
+import {
+  executeRevalidate,
+  truncateErrorMessage,
+} from '@/services/api/helpers';
 
 import * as actions from './api/actions';
 import { RVK_MOVIES } from './rvk';
@@ -43,7 +46,9 @@ export async function getMovieEpisodeList(
     // implement custom error handler here
     return {
       status: 'error',
-      message: (error as Error)?.message || 'Failed to fetch movie episodes',
+      message: truncateErrorMessage(
+        (error as Error)?.message || 'Failed to fetch movie episodes',
+      ),
       data: [],
       total_count: 0,
     };
@@ -71,7 +76,9 @@ export async function createMovieEpisode(body: CreateMovieEpisodeType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: (error as Error)?.message || 'Failed to create movie episode',
+      message: truncateErrorMessage(
+        (error as Error)?.message || 'Failed to create movie episode',
+      ),
       data: null,
     };
   }
@@ -102,7 +109,9 @@ export async function updateMovieEpisode(
     // implement custom error handler here
     return {
       status: 'error',
-      message: (error as Error)?.message || 'Failed to update movie episode',
+      message: truncateErrorMessage(
+        (error as Error)?.message || 'Failed to update movie episode',
+      ),
       data: null,
     };
   }
@@ -128,7 +137,9 @@ export async function deleteMovieEpisode(episodeId: string, movieId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: (error as Error)?.message || 'Failed to delete movie episode',
+      message: truncateErrorMessage(
+        (error as Error)?.message || 'Failed to delete movie episode',
+      ),
       data: null,
     };
   }

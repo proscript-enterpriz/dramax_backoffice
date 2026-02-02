@@ -1,5 +1,7 @@
 'use server';
 
+import { truncateErrorMessage } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
 import { RVK_RENTALS } from './rvk';
 import { BaseResponseUnionListMovieRentalDataNoneTypeType } from './schema';
@@ -31,9 +33,10 @@ export async function getRentalCountsByUsers(
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message ||
-        'An error occurred while fetching rental counts by users.',
+          'An error occurred while fetching rental counts by users.',
+      ),
       data: [],
     };
   }
@@ -68,9 +71,10 @@ export async function getMoviesRentalCounts(
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message ||
-        'An error occurred while fetching movies rental counts.',
+          'An error occurred while fetching movies rental counts.',
+      ),
       data: null,
     };
   }

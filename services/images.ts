@@ -1,6 +1,9 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
+import {
+  executeRevalidate,
+  truncateErrorMessage,
+} from '@/services/api/helpers';
 
 import * as actions from './api/actions';
 import { RVK_IMAGES } from './rvk';
@@ -34,9 +37,10 @@ export async function getUploadedImages(
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while fetching the uploaded images.',
+          'An error occurred while fetching the uploaded images.',
+      ),
       data: [],
       pagination: {
         total: 0,
@@ -61,9 +65,10 @@ export async function deleteImage(imageId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while deleting the image.',
+          'An error occurred while deleting the image.',
+      ),
       data: null,
     };
   }

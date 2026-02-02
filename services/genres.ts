@@ -1,6 +1,9 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
+import {
+  executeRevalidate,
+  truncateErrorMessage,
+} from '@/services/api/helpers';
 
 import * as actions from './api/actions';
 import { RVK_GENRES } from './rvk';
@@ -41,9 +44,10 @@ export async function getGenres(searchParams?: GetGenresSearchParams) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while fetching the genres.',
+          'An error occurred while fetching the genres.',
+      ),
       data: [],
     };
   }
@@ -66,9 +70,10 @@ export async function createGenre(body: GenreCreateType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while creating the genre.',
+          'An error occurred while creating the genre.',
+      ),
       data: null,
     };
   }
@@ -91,9 +96,10 @@ export async function updateGenre(genreId: number, body: GenreUpdateType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while updating the genre.',
+          'An error occurred while updating the genre.',
+      ),
       data: null,
     };
   }
@@ -117,9 +123,10 @@ export async function deleteGenre(genreId: number) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error).message ||
-        'An error occurred while deleting the genre.',
+          'An error occurred while deleting the genre.',
+      ),
       data: null,
     };
   }

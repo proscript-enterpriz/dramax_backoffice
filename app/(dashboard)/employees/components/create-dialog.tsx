@@ -21,28 +21,7 @@ import { Switch } from '@/components/ui/switch';
 import { createEmployee } from '@/services/employees';
 import { employeeCreateSchema, EmployeeCreateType } from '@/services/schema';
 
-const ALLOWED_ROLES = [
-  {
-    value: 'admin',
-    label: 'Admin',
-    description: 'Full platform administration.',
-  },
-  {
-    value: 'editor',
-    label: 'Editor',
-    description: 'Content production and lifecycle management.',
-  },
-  {
-    value: 'moderator',
-    label: 'Moderator',
-    description: 'Oversight, QA, and reporting.',
-  },
-  {
-    value: 'support',
-    label: 'Support',
-    description: 'Support operations and troubleshooting.',
-  },
-];
+import { ALLOWED_ROLES } from './constants';
 
 export function CreateDialog({ children }: { children: ReactNode }) {
   const dialogRef = useRef<FormDialogRef>(null);
@@ -54,8 +33,8 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         full_name: z
           .string()
           .nullish()
-          .refine((val) => !val?.toLowerCase().includes('dramax'), {
-            message: "Full name-д 'Dramax' үг оруулах боломжгүй.",
+          .refine((val) => !val?.toLowerCase().includes('drama'), {
+            message: "Full name-д 'Drama' үг оруулах боломжгүй.",
           }),
       }),
     ),

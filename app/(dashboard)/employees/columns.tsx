@@ -21,11 +21,17 @@ import { EmployeeResponseType } from '@/services/schema';
 
 import { UpdateDialog } from './components';
 
-const Action = ({ row }: CellContext<EmployeeResponseType, unknown>) => {
+type ModifiedEmployeeResponseType = EmployeeResponseType & {
+  editIgnored?: boolean;
+};
+
+const Action = ({
+  row,
+}: CellContext<ModifiedEmployeeResponseType, unknown>) => {
   const { data } = useSession();
   const canEdit = hasPermission(data, 'employees', 'update');
 
-  if (!canEdit || row.original.full_name === 'filmora') return null;
+  if (!canEdit || row.original.editIgnored) return null;
 
   return (
     <div className="me-2 flex justify-end gap-4">
@@ -52,7 +58,7 @@ const Action = ({ row }: CellContext<EmployeeResponseType, unknown>) => {
   );
 };
 
-export const employeesColumns: ColumnDef<EmployeeResponseType>[] = [
+export const employeesColumns: ColumnDef<ModifiedEmployeeResponseType>[] = [
   {
     id: 'full_name',
     accessorKey: 'full_name',

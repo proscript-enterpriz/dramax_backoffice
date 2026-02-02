@@ -1,5 +1,7 @@
 'use server';
 
+import { truncateErrorMessage } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
 import { RVK_SEASONS } from './rvk';
 import { ListResponseSeasonType, SingleItemResponseSeasonType } from './schema';
@@ -26,9 +28,10 @@ export async function getSeasonsByMovie(movieId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message ||
-        'An error occurred while fetching seasons by movie.',
+          'An error occurred while fetching seasons by movie.',
+      ),
       data: [],
       total_count: 0,
     };
@@ -55,9 +58,10 @@ export async function getSeriesSeason(seasonId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message ||
-        'An error occurred while fetching the season details.',
+          'An error occurred while fetching the season details.',
+      ),
       data: null,
     };
   }
