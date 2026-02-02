@@ -25,8 +25,10 @@ export function NavUser({ session }: { session: Session }) {
   const { setTheme, theme } = useTheme();
 
   const [firstname, lastname] = (
-    (session?.user?.full_name || session.user?.email)?.split(/(\s|\.)/) || []
-  ).filter(Boolean);
+    (session?.user?.full_name || session.user?.email)
+      ?.replace(/\./, '')
+      ?.split(/(\s|@)/) || []
+  ).filter((c) => !!c.trim());
 
   const username = lastname
     ? firstname[0] + lastname[0]
