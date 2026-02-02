@@ -8,6 +8,53 @@ import {
 
 import { PrettyType } from './fetch/types';
 
+/**
+ * Role-based access control (RBAC) configuration.
+ *
+ * This permission matrix defines what actions each employee role
+ * can perform on specific system subjects.
+ *
+ * Actions:
+ * - create: Create new resources
+ * - read: View existing resources
+ * - update: Modify existing resources
+ * - delete: Remove resources
+ *
+ * Roles overview:
+ *
+ * Admin:
+ * - Intended for platform owners and technical administrators
+ * - Full access to all system resources and features
+ * - Manages employees, rentals, subscriptions, media, movies, and streams
+ * - Should not be assigned to regular employees
+ *
+ * Editor:
+ * - Intended for content-focused employees
+ * - Used by movie creation teams, media upload teams, and editors
+ * - Can upload media and streams
+ * - Can create and manage movies, seasons, episodes, categories, genres, and tags
+ * - No access to employees, rentals, users, or subscription management
+ *
+ * Moderator:
+ * - Intended for marketing, analytics, and review teams
+ * - Read-only access across most system resources
+ * - Can view movies, media, rentals, users, subscriptions, and streams
+ * - Used for monitoring, reporting, and content review
+ * - Cannot create, update, or delete any resources
+ *
+ * Support:
+ * - Intended for customer support and helpdesk employees
+ * - Read-only access to movie and media information
+ * - Used to assist users with content-related questions
+ * - No access to rentals, users, subscriptions, streams, or employee data
+ *
+ * Design notes:
+ * - Roles are employee-oriented, not user-facing
+ * - Content creation and upload responsibilities are centralized in the Editor role
+ * - Business-sensitive data is restricted from non-admin roles
+ * - Roles can be split further (e.g. content_uploader, content_manager)
+ *   if more granular access control is required in the future
+ */
 export const role = {
   admin: 'Admin',
   editor: 'Editor',
@@ -67,8 +114,8 @@ export type Subject = PrettyType<
 
 const restricted = { create: false, delete: false, read: false, update: false };
 const full = { create: true, delete: true, read: true, update: true };
-const modify = { ...restricted, create: true, read: true, update: true };
-const read = { ...restricted, read: true };
+const modify = { ...restricted, create: true, read: true, update: true }; // defaults to ignore
+const read = { ...restricted, read: true }; // defaults to ignore
 
 const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   admin: {

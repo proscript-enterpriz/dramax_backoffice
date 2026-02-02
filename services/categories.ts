@@ -1,7 +1,7 @@
 'use server';
 
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
+import { executeRevalidate, truncateErrorMessage } from './api/helpers';
 import { RVK_CATEGORIES } from './rvk';
 import {
   AppModelsBaseBaseResponseUnionDictNoneTypeType,
@@ -40,7 +40,9 @@ export async function getCategories(searchParams?: GetCategoriesSearchParams) {
     console.error(error);
     return {
       status: 'error',
-      message: 'Failed to fetch categories',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to fetch categories',
+      ),
       data: [],
     };
   }
@@ -63,7 +65,13 @@ export async function createCategory(body: CategoryCreateType) {
   } catch (e) {
     console.error(e);
 
-    return null;
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (e as Error)?.message ?? 'Failed to create category',
+      ),
+      data: null,
+    };
   }
 }
 
@@ -89,7 +97,9 @@ export async function updateCategory(
     // implement custom error handler here
     return {
       status: 'error',
-      message: 'Failed to update category',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to update category',
+      ),
       data: null,
     };
   }
@@ -113,7 +123,9 @@ export async function deleteCategory(categoryId: number) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: 'Failed to delete category',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to delete category',
+      ),
       data: null,
     };
   }

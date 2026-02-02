@@ -1,7 +1,7 @@
 'use server';
 
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
+import { executeRevalidate, truncateErrorMessage } from './api/helpers';
 import { RVK_MOVIES } from './rvk';
 import {
   BaseResponseDictType,
@@ -73,28 +73,56 @@ export async function getMovie(movieId: string) {
 }
 
 export async function updateMovie(movieId: string, body: MovieUpdateType) {
-  // console.log(body, 'body');
-  // console.log(movieId, 'movieId');
-  const res = await actions.put<BaseResponseUnionMovieResponseNoneTypeType>(
-    `/movies/${movieId}`,
-    body,
-  );
+  try {
+    const res = await actions.put<BaseResponseUnionMovieResponseNoneTypeType>(
+      `/movies/${movieId}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_MOVIES, { tag: `${RVK_MOVIES}_movie_id_${movieId}` }]);
+    executeRevalidate([
+      RVK_MOVIES,
+      { tag: `${RVK_MOVIES}_movie_id_${movieId}` },
+    ]);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to update movie',
+      ),
+      data: null,
+    };
+  }
 }
 
 export async function deleteMovie(movieId: string) {
-  const res = await actions.destroy<BaseResponseDictType>(`/movies/${movieId}`);
+  try {
+    const res = await actions.destroy<BaseResponseDictType>(
+      `/movies/${movieId}`,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_MOVIES, { tag: `${RVK_MOVIES}_movie_id_${movieId}` }]);
+    executeRevalidate([
+      RVK_MOVIES,
+      { tag: `${RVK_MOVIES}_movie_id_${movieId}` },
+    ]);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to delete movie',
+      ),
+      data: null,
+    };
+  }
 }

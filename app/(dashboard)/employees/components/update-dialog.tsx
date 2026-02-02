@@ -25,28 +25,7 @@ import {
   EmployeeUpdateType,
 } from '@/services/schema';
 
-const ALLOWED_ROLES = [
-  {
-    value: 'admin',
-    label: 'Admin',
-    description: 'Full platform administration.',
-  },
-  {
-    value: 'editor',
-    label: 'Editor',
-    description: 'Content production and lifecycle management.',
-  },
-  {
-    value: 'moderator',
-    label: 'Moderator',
-    description: 'Oversight, QA, and reporting.',
-  },
-  {
-    value: 'support',
-    label: 'Support',
-    description: 'Support operations and troubleshooting.',
-  },
-];
+import { ALLOWED_ROLES } from './constants';
 
 export function UpdateDialog({
   children,
@@ -64,8 +43,8 @@ export function UpdateDialog({
         full_name: z
           .string()
           .nullish()
-          .refine((val) => !val?.toLowerCase().includes('filmora'), {
-            message: "Full name-д 'Filmora' үг оруулах боломжгүй.",
+          .refine((val) => !val?.toLowerCase().includes('drama'), {
+            message: "Овог нэр - т 'drama' үг оруулах боломжгүй.",
           }),
       }),
     ),

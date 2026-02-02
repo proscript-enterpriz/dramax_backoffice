@@ -1,5 +1,5 @@
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
+import { executeRevalidate, truncateErrorMessage } from './api/helpers';
 import { RVK_EPISODES } from './rvk';
 import { CreateEpisodeType, SingleItemResponseEpisodeType } from './schema';
 
@@ -23,8 +23,9 @@ export async function createEpisode(body: CreateEpisodeType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (e as Error).message || 'An error occurred while creating the episode.',
+      ),
       data: null,
     };
   }

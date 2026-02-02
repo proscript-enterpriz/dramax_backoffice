@@ -1,5 +1,7 @@
 'use server';
 
+import { truncateErrorMessage } from '@/services/api/helpers';
+
 import * as actions from './api/actions';
 import { BaseResponseUnionListSubscriptionUserDataNoneTypeType } from './schema';
 
@@ -36,9 +38,10 @@ export async function getSubscriptionUsers(
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message ||
-        'An error occurred while fetching subscription users.',
+          'An error occurred while fetching subscription users.',
+      ),
       data: [],
     };
   }

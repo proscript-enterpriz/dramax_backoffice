@@ -1,6 +1,9 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
+import {
+  executeRevalidate,
+  truncateErrorMessage,
+} from '@/services/api/helpers';
 
 import * as actions from './api/actions';
 import { RVK_EPISODES } from './rvk';
@@ -33,7 +36,9 @@ export async function getEpisodeList(seasonId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: truncateErrorMessage(
+        error instanceof Error ? error.message : 'Failed to fetch episodes',
+      ),
       data: [],
       total_count: 0,
     };
@@ -64,7 +69,9 @@ export async function updateEpisode(
     // implement custom error handler here
     return {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: truncateErrorMessage(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
       data: null,
     };
   }
@@ -89,7 +96,9 @@ export async function deleteEpisode(episodeId: string, seasonId: string) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: truncateErrorMessage(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
       data: null,
     };
   }

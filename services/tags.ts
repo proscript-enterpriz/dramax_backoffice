@@ -1,6 +1,9 @@
 'use server';
 
-import { executeRevalidate } from '@/services/api/helpers';
+import {
+  executeRevalidate,
+  truncateErrorMessage,
+} from '@/services/api/helpers';
 
 import * as actions from './api/actions';
 import { RVK_TAGS } from './rvk';
@@ -41,8 +44,9 @@ export async function getTags(searchParams?: GetTagsSearchParams) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message || 'An error occurred while fetching tags.',
+      ),
       data: [],
     };
   }
@@ -65,8 +69,9 @@ export async function createTag(body: TagCreateType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message || 'An error occurred while creating tag.',
+      ),
       data: null,
     };
   }
@@ -89,8 +94,9 @@ export async function updateTag(tagId: number, body: TagUpdateType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message || 'An error occurred while updating tag.',
+      ),
       data: null,
     };
   }
@@ -113,8 +119,9 @@ export async function deleteTag(tagId: number) {
     // implement custom error handler here
     return {
       status: 'error',
-      message:
+      message: truncateErrorMessage(
         (error as Error)?.message || 'An error occurred while deleting tag.',
+      ),
       data: null,
     };
   }

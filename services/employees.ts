@@ -1,7 +1,7 @@
 'use server';
 
 import * as actions from './api/actions';
-import { executeRevalidate } from './api/helpers';
+import { executeRevalidate, truncateErrorMessage } from './api/helpers';
 import { RVK_EMPLOYEES } from './rvk';
 import {
   BaseResponseListEmployeeResponseType,
@@ -46,6 +46,9 @@ export async function getEmployees(searchParams?: GetEmployeesSearchParams) {
 
 export async function createEmployee(body: EmployeeCreateType) {
   try {
+    if (body.full_name?.includes('drama'))
+      throw new Error("Овог нэр - т 'drama' үг оруулах боломжгүй.");
+
     const res =
       await actions.post<BaseResponseUnionEmployeeResponseNoneTypeType>(
         `/employees`,
@@ -62,7 +65,9 @@ export async function createEmployee(body: EmployeeCreateType) {
     // implement custom error handler here
     return {
       status: 'error',
-      message: 'Failed to create employee',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to create employee',
+      ),
       data: null,
     };
   }
@@ -73,6 +78,9 @@ export async function updateEmployee(
   body: EmployeeUpdateType,
 ) {
   try {
+    if (body.full_name?.includes('drama'))
+      throw new Error("Овог нэр - т 'drama' үг оруулах боломжгүй.");
+
     const res =
       await actions.put<BaseResponseUnionEmployeeResponseNoneTypeType>(
         `/employees/${employeeId}`,
@@ -89,7 +97,9 @@ export async function updateEmployee(
     // implement custom error handler here
     return {
       status: 'error',
-      message: 'Failed to update employee',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to update employee',
+      ),
       data: null,
     };
   }

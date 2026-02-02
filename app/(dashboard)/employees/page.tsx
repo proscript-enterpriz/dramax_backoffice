@@ -38,7 +38,10 @@ export default async function EmployeesPage(props: {
       <Suspense fallback="Loading">
         <DataTable
           columns={employeesColumns}
-          data={data ?? []}
+          data={(data ?? []).map((emp) => ({
+            ...emp,
+            editIgnored: emp.full_name === 'dramax',
+          }))}
           rowCount={total_count ?? data?.length}
         />
       </Suspense>
