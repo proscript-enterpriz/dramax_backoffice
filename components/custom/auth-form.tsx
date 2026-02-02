@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReactNode } from 'react';
+
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
@@ -8,7 +10,7 @@ export function AuthForm({
   defaultEmail = '',
 }: {
   action: any;
-  children: React.ReactNode;
+  children: ReactNode;
   defaultEmail?: string;
 }) {
   return (
@@ -18,7 +20,7 @@ export function AuthForm({
           htmlFor="username"
           className="font-normal text-zinc-600 dark:text-zinc-400"
         >
-          Username
+          Email
         </Label>
 
         <Input
@@ -26,8 +28,8 @@ export function AuthForm({
           name="username"
           className="text-md bg-muted md:text-sm"
           type="text"
-          placeholder="Username"
-          autoComplete="username"
+          placeholder="Email"
+          autoComplete="email"
           required
           defaultValue={defaultEmail}
         />

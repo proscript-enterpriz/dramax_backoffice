@@ -39,7 +39,7 @@ export const {
           }
 
           const formData = new FormData();
-          formData.append('username', username);
+          formData.append('username', username.toLowerCase());
           formData.append('password', password);
 
           const apiUrl = `${process.env.FILMORA_DOMAIN}/auth/employee-login`;
