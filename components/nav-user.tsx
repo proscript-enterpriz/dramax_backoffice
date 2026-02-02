@@ -1,6 +1,5 @@
 'use client';
 import { ChevronsUpDown, LogOut, Moon, Sun } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
@@ -24,7 +23,13 @@ import {
 export function NavUser({ session }: { session: Session }) {
   const { isMobile } = useSidebar();
   const { setTheme, theme } = useTheme();
-  const router = useRouter();
+
+  const [firstname, lastname] =
+    (session?.user?.full_name || session.user?.email)?.split(/(\s|.)/) || [];
+
+  const username = lastname
+    ? firstname[0] + lastname[0]
+    : firstname.slice(0, 2);
 
   return (
     <SidebarMenu>
@@ -33,12 +38,7 @@ export function NavUser({ session }: { session: Session }) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg">
               <div className="bg-sidebar-accent flex aspect-square size-8 basis-8 items-center justify-center rounded-lg">
-                {(
-                  session?.user?.email ||
-                  session.user?.full_name ||
-                  session.user?.role ||
-                  ''
-                )?.slice(0, 2)}
+                {username}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
@@ -60,10 +60,7 @@ export function NavUser({ session }: { session: Session }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <div className="bg-sidebar-accent flex aspect-square h-8 w-8 items-center justify-center rounded-lg">
-                  {(
-                    (session?.user?.email || session.user?.full_name) ??
-                    ''
-                  )?.slice(0, 2)}
+                  {username}
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
