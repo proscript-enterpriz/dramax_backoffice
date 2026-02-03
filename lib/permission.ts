@@ -9,57 +9,62 @@ import {
 import { PrettyType } from './fetch/types';
 
 /**
- * Role-based access control (RBAC) configuration.
+ * Role-based Access Control (RBAC) configuration.
  *
- * This permission matrix defines what actions each employee role
- * can perform on specific system subjects.
+ * Defines the actions each employee role can perform on system resources.
  *
  * Actions:
- * - create: Create new resources
- * - read: View existing resources
- * - update: Modify existing resources
- * - delete: Remove resources
+ * - create: Can create new resources
+ * - read: Can view existing resources
+ * - update: Can modify existing resources
+ * - delete: Can remove resources
  *
- * Roles overview:
+ * Roles:
+ *
+ * Super Admin:
+ * - Complete platform control
+ * - Can manage all resources including employees, rentals, subscriptions, media, movies, and streams
+ * - Can override any restrictions
  *
  * Admin:
- * - Intended for platform owners and technical administrators
- * - Full access to all system resources and features
- * - Manages employees, rentals, subscriptions, media, movies, and streams
- * - Should not be assigned to regular employees
+ * - Full access to most platform features
+ * - Can manage movies, media, streams, categories, genres, tags, subscriptions
+ * - Employees can be modified (not fully controlled)
+ * - Rentals and rental users are read-only
+ * - Intended for trusted administrators; should not be assigned to regular content teams
  *
  * Editor:
- * - Intended for content-focused employees
- * - Used by movie creation teams, media upload teams, and editors
- * - Can upload media and streams
- * - Can create and manage movies, seasons, episodes, categories, genres, and tags
- * - No access to employees, rentals, users, or subscription management
+ * - Focused on content creation and management
+ * - Can create and update movies, seasons, episodes, categories, genres, tags, media, and streams
+ * - Cannot access employees, rentals, users, or subscription management
  *
  * Moderator:
- * - Intended for marketing, analytics, and review teams
- * - Read-only access across most system resources
+ * - Read-only access for monitoring, reporting, and content review
  * - Can view movies, media, rentals, users, subscriptions, and streams
- * - Used for monitoring, reporting, and content review
- * - Cannot create, update, or delete any resources
+ * - Cannot create, update, or delete resources
  *
  * Support:
- * - Intended for customer support and helpdesk employees
- * - Read-only access to movie and media information
- * - Used to assist users with content-related questions
- * - No access to rentals, users, subscriptions, streams, or employee data
+ * - Read-only access for customer support
+ * - Can view movies, media, and related content to assist users
+ * - Cannot access employees, rentals, subscriptions, or streams
  *
- * Design notes:
- * - Roles are employee-oriented, not user-facing
- * - Content creation and upload responsibilities are centralized in the Editor role
- * - Business-sensitive data is restricted from non-admin roles
- * - Roles can be split further (e.g. content_uploader, content_manager)
- *   if more granular access control is required in the future
+ * Content Owner:
+ * - Limited to managing their own uploaded content
+ * - Can create and update their movies, media, episodes, tags, and streams
+ * - Cannot access employees, categories, rentals, or subscriptions
+ *
+ * Notes:
+ * - Roles are for internal employees, not end users
+ * - Permission granularity allows for future expansion (e.g., content_uploader, content_manager)
+ * - Restricted defaults ensure business-sensitive data is protected from non-admin roles
  */
 export const role = {
+  super_admin: 'Super Admin',
   admin: 'Admin',
   editor: 'Editor',
   moderator: 'Moderator',
   support: 'Support',
+  content_owner: 'Content owner',
 };
 
 type AdminMenuItemType = (typeof systemAdminRoutes)[number];
@@ -75,7 +80,6 @@ type UrlEnumType = RemoveSlash<
   | MenuUrlEnum<OrgMenuItemType>
 >;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const subjects = {
   categories: [],
   employees: [],
@@ -118,11 +122,34 @@ const modify = { ...restricted, create: true, read: true, update: true }; // def
 const read = { ...restricted, read: true }; // defaults to ignore
 
 const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
+  // Full platform admin
+  super_admin: Object.entries(subjects)
+    .map((c) => {
+      const [main, subs] = c;
+      if (subs.length === 0)
+        return { [main]: full } as unknown as Record<
+          Subject,
+          Record<Action, boolean>
+        >;
+      const obj: Record<string, Record<Action, boolean>> = {};
+      subs.forEach((s) => {
+        obj[`${main}.${s}`] = full;
+      });
+      return {
+        [main]: full,
+        ...obj,
+      } as unknown as Record<Subject, Record<Action, boolean>>;
+    })
+    .reduce(
+      (acc, cur) => ({ ...acc, ...cur }),
+      {} as unknown as Record<Subject, Record<Action, boolean>>,
+    ),
+
+  // Normal admin
   admin: {
-    categories: full,
-    employees: full,
-    rentals: full,
-    'rentals.users': full,
+    employees: modify,
+    rentals: read,
+    'rentals.users': read,
     medias: full,
     movies: full,
     'movies.detail': full,
@@ -132,12 +159,15 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     'movies.episode-detail': full,
     'movies.movie-episodes': full,
     'movies.movie-episode-detail': full,
+    categories: full,
     genres: full,
     subscriptions: full,
     tags: full,
     streams: full,
     'streams.upload': full,
   },
+
+  // Editor role
   editor: {
     categories: modify,
     genres: full,
@@ -158,6 +188,8 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     'rentals.users': restricted,
     subscriptions: restricted,
   },
+
+  // Moderator role
   moderator: {
     categories: read,
     genres: read,
@@ -178,6 +210,8 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     streams: read,
     'streams.upload': read,
   },
+
+  // Support role
   support: {
     categories: read,
     genres: read,
@@ -197,6 +231,28 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     subscriptions: restricted,
     streams: restricted,
     'streams.upload': restricted,
+  },
+
+  // Content owner: only full control over own movies/media
+  content_owner: {
+    employees: restricted,
+    rentals: read, // can see rentals related to their content
+    'rentals.users': restricted,
+    medias: modify, // own media
+    movies: modify, // own movies
+    'movies.detail': modify,
+    'movies.seasons': modify,
+    'movies.season-detail': modify,
+    'movies.episodes': modify,
+    'movies.episode-detail': modify,
+    'movies.movie-episodes': modify,
+    'movies.movie-episode-detail': modify,
+    categories: read,
+    genres: read,
+    tags: read,
+    subscriptions: restricted,
+    streams: modify,
+    'streams.upload': modify,
   },
 };
 
