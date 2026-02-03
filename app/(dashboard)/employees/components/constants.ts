@@ -6,12 +6,6 @@ export const ALLOWED_ROLES: Array<{
   description: string;
 }> = [
   {
-    value: 'admin',
-    label: 'Admin',
-    description:
-      'Системийн эзэмшигч, техникийн удирдлагад зориулсан. Бүх тохиргоо, ажилтан, захиалга, subscription болон контентод бүрэн эрхтэй.',
-  },
-  {
     value: 'editor',
     label: 'Editor',
     description:
@@ -28,5 +22,23 @@ export const ALLOWED_ROLES: Array<{
     label: 'Support',
     description:
       'Харилцагчийн дэмжлэгийн ажилтанд. Кино, контентын мэдээлэл хараад хэрэглэгчид тайлбар өгөх зориулалттай.',
+  },
+  {
+    value: 'content_owner',
+    label: 'Content owner',
+    description:
+      'Контентын эзэмшигч, гадаад түнш байгууллагад зориулсан. Зөвхөн өөрийн контентын мэдээлэл, статистик үзэх боломжтой.',
+  },
+  {
+    value: 'super_admin',
+    label: 'Super Admin',
+    description:
+      'Системийн үндсэн администратор. Бүх эрхтэй бөгөөд системийн бүх тохиргоо, ажилтан, контентод хандах боломжтой.',
+  },
+  {
+    value: 'admin',
+    label: 'Admin',
+    description:
+      'Администратор. Ихэнх системийн тохиргоо, ажилтан, контентод хандах боломжтой боловч зарим өндөр түвшний тохиргоонд хязгаарлалттай.',
   },
 ];
