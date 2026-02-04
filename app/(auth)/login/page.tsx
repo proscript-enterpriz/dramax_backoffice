@@ -30,7 +30,6 @@ export default function Page() {
         'Failed validating your submission! Please check your input.',
       );
     } else {
-      // Wait a bit for the session to be updated
       setTimeout(() => {
         session.update().finally(() => router.push('/'));
       }, 100);
