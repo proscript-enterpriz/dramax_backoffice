@@ -1,7 +1,7 @@
 import { role } from '@/lib/permission';
 
 export const ALLOWED_ROLES: Array<{
-  value: keyof typeof role;
+  value: Exclude<keyof typeof role, 'super_admin'>;
   label: string;
   description: string;
 }> = [
@@ -28,12 +28,6 @@ export const ALLOWED_ROLES: Array<{
     label: 'Content owner',
     description:
       'Контентын эзэмшигч, гадаад түнш байгууллагад зориулсан. Зөвхөн өөрийн контентын мэдээлэл, статистик үзэх боломжтой.',
-  },
-  {
-    value: 'super_admin',
-    label: 'Super Admin',
-    description:
-      'Системийн үндсэн администратор. Бүх эрхтэй бөгөөд системийн бүх тохиргоо, ажилтан, контентод хандах боломжтой.',
   },
   {
     value: 'admin',

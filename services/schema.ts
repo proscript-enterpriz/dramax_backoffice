@@ -22,7 +22,7 @@ export type TokenRefreshRequestType = z.infer<typeof tokenRefreshRequestSchema>;
 export const employeeResponseSchema = z.object({
   id: z.uuid(),
   full_name: z.string(),
-  role: z.enum(['admin', 'moderator', 'editor', 'support']),
+  role: z.enum(['admin', 'moderator', 'editor', 'support', 'content_owner']),
   email: z.email(),
   is_active: z.boolean(),
   last_logged_at: z.iso.datetime(),
@@ -57,7 +57,7 @@ export const employeeCreateSchema = z.object({
   email: z.email(),
   password: z.string(),
   full_name: z.string().nullish(),
-  role: z.enum(['admin', 'moderator', 'editor', 'support']),
+  role: z.enum(['admin', 'moderator', 'editor', 'support', 'content_owner']),
   is_active: z.boolean().nullish(),
 });
 
@@ -67,7 +67,9 @@ export const employeeUpdateSchema = z.object({
   email: z.email().nullish(),
   password: z.string().nullish(),
   full_name: z.string().nullish(),
-  role: z.enum(['admin', 'moderator', 'editor', 'support']).nullish(),
+  role: z
+    .enum(['admin', 'moderator', 'editor', 'support', 'content_owner'])
+    .nullish(),
   is_active: z.boolean().nullish(),
 });
 

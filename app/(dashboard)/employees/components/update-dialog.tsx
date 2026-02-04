@@ -46,6 +46,10 @@ export function UpdateDialog({
           .refine((val) => !val?.toLowerCase().includes('drama'), {
             message: "Овог нэр - т 'drama' үг оруулах боломжгүй.",
           }),
+        email: z
+          .email()
+          .nullish()
+          .transform((c) => c?.toLowerCase()),
       }),
     ),
     defaultValues: {

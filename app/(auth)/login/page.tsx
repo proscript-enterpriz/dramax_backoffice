@@ -29,19 +29,13 @@ export default function Page() {
       toast.error(
         'Failed validating your submission! Please check your input.',
       );
-    } else if (state.status === 'success') {
+    } else {
       // Wait a bit for the session to be updated
       setTimeout(() => {
-        session.update();
-        router.refresh();
-        router.push('/');
+        session.update().finally(() => router.push('/'));
       }, 100);
     }
   }, [state?.status, router, session]);
-
-  const handleSubmit = (formData: FormData) => {
-    formAction(formData);
-  };
 
   return (
     <div className="bg-background flex h-screen w-screen items-center justify-center">
@@ -52,7 +46,7 @@ export default function Page() {
             Use your username and password to sign in
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={''}>
+        <AuthForm action={formAction} defaultEmail={''}>
           <SubmitButton>Sign in</SubmitButton>
         </AuthForm>
       </div>
