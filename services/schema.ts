@@ -22,7 +22,14 @@ export type TokenRefreshRequestType = z.infer<typeof tokenRefreshRequestSchema>;
 export const employeeResponseSchema = z.object({
   id: z.uuid(),
   full_name: z.string(),
-  role: z.enum(['admin', 'moderator', 'editor', 'support', 'content_owner']),
+  role: z.enum([
+    'admin',
+    'moderator',
+    'editor',
+    'support',
+    'content_owner',
+    'super_admin',
+  ]),
   email: z.email(),
   is_active: z.boolean(),
   last_logged_at: z.iso.datetime(),
