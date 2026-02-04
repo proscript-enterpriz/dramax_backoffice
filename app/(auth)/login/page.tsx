@@ -29,8 +29,7 @@ export default function Page() {
       toast.error(
         'Failed validating your submission! Please check your input.',
       );
-    } else {
-      // Wait a bit for the session to be updated
+    } else if (state.status === 'success') {
       setTimeout(() => {
         session.update().finally(() => router.push('/'));
       }, 100);

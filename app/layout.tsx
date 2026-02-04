@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'sonner';
@@ -12,11 +13,26 @@ const geistSans = localFont({
   variable: '--font-geist-sans',
   weight: '100 900',
 });
+
 const geistMono = localFont({
   src: './fonts/GeistMonoVF.woff',
   variable: '--font-geist-mono',
   weight: '100 900',
 });
+
+export const metadata: Metadata = {
+  title: 'DramaX - Dashboard',
+  description: 'DramaX - Your Ultimate Movie and TV Show Companion',
+  keywords: [],
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default async function RootLayout({
   children,
