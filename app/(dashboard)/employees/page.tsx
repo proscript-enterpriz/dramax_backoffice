@@ -40,7 +40,9 @@ export default async function EmployeesPage(props: {
           columns={employeesColumns}
           data={(data ?? []).map((emp) => ({
             ...emp,
-            editIgnored: emp.full_name === 'dramax',
+            editIgnored:
+              session?.user?.role !== 'super_admin' &&
+              emp.role === 'super_admin',
           }))}
           rowCount={total_count ?? data?.length}
         />

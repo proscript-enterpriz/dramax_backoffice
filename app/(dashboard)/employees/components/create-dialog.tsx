@@ -36,6 +36,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           .refine((val) => !val?.toLowerCase().includes('drama'), {
             message: "Full name-д 'Drama' үг оруулах боломжгүй.",
           }),
+        email: z.email().transform((c) => c?.toLowerCase()),
       }),
     ),
     defaultValues: {

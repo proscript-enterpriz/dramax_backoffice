@@ -6,7 +6,13 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      role: 'admin' | 'editor' | 'moderator' | 'support';
+      role:
+        | 'admin'
+        | 'editor'
+        | 'moderator'
+        | 'support'
+        | 'super_admin'
+        | 'content_owner';
       full_name: string;
       email: string;
       is_active: boolean;

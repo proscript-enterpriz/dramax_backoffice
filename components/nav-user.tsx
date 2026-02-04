@@ -26,7 +26,7 @@ export function NavUser({ session }: { session: Session }) {
 
   const [firstname, lastname] = (
     (session?.user?.full_name || session.user?.email)?.split(/(\s|\.)/) || []
-  ).filter(Boolean);
+  ).filter((c) => !!c.trim());
 
   const username = lastname
     ? firstname[0] + lastname[0]
