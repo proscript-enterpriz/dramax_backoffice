@@ -75,7 +75,14 @@ export const employeeUpdateSchema = z.object({
   password: z.string().nullish(),
   full_name: z.string().nullish(),
   role: z
-    .enum(['admin', 'moderator', 'editor', 'support', 'content_owner'])
+    .enum([
+      'admin',
+      'moderator',
+      'editor',
+      'support',
+      'content_owner',
+      'super_admin',
+    ])
     .nullish(),
   is_active: z.boolean().nullish(),
 });
