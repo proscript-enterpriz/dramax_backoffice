@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
 
   const { page, page_size, ...qsObj } = useQueryString<QueryParamsType>({
     page: 1,
-    page_size: 30,
+    page_size: 10,
   });
 
   // Initialize state from URL params
@@ -172,8 +172,7 @@ export function DataTable<TData, TValue>({
 
   // Optimized URL update effect - only runs when necessary
   useEffect(() => {
-    if (hidePagination || disableUrlUpdates || isInitialMount.current) {
-      isInitialMount.current = false;
+    if (hidePagination || disableUrlUpdates) {
       return;
     }
 
@@ -183,6 +182,11 @@ export function DataTable<TData, TValue>({
     // Only update if the URL is actually different
     if (newUrl !== currentUrl) {
       router.replace(newUrl, { scroll: false });
+    }
+
+    // Mark as not initial mount after first update
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
     }
   }, [currentQueryString, hidePagination, disableUrlUpdates, pathname, router]);
 
