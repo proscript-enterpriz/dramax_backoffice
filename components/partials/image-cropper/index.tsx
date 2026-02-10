@@ -1,7 +1,6 @@
 'use client';
 
 import { Ref, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import Cropper, { Area, Point } from 'react-easy-crop';
 import { toast } from 'sonner';
 
 import { getCroppedImg, RatioType } from './crop-utils';
@@ -45,11 +44,11 @@ export default function ImageCropper({
   onStateChange?: (state: CropperState) => void;
 }) {
   const [imageToCrop, setImageToCrop] = useState<string | undefined>(imageSrc);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [aspect, setAspect] = useState<RatioType>(forceRatio || '16:9');
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
   const [cropping, setCropping] = useState(false);
 
   useEffect(() => {
@@ -63,25 +62,19 @@ export default function ImageCropper({
 
   const resetCropper = () => {
     setImageToCrop(undefined);
-    setRotation(0);
-    setZoom(1);
-    setCrop({ x: 0, y: 0 });
+
     if (!forceRatio) setAspect('16:9');
   };
 
   const handleCropComplete = async () => {
-    if (!imageToCrop || !croppedAreaPixels) {
+    if (!imageToCrop) {
       toast.error('Please adjust the crop area');
       return;
     }
 
     setCropping(true);
     try {
-      const croppedBlob = await getCroppedImg(
-        imageToCrop,
-        croppedAreaPixels,
-        rotation,
-      );
+      const croppedBlob = await getCroppedImg(imageToCrop, rotation);
 
       const file = new File([croppedBlob], 'cropped-image.jpg', {
         type: 'image/jpeg',

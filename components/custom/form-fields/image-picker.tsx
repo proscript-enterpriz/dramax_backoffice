@@ -1,14 +1,9 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { ImagePlus } from 'lucide-react';
 
-import { CropDialog } from '@/components/partials/crop-dialog';
-import {
-  RatioType,
-  srcToImg,
-} from '@/components/partials/image-cropper/crop-utils';
 import { Button } from '@/components/ui/button';
 import {
   FormControl,
@@ -27,11 +22,10 @@ export interface ImageListComponentProps {
   medias: string[];
   isMultiple: boolean;
   uploading: boolean;
-  forceRatio?: RatioType;
-  availableRatios?: RatioType[];
+  forceRatio?: string;
+  availableRatios?: string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field: ControllerRenderProps<any, any>;
-  openCropDialog?: (imageSrc: string) => void;
   openMediaDialog?: () => void;
   getInputRef?: () => HTMLInputElement;
   aspectRatioStyle?: { aspectRatio: string };
@@ -44,8 +38,8 @@ export interface ImagePickerItemProps {
   label?: string;
   description?: string;
   onMimeTypeDetected?: (mimeType: string) => void;
-  forceRatio?: RatioType;
-  availableRatios?: RatioType[];
+  forceRatio?: string;
+  availableRatios?: string[];
   mediaListComponent?: React.ComponentType<ImageListComponentProps>;
 }
 
@@ -61,8 +55,6 @@ export function MediaPickerItem({
   const { openDialog } = useMediaDialog();
   const { clearErrors, setError } = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [[imageToCrop], setBlobUrl] = useState<string[]>([]);
-  const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const isMultiple = Array.isArray(field.value);
   // const hasValue = isMultiple ? field.value.length > 0 : !!field.value?.trim();
   const initialUrls: string[] = isMultiple
@@ -102,9 +94,6 @@ export function MediaPickerItem({
 
     openDialog({
       multiple: isMultiple,
-      canCrop: !isMultiple,
-      forceRatio,
-      availableRatios,
       onSelect: (selectedMedias) => {
         if (isMultiple) {
           const newMedias = Array.from(
@@ -135,15 +124,7 @@ export function MediaPickerItem({
             onChange={(e) => {
               const files = e.target.files;
               if (!files || files.length === 0) return;
-
-              if (!isMultiple) {
-                setBlobUrl(
-                  Array.from(files).map((file) => URL.createObjectURL(file)),
-                );
-                setCropDialogOpen(true);
-              } else {
-                handleFileSelect(files);
-              }
+              handleFileSelect(files);
             }}
             className="hidden"
           />
@@ -164,37 +145,12 @@ export function MediaPickerItem({
             aspectRatioStyle={
               isMultiple ? undefined : { aspectRatio: aspectRatioStyle }
             }
-            openCropDialog={(imageSrc) => {
-              setCropDialogOpen(true);
-              setBlobUrl([imageSrc]);
-            }}
             openMediaDialog={openMediaDialog}
           />
         </div>
       </FormControl>
       {description && <FormDescription>{description}</FormDescription>}
       <FormMessage />
-      {!isMultiple && (
-        <CropDialog
-          imageSrc={imageToCrop}
-          open={cropDialogOpen}
-          onOpenChange={setCropDialogOpen}
-          loading={loading}
-          ratioForcedOn={forceRatio}
-          availableRatios={availableRatios}
-          onCropComplete={handleFileSelect}
-          onSkip={() => {
-            if (imageToCrop?.startsWith('blob:')) {
-              srcToImg(imageToCrop).then(async (ImageElement) => {
-                await handleFileSelect(ImageElement);
-                URL.revokeObjectURL(imageToCrop);
-              });
-            } else {
-              field.onChange(imageToCrop);
-            }
-          }}
-        />
-      )}
     </FormItem>
   );
 }
@@ -203,7 +159,6 @@ function DefaultMediasRenderer({
   medias,
   isMultiple,
   openMediaDialog,
-  openCropDialog,
   aspectRatioStyle,
   accept,
 }: ImageListComponentProps) {
@@ -245,15 +200,6 @@ function DefaultMediasRenderer({
           isMultiple ? 'w-full' : 'absolute right-4 bottom-4',
         )}
       >
-        {!isMultiple && !!openCropDialog && medias?.length > 0 && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => openCropDialog(medias[0]!)}
-          >
-            Зураг засах
-          </Button>
-        )}
         <Button type="button" onClick={openMediaDialog}>
           Зураг сонгох
         </Button>

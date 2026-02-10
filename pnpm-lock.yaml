@@ -215,9 +215,6 @@ importers:
       react-dropzone:
         specifier: ^14.3.8
         version: 14.3.8(react@19.2.1)
-      react-easy-crop:
-        specifier: ^5.5.1
-        version: 5.5.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       react-hook-form:
         specifier: ^7.62.0
         version: 7.62.0(react@19.2.1)
@@ -3800,9 +3797,6 @@ packages:
     resolution: {integrity: sha512-yQLFYO/ELC3pIMrEVvwBPU6fcCMWFFqMsK49Zqp4TfNNo1PDcEbC/xcfX1SIu+Ez5QO/Skq/0t8ogsKicwLZWg==}
     engines: {node: '>=18'}
 
-  normalize-wheel@1.0.1:
-    resolution: {integrity: sha512-1OnlAPZ3zgrk8B91HyRj+eVv+kS5u+Z0SCsak6Xil/kmgEia50ga7zfkumayonZrImffAxPU/5WcyGhzetHNPA==}
-
   oauth4webapi@3.8.1:
     resolution: {integrity: sha512-olkZDELNycOWQf9LrsELFq8n05LwJgV8UkrS0cburk6FOwf8GvLam+YB+Uj5Qvryee+vwWOfQVeI5Vm0MVg7SA==}
 
@@ -4221,12 +4215,6 @@ packages:
     engines: {node: '>= 10.13'}
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
-
-  react-easy-crop@5.5.1:
-    resolution: {integrity: sha512-8m6lCmfr6cSE9/447iHu+OniJuy7sdFbTqbsYyAXKygXJplvGCLpodujodWQeBGse11nDIgCbMUKbgucIxQWSQ==}
-    peerDependencies:
-      react: '>=16.4.0'
-      react-dom: '>=16.4.0'
 
   react-hook-form@7.62.0:
     resolution: {integrity: sha512-7KWFejc98xqG/F4bAxpL41NB3o1nnvQO1RWZT3TqRZYL8RryQETGfEdVnJN2fy1crCiBLLjkRBVK05j24FxJGA==}
@@ -8540,8 +8528,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  normalize-wheel@1.0.1: {}
-
   oauth4webapi@3.8.1: {}
 
   object-assign@4.1.1: {}
@@ -8955,13 +8941,6 @@ snapshots:
       file-selector: 2.1.2
       prop-types: 15.8.1
       react: 19.2.1
-
-  react-easy-crop@5.5.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1):
-    dependencies:
-      normalize-wheel: 1.0.1
-      react: 19.2.1
-      react-dom: 19.2.1(react@19.2.1)
-      tslib: 2.8.1
 
   react-hook-form@7.62.0(react@19.2.1):
     dependencies:

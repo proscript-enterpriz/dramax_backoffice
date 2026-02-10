@@ -4,11 +4,6 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import { Loader2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { CropDialog } from '@/components/partials/crop-dialog';
-import {
-  RatioType,
-  srcToImg,
-} from '@/components/partials/image-cropper/crop-utils';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -30,18 +25,9 @@ interface MediaDialogContextType {
 
 type MediaDialogOptions = {
   accept?: string;
+  multiple?: boolean;
   onSelect?: (media: ImageInfoType | ImageInfoType[]) => void;
-} & (
-  | {
-      multiple: true;
-    }
-  | {
-      multiple?: false;
-      canCrop?: boolean;
-      forceRatio?: RatioType;
-      availableRatios?: RatioType[];
-    }
-);
+};
 
 const MediaDialogContext = createContext<MediaDialogContextType | undefined>(
   undefined,
@@ -66,10 +52,6 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [media, setMedia] = useState<ImageInfoType[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<ImageInfoType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // cropper state
-  const [cropDialogOpen, setCropDialogOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState('');
 
   const fileUploader = useFileUploader({
     onUploadComplete: () => {
@@ -142,66 +124,21 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleConfirm = useCallback(() => {
     if (selectedMedia.length > 0) {
-      let selection;
-      if (options?.multiple === true) {
-        selection = selectedMedia;
-      } else {
-        selection = selectedMedia[0];
-        if (options.canCrop) {
-          setImageToCrop(selection.image_url);
-          return setCropDialogOpen(true);
-        }
-      }
+      const selection =
+        options?.multiple === true ? selectedMedia : selectedMedia[0];
       selectAndClose(selection);
     }
-  }, [selectedMedia, options, closeDialog]);
+  }, [selectedMedia, options, selectAndClose]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
-
-    if (!options?.multiple && options.canCrop) {
-      setImageToCrop(URL.createObjectURL(files[0]));
-      return setCropDialogOpen(true);
-    }
-
     fileUploader.handleFileSelect(files);
   };
 
   return (
     <MediaDialogContext.Provider value={{ openDialog, closeDialog }}>
       {children}
-
-      {!options?.multiple && (
-        <CropDialog
-          imageSrc={imageToCrop}
-          open={cropDialogOpen}
-          onOpenChange={setCropDialogOpen}
-          loading={fileUploader.loading}
-          ratioForcedOn={options.forceRatio}
-          onCropComplete={(file) => {
-            fileUploader.handleFileSelect(file).then((uploads) => {
-              if (uploads) {
-                selectAndClose(uploads[0]);
-              }
-            });
-          }}
-          onSkip={() => {
-            if (imageToCrop?.startsWith('blob:')) {
-              srcToImg(imageToCrop).then(async (ImageElement) => {
-                fileUploader.handleFileSelect(ImageElement).then((uploads) => {
-                  if (uploads) {
-                    selectAndClose(uploads[0]);
-                  }
-                  URL.revokeObjectURL(imageToCrop);
-                });
-              });
-            } else {
-              selectAndClose(media.find((cc) => cc.image_url === imageToCrop)!);
-            }
-          }}
-        />
-      )}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-h-[80vh] max-w-4xl">
           <DialogHeader>

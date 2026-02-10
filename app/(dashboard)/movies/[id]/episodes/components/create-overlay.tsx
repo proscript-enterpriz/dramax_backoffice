@@ -2,6 +2,7 @@
 
 import { ReactNode, useRef, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
@@ -20,7 +21,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { createMovieEpisode } from '@/services/movie-episodes';
-import { CreateMovieEpisodeType } from '@/services/schema';
+import {
+  createMovieEpisodeSchema,
+  CreateMovieEpisodeType,
+} from '@/services/schema';
 
 interface CreateOverlayProps {
   children: ReactNode;
@@ -37,6 +41,7 @@ export function CreateOverlay({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<CreateMovieEpisodeType>({
+    resolver: zodResolver(createMovieEpisodeSchema),
     defaultValues: {
       movie_id: movieId,
       title: '',
