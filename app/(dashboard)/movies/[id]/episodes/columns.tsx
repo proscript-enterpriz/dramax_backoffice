@@ -101,35 +101,77 @@ function CellAction({ row }: CellContext<MovieEpisodeType>) {
 
 export const columns: ColumnDef<MovieEpisodeType>[] = [
   {
-    accessorKey: 'episode_number',
-    header: 'Дугаар',
-    cell: ({ row }) => (
-      <Badge variant="outline" className="font-mono">
-        #{row.original.episode_number}
-      </Badge>
-    ),
-  },
-  {
     accessorKey: 'thumbnail',
     header: 'Зураг',
-    cell: ({ row }) =>
-      row.original.thumbnail ? (
-        <ZoomableImage src={row.original.thumbnail} />
-      ) : (
-        <span className="text-muted-foreground">-</span>
-      ),
+    size: 80,
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center py-2">
+        {row.original.thumbnail ? (
+          <ZoomableImage src={row.original.thumbnail} />
+        ) : (
+          <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-md border aspect-square">
+            <span className="text-muted-foreground text-center text-xs leading-tight">
+              Зураг байхгүй
+            </span>
+          </div>
+        )}
+      </div>
+    ),
   },
   {
     accessorKey: 'title',
     header: 'Гарчиг',
+    size: 200,
     cell: ({ row }) => (
-      <div className="max-w-[300px]">
+      <div className="flex h-16 items-center px-4">
         <div className="font-medium">{row.original.title}</div>
-        {row.original.description && (
-          <div className="text-muted-foreground text-sm">
-            {removeHTML(row.original.description).slice(0, 80)}
-            {removeHTML(row.original.description).length > 80 && '...'}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'episode_number',
+    header: 'Дугаар',
+    size: 80,
+    cell: ({ row }) => (
+      <div className="flex h-16 items-center justify-center px-2">
+        <Badge variant="outline">#{row.original.episode_number}</Badge>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'description',
+    header: 'Тайлбар',
+    size: 400,
+    cell: ({ row }) => {
+      const description = row.original.description;
+
+      return (
+        <div className="flex h-16 w-full items-center px-4">
+          <div className="w-full">
+            {!description ? (
+              <span className="text-muted-foreground">-</span>
+            ) : (
+              <p className="text-foreground line-clamp-2 text-sm leading-relaxed">
+                {removeHTML(description)}
+              </p>
+            )}
           </div>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'cloudflare_video_id',
+    header: 'Видео ID',
+    size: 150,
+    cell: ({ row }) => (
+      <div className="flex h-16 items-center px-3">
+        {row.original.cloudflare_video_id ? (
+          <code className="bg-muted rounded px-2 py-1 text-xs">
+            {row.original.cloudflare_video_id.slice(0, 12)}...
+          </code>
+        ) : (
+          <span className="text-muted-foreground">-</span>
         )}
       </div>
     ),
@@ -137,34 +179,42 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
   {
     accessorKey: 'duration',
     header: 'Үргэлжлэх хугацаа',
+    size: 150,
     cell: ({ row }) => {
       const duration = row.original.duration;
-      if (!duration) return <span className="text-muted-foreground">-</span>;
 
-      const minutes = Math.floor(duration / 60);
+      if (!duration) {
+        return (
+          <div className="flex h-16 items-center px-3">
+            <span className="text-muted-foreground">-</span>
+          </div>
+        );
+      }
+
+      const hours = Math.floor(duration / 3600);
+      const minutes = Math.floor((duration % 3600) / 60);
       const seconds = duration % 60;
 
+      let formattedDuration = '';
+      if (hours > 0) {
+        formattedDuration = `${hours} цаг ${minutes} мин`;
+      } else if (minutes > 0) {
+        formattedDuration = `${minutes} мин ${seconds} сек`;
+      } else {
+        formattedDuration = `${seconds} сек`;
+      }
+
       return (
-        <span className="font-mono">
-          {minutes}:{seconds.toString().padStart(2, '0')}
-        </span>
+        <div className="flex h-16 items-center px-3">
+          <span className="text-sm">{formattedDuration}</span>
+        </div>
       );
     },
   },
-  {
-    accessorKey: 'cloudflare_video_id',
-    header: 'Видео ID',
-    cell: ({ row }) =>
-      row.original.cloudflare_video_id ? (
-        <code className="bg-muted rounded px-2 py-1 text-xs">
-          {row.original.cloudflare_video_id.slice(0, 12)}...
-        </code>
-      ) : (
-        <span className="text-muted-foreground">-</span>
-      ),
-  },
+
   {
     id: 'actions',
+    size: 60,
     cell: CellAction,
   },
 ];
