@@ -811,7 +811,7 @@ import { TextArrayInput } from '@/components/custom/form-fields';
 These components are already integrated into the Filmora Backoffice project. If you're setting up a new project, ensure these dependencies are installed:
 
 ```bash
-pnpm add react-hook-form react-number-format react-easy-crop dayjs lucide-react sonner
+pnpm add react-hook-form react-number-format dayjs lucide-react sonner
 ```
 
 **Required Dependencies:**
@@ -820,7 +820,6 @@ pnpm add react-hook-form react-number-format react-easy-crop dayjs lucide-react 
   "react": "^18.0.0",
   "react-hook-form": "^7.x",
   "react-number-format": "^5.x",
-  "react-easy-crop": "^5.x",
   "dayjs": "^1.x",
   "lucide-react": "^0.x",
   "sonner": "^2.x"

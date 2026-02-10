@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+import { PlusCircleIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import { Heading } from '@/components/custom/heading';
 import { ReplaceBreadcrumdItem } from '@/components/custom/replace-breadcrumd-item';
+import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { hasPermission } from '@/lib/permission';
 import { getMovieEpisodeList } from '@/services/movie-episodes';
@@ -56,9 +58,10 @@ export default async function Page({
             movieId={movieId}
             epNum={total_count ? (total_count as number) + 1 : 1}
           >
-            <button className="bg-primary text-primary-foreground rounded px-4 py-2">
+            <Button variant="default">
+              <PlusCircleIcon />
               Анги нэмэх
-            </button>
+            </Button>
           </CreateOverlay>
         )}
       </div>

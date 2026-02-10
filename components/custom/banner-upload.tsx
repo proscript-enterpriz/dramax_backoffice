@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Cropper from 'react-easy-crop';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { Loader2, X } from 'lucide-react';
 import Image from 'next/image';
@@ -15,7 +14,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { getCroppedImg } from '@/lib/crop-image';
 import { uploadImage } from '@/lib/functions';
 
 type UploadedImage = {
@@ -39,19 +37,13 @@ export function BannerUpload({
 }) {
   const { setError } = useFormContext();
   const [image, setImage] = useState<UploadedImage | null>(null);
-  const [showCrop, setShowCrop] = useState(false);
-  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const isMounted = useRef(false);
 
   useEffect(() => {
     return () => {
-      if (rawImageUrl) URL.revokeObjectURL(rawImageUrl);
       if (image?.previewUrl) URL.revokeObjectURL(image.previewUrl);
     };
-  }, [rawImageUrl, image]);
+  }, [image]);
 
   useEffect(() => {
     if (isMounted.current && image?.uploadedUrl) {
@@ -61,32 +53,15 @@ export function BannerUpload({
     }
   }, [image]);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (!file) return;
 
-    if (file.size > 5_000_000) {
-      toast.error(`${file.name} зураг 5MB-аас том байна.`);
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setRawImageUrl(previewUrl);
-    setShowCrop(true);
-  }, []);
-
-  const cropComplete = useCallback((_: any, croppedAreaPixelsProp: any) => {
-    setCroppedAreaPixels(croppedAreaPixelsProp);
-  }, []);
-
-  const cropAndUpload = async () => {
-    if (!rawImageUrl || !croppedAreaPixels) return;
-
-    try {
-      const croppedBlob = await getCroppedImg(rawImageUrl, croppedAreaPixels);
-      const file = new File([croppedBlob], 'cropped.jpeg', {
-        type: 'image/jpeg',
-      });
+      if (file.size > 5_000_000) {
+        toast.error(`${file.name} зураг 5MB-аас том байна.`);
+        return;
+      }
 
       const previewUrl = URL.createObjectURL(file);
 
@@ -98,117 +73,104 @@ export function BannerUpload({
       };
 
       setImage(newImage);
-      setShowCrop(false);
-      setRawImageUrl(null);
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('prefix', imagePrefix);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('prefix', imagePrefix);
 
-      const res = await uploadImage(formData);
+        const result = await uploadImage(formData);
 
-      setImage((prev) =>
-        prev ? { ...prev, uploading: false, uploadedUrl: res?.data } : prev,
-      );
-    } catch (err: any) {
-      setError(field.name, { message: err.message }, { shouldFocus: true });
-    }
-  };
+        if (result?.data) {
+          setImage((prev) => {
+            if (prev?.id === newImage.id) {
+              return { ...prev, uploadedUrl: result.data, uploading: false };
+            }
+            return prev;
+          });
+        } else {
+          toast.error('Зураг байршуулахад алдаа гарлаа');
+          setImage(null);
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error('Зураг байршуулахад алдаа гарлаа');
+        setImage(null);
+      }
+    },
+    [imagePrefix, setError, field.name],
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.png', '.gif', '.jpeg', '.jpg', '.webp'],
+    },
+    multiple: false,
+    disabled,
+  });
 
   const removeImage = () => {
+    if (image?.previewUrl) {
+      URL.revokeObjectURL(image.previewUrl);
+    }
     setImage(null);
-    field.onChange(undefined); // clear field without triggering submit
+    field.onChange('');
   };
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: { 'image/*': [] },
-    multiple: false,
-    disabled: disabled || image?.uploading,
-  });
 
   return (
     <FormItem>
       {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
-        <div
-          {...getRootProps()}
-          className="relative flex h-64 cursor-pointer items-center justify-center overflow-hidden rounded-xl border bg-gray-50 p-6 text-center"
-        >
-          <input {...getInputProps()} />
-          {image ? (
-            <>
-              <Image
-                src={image.uploadedUrl || image.previewUrl}
-                alt={image.file.name}
-                className="absolute inset-0 h-full w-full object-cover"
-                fill
-              />
-              {image.uploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                  <Loader2 size={24} className="animate-spin text-white" />
-                </div>
+        <div className="flex flex-col gap-4">
+          {!image ? (
+            <div
+              {...getRootProps()}
+              className={`border-muted-foreground/25 hover:border-primary/50 relative flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed transition-colors ${
+                isDragActive ? 'border-primary bg-primary/5' : ''
+              } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
+            >
+              <input {...getInputProps()} />
+              {isDragActive ? (
+                <p className="text-sm">Энд зургийг чирж оруулна уу...</p>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  Зураг оруулахын тулд энд дарах эсвэл чирч оруулна уу
+                </p>
               )}
-              {!image.uploading && (
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="relative aspect-[21/9] overflow-hidden rounded-lg">
+                <Image
+                  src={image.previewUrl}
+                  alt="Banner"
+                  fill
+                  className="object-cover"
+                />
+                {image.uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              {!disabled && (
                 <Button
-                  variant="secondary"
                   type="button"
+                  variant="destructive"
                   size="icon"
+                  className="absolute right-2 top-2"
                   onClick={removeImage}
-                  className="absolute top-2 right-2 z-10 rounded-full bg-white p-1 shadow"
-                  aria-label="Remove image"
+                  disabled={image.uploading}
                 >
-                  <X size={16} />
+                  <X className="h-4 w-4" />
                 </Button>
               )}
-            </>
-          ) : (
-            <p className="text-gray-500">
-              Зургаа чирж оруулна уу эсвэл дарж сонгоно уу
-            </p>
+            </div>
           )}
         </div>
       </FormControl>
       <FormMessage />
-
-      {showCrop && rawImageUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="w-[90vw] max-w-xl rounded-lg bg-white p-4">
-            <div className="relative h-80 w-full bg-black">
-              <Cropper
-                image={rawImageUrl}
-                crop={crop}
-                zoom={zoom}
-                aspect={5 / 2}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={cropComplete}
-              />
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => {
-                  setShowCrop(false);
-                  setRawImageUrl(null);
-                }}
-                aria-label="Cancel cropping"
-              >
-                Цуцлах
-              </Button>
-              <Button
-                variant="default"
-                type="button"
-                onClick={cropAndUpload}
-                aria-label="Save cropped image"
-              >
-                Хадгалах
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </FormItem>
   );
 }

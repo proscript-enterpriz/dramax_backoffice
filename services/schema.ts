@@ -614,28 +614,39 @@ export type SingleItemResponseMovieEpisodeType = z.infer<
 >;
 
 export const createMovieEpisodeSchema = z.object({
-  title: z.string().min(1).max(200),
+  // REQUIRED fields
+  title: z.string().min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!').max(200),
+  description: z
+    .string()
+    .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
+    .max(500),
+  thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
+  // OPTIONAL fields
   episode_number: z.int(),
   video_width: z.int().optional(),
   video_height: z.int().optional(),
-  description: z.string().max(500).nullish(),
   movie_id: z.uuid(),
   cloudflare_video_id: z.string().nullish(),
-  thumbnail: z.string().nullish(),
   duration: z.int().nullish(),
 });
 
 export type CreateMovieEpisodeType = z.infer<typeof createMovieEpisodeSchema>;
 
 export const updateMovieEpisodeSchema = z.object({
-  title: z.string().min(1).max(200).nullish(),
-  episode_number: z.int().nullish(),
-  video_width: z.int().optional(),
-  video_height: z.int().optional(),
-  description: z.string().max(500).nullish(),
-  thumbnail: z.string().nullish(),
-  duration: z.int().nullish(),
-  cloudflare_video_id: z.string().max(500).nullish(),
+  // REQUIRED
+  title: z.string().min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!').max(200),
+  description: z
+    .string()
+    .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
+    .max(500),
+  thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
+
+  // OPTIONAL
+  episode_number: z.number().int().optional(),
+  video_width: z.number().int().optional(),
+  video_height: z.number().int().optional(),
+  duration: z.number().int().optional(),
+  cloudflare_video_id: z.string().max(500).optional(),
 });
 
 export type UpdateMovieEpisodeType = z.infer<typeof updateMovieEpisodeSchema>;

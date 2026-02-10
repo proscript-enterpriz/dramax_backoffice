@@ -2,6 +2,7 @@
 
 import { ReactNode, useRef, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
@@ -20,7 +21,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { updateMovieEpisode } from '@/services/movie-episodes';
-import { MovieEpisodeType, UpdateMovieEpisodeType } from '@/services/schema';
+import {
+  MovieEpisodeType,
+  updateMovieEpisodeSchema,
+  UpdateMovieEpisodeType,
+} from '@/services/schema';
 
 interface UpdateOverlayProps {
   children: ReactNode;
@@ -32,6 +37,7 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<UpdateMovieEpisodeType>({
+    resolver: zodResolver(updateMovieEpisodeSchema),
     defaultValues: {
       title: item.title,
       episode_number: item.episode_number,
