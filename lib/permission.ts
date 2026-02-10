@@ -81,6 +81,7 @@ type UrlEnumType = RemoveSlash<
 >;
 
 const subjects = {
+  '': [],
   categories: [],
   employees: [],
   rentals: ['users'],
@@ -147,6 +148,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Normal admin
   admin: {
+    '': full,
     employees: modify,
     rentals: read,
     'rentals.users': read,
@@ -169,6 +171,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Editor role
   editor: {
+    '': full,
     categories: modify,
     genres: full,
     medias: full,
@@ -191,6 +194,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Moderator role
   moderator: {
+    '': full,
     categories: read,
     genres: read,
     medias: read,
@@ -213,6 +217,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Support role
   support: {
+    '': full,
     categories: read,
     genres: read,
     medias: read,
@@ -235,6 +240,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Content owner: only full control over own movies/media
   content_owner: {
+    '': full,
     employees: restricted,
     rentals: read, // can see rentals related to their content
     'rentals.users': restricted,
