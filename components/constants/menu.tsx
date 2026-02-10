@@ -3,6 +3,7 @@ import {
   FilmIcon,
   GalleryVerticalEnd,
   GemIcon,
+  Home,
   ImagePlusIcon,
   type LucideIcon,
   Tag,
@@ -20,6 +21,12 @@ export type SubMenuItemType = {
 };
 
 export const operationsRoutes = [
+  {
+    title: 'Нүүр',
+    url: '/',
+    subRoutes: false,
+    icon: Home,
+  },
   {
     title: 'Кинонууд',
     url: '/movies',
