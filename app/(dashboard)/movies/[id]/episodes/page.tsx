@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { PlusCircleIcon } from 'lucide-react';
+import { FileVideo, PlusCircleIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
@@ -7,6 +7,7 @@ import { Heading } from '@/components/custom/heading';
 import { ReplaceBreadcrumdItem } from '@/components/custom/replace-breadcrumd-item';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { hasPermission } from '@/lib/permission';
 import { getMovieEpisodeList } from '@/services/movie-episodes';
 import { getMovie } from '@/services/movies-generated';
@@ -65,8 +66,35 @@ export default async function Page({
           </CreateOverlay>
         )}
       </div>
-      <Suspense fallback="Loading table...">
-        <DataTable columns={columns} data={data ?? []} rowCount={total_count} />
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
+        {!data || data.length === 0 ? (
+          <div className="border-dashed flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 p-8 text-center">
+            <div className="bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+              <FileVideo className="text-muted-foreground h-8 w-8" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold">Анги байхгүй байна</h3>
+            <p className="text-muted-foreground mb-4 mt-2 text-sm">
+              Та эхний ангиа үүсгэж эхэлнэ үү
+            </p>
+            {canCreate && (
+              <CreateOverlay
+                movieId={movieId}
+                epNum={1}
+              >
+                <Button>
+                  <PlusCircleIcon />
+                  Эхний анги нэмэх
+                </Button>
+              </CreateOverlay>
+            )}
+          </div>
+        ) : (
+          <DataTable 
+            columns={columns} 
+            data={data} 
+            rowCount={total_count}
+          />
+        )}
       </Suspense>
     </>
   );
