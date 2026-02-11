@@ -4,6 +4,8 @@
 import { z } from 'zod';
 
 import { auth } from '@/auth';
+import { executeRevalidate } from '@/services/api/helpers';
+import { RVK_IMAGES } from '@/services/rvk';
 
 import { stringifyError, validateSchema } from './utils';
 
@@ -97,6 +99,7 @@ export async function uploadImage(formData: FormData) {
       );
 
     const filePath = result?.data?.data?.original;
+    executeRevalidate([RVK_IMAGES]);
 
     return { data: filePath, error: null };
   } catch (error: any) {

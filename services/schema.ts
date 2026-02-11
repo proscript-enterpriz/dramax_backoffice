@@ -550,6 +550,7 @@ export const createEpisodeSchema = z.object({
   description: z.string().max(500).nullish(),
   season_id: z.uuid(),
   playback_url: z.string().max(500).nullish(),
+  thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
   duration: z.int().nullish(),
 });

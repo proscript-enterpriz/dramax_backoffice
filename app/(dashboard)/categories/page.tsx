@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { Heading } from '@/components/custom/heading';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { hasPermission } from '@/lib/permission';
 import { SearchParams } from '@/services/api/types';
@@ -42,7 +43,7 @@ export default async function CategoriesPage(props: {
         )}
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable columns={categoriesColumns} data={list} rowCount={count} />
       </Suspense>
     </>

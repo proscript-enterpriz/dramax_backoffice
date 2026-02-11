@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { removeHTML } from '@/lib/utils';
 import { createMovieEpisode } from '@/services/movie-episodes';
 import {
   createMovieEpisodeSchema,
@@ -32,6 +33,26 @@ interface CreateOverlayProps {
   epNum?: number;
 }
 
+const createEpisodeFormSchema = createMovieEpisodeSchema.superRefine(
+  (values, ctx) => {
+    if (!removeHTML(values.description ?? '').trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['description'],
+        message: 'Тайлбар хэсэг заавал бөглөх шаардлагатай!',
+      });
+    }
+
+    if (!values.cloudflare_video_id?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cloudflare_video_id'],
+        message: 'Streaming URL заавал оруулна уу!',
+      });
+    }
+  },
+);
+
 export function CreateOverlay({
   children,
   movieId,
@@ -41,7 +62,7 @@ export function CreateOverlay({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<CreateMovieEpisodeType>({
-    resolver: zodResolver(createMovieEpisodeSchema),
+    resolver: zodResolver(createEpisodeFormSchema),
     defaultValues: {
       movie_id: movieId,
       title: '',

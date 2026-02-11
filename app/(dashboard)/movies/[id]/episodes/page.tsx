@@ -22,7 +22,10 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ page?: string; page_size?: string }>;
+  searchParams?: Promise<{
+    page?: string;
+    page_size?: string;
+  }>;
 }) {
   const session = await auth();
   const { id: movieId } = await params;
@@ -89,11 +92,7 @@ export default async function Page({
             )}
           </div>
         ) : (
-          <DataTable 
-            columns={columns} 
-            data={data} 
-            rowCount={total_count}
-          />
+          <DataTable columns={columns} data={data} rowCount={total_count} />
         )}
       </Suspense>
     </>

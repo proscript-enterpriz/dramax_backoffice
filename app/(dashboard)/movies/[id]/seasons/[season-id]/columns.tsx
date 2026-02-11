@@ -90,28 +90,37 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
 
 export const episodesColumns: ColumnDef<EpisodeType>[] = [
   {
+    id: 'thumbnail',
+    accessorKey: 'thumbnail',
+    header: ({ column }) => <TableHeaderWrapper column={column} />,
+    cell: ({ row }) =>
+      row.original.thumbnail ? (
+        <ZoomableImage src={row.original.thumbnail} />
+      ) : (
+        <div className="bg-muted flex aspect-square h-16 w-16 items-center justify-center rounded-md border">
+          <span className="text-muted-foreground text-center text-xs leading-tight">
+            Зураг байхгүй
+          </span>
+        </div>
+      ),
+    enableSorting: false,
+    enableColumnFilter: false,
+  },
+  {
+    id: 'title',
+    accessorKey: 'title',
+    header: ({ column }) => <TableHeaderWrapper column={column} />,
+    cell: ({ row }) => row.original.title?.slice(0, 300) ?? '-',
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
+  {
     id: 'id',
     accessorKey: 'episode_id',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.episode_id,
     enableSorting: true,
     enableColumnFilter: true,
-  },
-  {
-    id: 'episode_number',
-    accessorKey: 'episode_number',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => row.original.episode_number ?? '-',
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
-  {
-    id: 'thumbnail',
-    accessorKey: 'thumbnail',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => <ZoomableImage src={row.original.thumbnail} />,
-    enableSorting: false,
-    enableColumnFilter: false,
   },
   {
     id: 'cloudflare_video_id',
@@ -124,10 +133,10 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'title',
-    accessorKey: 'title',
+    id: 'episode_number',
+    accessorKey: 'episode_number',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => row.original.title?.slice(0, 300) ?? '-',
+    cell: ({ row }) => row.original.episode_number ?? '-',
     enableSorting: true,
     enableColumnFilter: true,
   },

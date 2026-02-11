@@ -49,14 +49,14 @@ export function DatePickerItem({
               variant={'outline'}
               size="lg"
               className={cn(
-                'w-full pl-3 text-left font-normal',
+                'w-full px-4 text-left font-normal',
                 !field.value && 'text-muted-foreground',
               )}
             >
               {field.value ? (
                 dayjs(field.value).format('YYYY-MM-DD')
               ) : (
-                <span>Pick a date</span>
+                <span>Огноо сонгох</span>
               )}
               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
             </Button>

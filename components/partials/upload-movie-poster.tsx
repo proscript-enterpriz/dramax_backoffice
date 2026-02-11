@@ -24,18 +24,22 @@ export function UploadPosterComponent({
   const aspect = w / h;
 
   return (
-    <div className="border-border flex w-full items-center justify-between gap-4 rounded-lg border p-4 pl-6">
-      <div className="flex w-full max-w-[450px] flex-col items-start justify-start gap-2">
-        <h1 className="font-medium">Постер зураг оруулна уу</h1>
-        <p className="text-muted-foreground mb-2">
-          Энд дарж ковер зургаа оруулна уу?{' '}
-          <span className="font-bold">({accept.replace(/image\//g, '')})</span>{' '}
+    <div className="border-border flex w-full items-center justify-between gap-4 rounded-lg border p-5">
+      <div className="flex w-full flex-col items-start justify-start pl-3">
+        <h1 className="text-foreground mb-2 text-lg font-bold">
+          Кино постер зураг
+        </h1>
+        <p className="text-muted-foreground mb-4 text-sm">
+          Энд дарж ковер зургаа оруулна уу?
+          <span className="font-medium italic">
+            ({accept.replace(/image\//g, '')})
+          </span>{' '}
           форматтай зураг оруулна уу
         </p>
         <Button
           type="button"
           onClick={openMediaDialog}
-          size="lg"
+          size="default"
           variant="outline"
         >
           Зураг сонгох
@@ -44,7 +48,7 @@ export function UploadPosterComponent({
 
       <div
         className={cn(
-          'relative h-full overflow-hidden rounded-lg bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15',
+          'relative h-[200px] overflow-hidden rounded-lg bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15',
           aspect && aspect >= 1 ? 'w-[200px]' : 'w-[156px]',
         )}
         style={{

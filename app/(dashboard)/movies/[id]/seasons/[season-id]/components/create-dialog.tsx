@@ -8,7 +8,11 @@ import { toast } from 'sonner';
 
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import { HtmlTipTapItem } from '@/components/custom/form-fields';
+import {
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
+import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import {
   FormControl,
   FormField,
@@ -17,8 +21,37 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { removeHTML } from '@/lib/utils';
 import { createEpisode } from '@/services/create_episode';
 import { createEpisodeSchema, CreateEpisodeType } from '@/services/schema';
+
+const createEpisodeFormSchema = createEpisodeSchema.superRefine(
+  (values, ctx) => {
+    if (!values.thumbnail?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['thumbnail'],
+        message: 'Постер зураг заавал оруулна уу!',
+      });
+    }
+
+    if (!removeHTML(values.description ?? '').trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['description'],
+        message: 'Тайлбар заавал оруулна уу!',
+      });
+    }
+
+    if (!values.cloudflare_video_id?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cloudflare_video_id'],
+        message: 'Streaming URL заавал оруулна уу!',
+      });
+    }
+  },
+);
 
 export function CreateDialog({ children }: { children: ReactNode }) {
   const dialogRef = useRef<FormDialogRef>(null);
@@ -26,9 +59,15 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const params = useParams();
 
   const form = useForm<CreateEpisodeType>({
-    resolver: zodResolver(createEpisodeSchema),
+    resolver: zodResolver(createEpisodeFormSchema),
     defaultValues: {
       season_id: params['season-id'] as unknown as string,
+      title: '',
+      episode_number: 1,
+      description: '',
+      thumbnail: '',
+      duration: 0,
+      cloudflare_video_id: '',
     },
   });
 
@@ -50,19 +89,19 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Create new episode"
-      submitText="Create"
+      title="Шинэ анги нэмэх"
+      submitText="Үргэлжлүүлэх"
       trigger={children}
     >
       <FormField
         control={form.control}
-        name="season_id"
+        name="thumbnail"
         render={({ field }) => (
-          <FormItem>
-            <FormControl>
-              <Input type="hidden" {...field} />
-            </FormControl>
-          </FormItem>
+          <MediaPickerItem
+            field={field}
+            forceRatio="16:9"
+            mediaListComponent={UploadPosterComponent}
+          />
         )}
       />
 
@@ -103,15 +142,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       <FormField
         control={form.control}
         name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <HtmlTipTapItem field={field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => <HtmlTipTapItem field={field} label="Description" />}
       />
 
       <FormField
@@ -158,6 +189,18 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           )}
         />
       </div>
+
+      <FormField
+        control={form.control}
+        name="season_id"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input type="hidden" {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
     </FormDialog>
   );
 }

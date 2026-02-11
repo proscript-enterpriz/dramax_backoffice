@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { Heading } from '@/components/custom/heading';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SearchParams } from '@/services/api/types';
 import {
   getSubscriptionUsers,
@@ -34,7 +35,7 @@ export default async function SubscriptionsPage(props: {
         <Heading title={`Багцын хэрэглэгчид (${count})`} />
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={subscriptionsColumns}
           data={list}
