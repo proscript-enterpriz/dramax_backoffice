@@ -5,6 +5,7 @@ import { Heading } from '@/components/custom/heading';
 import InputFilter from '@/components/custom/input-filter';
 import StatusFilter from '@/components/custom/table/status-filter';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { SearchParams } from '@/lib/fetch/types';
 import { hasPermission } from '@/lib/permission';
@@ -56,7 +57,7 @@ export default async function MoviesPage(props: {
 
       <Separator />
 
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={moviesColumns}
           data={data ?? []}

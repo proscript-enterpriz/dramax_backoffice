@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { Heading } from '@/components/custom/heading';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SearchParams } from '@/services/api/types';
 import { getRentalCountsByUsers } from '@/services/rentals';
 
@@ -29,7 +30,7 @@ export default async function RentalsUsersPage(props: {
         <Heading title={`Түрээсэлсэн хэрэглэгчид (${count})`} />
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable columns={rentalsUsersColumns} data={list} rowCount={count} />
       </Suspense>
     </>

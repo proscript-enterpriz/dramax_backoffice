@@ -3,7 +3,6 @@
 
 import React, {
   ReactNode,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -19,9 +18,7 @@ import {
   getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   PaginationState,
-  SortingState,
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
@@ -84,7 +81,13 @@ export function DataTable<TData, TValue>({
   const pathname = usePathname();
   const isInitialMount = useRef(true);
 
-  const { page, page_size, ...qsObj } = useQueryString<QueryParamsType>({
+  const {
+    page,
+    page_size,
+    sort_by: _sortBy,
+    sort_order: _sortOrder,
+    ...qsObj
+  } = useQueryString<QueryParamsType>({
     page: 1,
     page_size: 30,
   });
@@ -94,7 +97,6 @@ export function DataTable<TData, TValue>({
     pageIndex: page - 1,
     pageSize: page_size,
   });
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
@@ -107,20 +109,11 @@ export function DataTable<TData, TValue>({
     [pageIndex, pageSize],
   );
 
-  // Memoized sorting values
-  const getSortingValue = useCallback((sortingState: SortingState) => {
-    return {
-      sortBy: sortingState[0]?.id || '',
-      sortOrder: sortingState[0]?.desc ? 'desc' : 'asc',
-    };
-  }, []);
-
   // Memoized table configuration
   const table = useReactTable({
     data: data ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
@@ -131,22 +124,16 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     filterFns: {},
     manualFiltering: true,
-    onSortingChange: setSorting,
     pageCount,
     rowCount,
     manualPagination: true,
     manualSorting: true,
     state: {
       pagination,
-      sorting,
       columnFilters,
       columnVisibility,
     },
   });
-
-  const sortValues = useMemo(() => {
-    return getSortingValue(table.getState().sorting);
-  }, [table.getState().sorting, getSortingValue]);
 
   // Memoized serialized filters
   const serializedFilters = useMemo(() => {
@@ -162,17 +149,13 @@ export function DataTable<TData, TValue>({
     };
 
     if (serializedFilters) queryString.filters = serializedFilters;
-    if (sortValues?.sortBy) {
-      queryString.sort_by = sortValues?.sortBy;
-      queryString.sort_order = sortValues?.sortOrder;
-    }
 
     return objToQs(queryString);
-  }, [pageIndex, pageSize, serializedFilters, sortValues, qsObj]);
+  }, [pageIndex, pageSize, serializedFilters, qsObj]);
 
   // Optimized URL update effect - only runs when necessary
   useEffect(() => {
-    if (hidePagination || disableUrlUpdates || isInitialMount.current) {
+    if (disableUrlUpdates || isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
@@ -184,7 +167,7 @@ export function DataTable<TData, TValue>({
     if (newUrl !== currentUrl) {
       router.replace(newUrl, { scroll: false });
     }
-  }, [currentQueryString, hidePagination, disableUrlUpdates, pathname, router]);
+  }, [currentQueryString, disableUrlUpdates, pathname, router]);
 
   return (
     <div className="w-full">

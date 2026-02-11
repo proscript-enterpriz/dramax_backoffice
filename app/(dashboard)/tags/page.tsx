@@ -6,6 +6,7 @@ import { Heading } from '@/components/custom/heading';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SearchParams } from '@/lib/fetch/types';
 import { hasPermission } from '@/lib/permission';
 import { getTags } from '@/services/tags';
@@ -33,7 +34,7 @@ export default async function TagsPage(props: { searchParams?: SearchParams }) {
         )}
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={tagsColumns}
           data={data ?? []}

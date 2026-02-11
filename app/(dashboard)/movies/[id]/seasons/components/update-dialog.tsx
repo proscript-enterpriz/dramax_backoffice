@@ -59,7 +59,7 @@ export function UpdateDialog({
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Update season"
+      title="Мэдээлэл засах"
       submitText="Update"
       trigger={children}
     >

@@ -53,15 +53,15 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Create new season"
-      submitText="Create"
+      title="Шинэ улирал нэмэх"
+      submitText="Үргэлжлүүлэх"
       trigger={children}
     >
       <FormField
         control={form.control}
         name="cover_image_url"
         render={({ field }) => (
-          <MediaPickerItem field={field} forceRatio="16:9" />
+          <MediaPickerItem field={field} forceRatio="16:8" />
         )}
       />
 
@@ -69,8 +69,8 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="season_number"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>Season number</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Улиралын дугаар</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -90,11 +90,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="title"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>Title (optional)</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Улиралын нэр</FormLabel>
             <FormControl>
               <Input
-                placeholder="Season title"
+                placeholder="Улиралын нэр"
                 {...field}
                 value={field.value ?? ''}
               />
@@ -110,8 +110,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         render={({ field }) => (
           <DatePickerItem
             field={field}
-            label="Release date (optional)"
+            label="Үргэлжлүүлэх огноо"
             disableBy="future"
+            className="flex flex-col gap-1"
           />
         )}
       />

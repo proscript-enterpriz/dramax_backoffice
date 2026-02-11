@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { Heading } from '@/components/custom/heading';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { hasPermission } from '@/lib/permission';
 import { SearchParams } from '@/services/api/types';
@@ -31,7 +32,7 @@ export default async function RentalsPage(props: {
         <Heading title={`Rentals list (${count})`} />
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable columns={rentalsColumns} data={list} rowCount={count}>
           {hasPermission(session, 'rentals.users', 'read') && (
             <Link href={`/rentals/users`} className="text-sm underline">

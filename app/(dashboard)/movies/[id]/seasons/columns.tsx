@@ -116,6 +116,16 @@ const Navigation = ({ row }: CellContext<SeasonType, unknown>) => {
 
 export const seasonsColumns: ColumnDef<SeasonType>[] = [
   {
+    id: 'cover_image_url',
+    accessorKey: 'cover_image_url',
+    header: ({ column }) => <TableHeaderWrapper column={column} />,
+    cell: ({ row }) => (
+      <ZoomableImage src={row.original.cover_image_url || ''} />
+    ),
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
+  {
     id: 'id',
     accessorKey: 'id',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
@@ -162,16 +172,7 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     enableSorting: true,
     enableColumnFilter: true,
   },
-  {
-    id: 'cover_image_url',
-    accessorKey: 'cover_image_url',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => (
-      <ZoomableImage src={row.original.cover_image_url || ''} />
-    ),
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
+
   {
     id: 'created_at',
     accessorKey: 'created_at',

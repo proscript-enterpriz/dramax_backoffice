@@ -7,6 +7,7 @@ import { Heading } from '@/components/custom/heading';
 import { ReplaceBreadcrumdItem } from '@/components/custom/replace-breadcrumd-item';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { hasPermission } from '@/lib/permission';
 import { getMovie } from '@/services/movies-generated';
@@ -49,7 +50,7 @@ export default async function SeasonsPage(props: {
         )}
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={seasonsColumns}
           data={list}

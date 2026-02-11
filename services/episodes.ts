@@ -16,11 +16,20 @@ import {
 
 // Auto-generated service for episodes
 
-export async function getEpisodeList(seasonId: string) {
+export type GetEpisodeListSearchParams = {
+  page?: number;
+  page_size?: number;
+};
+
+export async function getEpisodeList(
+  seasonId: string,
+  searchParams?: GetEpisodeListSearchParams,
+) {
   try {
     const res = await actions.get<ListResponseEpisodeType>(
       `/episodes/${seasonId}`,
       {
+        searchParams,
         next: {
           tags: [`${RVK_EPISODES}_season_id_${seasonId}`],
         },
@@ -59,8 +68,8 @@ export async function updateEpisode(
     const { body: response, error } = res;
     if (error) throw new Error(error);
     executeRevalidate([
-      `${RVK_EPISODES}_season_number_${seasonId}`,
-      { tag: `${RVK_EPISODES}_season_number_${seasonId}` },
+      `${RVK_EPISODES}_season_id_${seasonId}`,
+      { tag: `${RVK_EPISODES}_season_id_${seasonId}` },
     ]);
 
     return response;
@@ -87,8 +96,8 @@ export async function deleteEpisode(episodeId: string, seasonId: string) {
     if (error) throw new Error(error);
 
     executeRevalidate([
-      `${RVK_EPISODES}_season_number_${seasonId}`,
-      { tag: `${RVK_EPISODES}_season_number_${seasonId}` },
+      `${RVK_EPISODES}_season_id_${seasonId}`,
+      { tag: `${RVK_EPISODES}_season_id_${seasonId}` },
     ]);
     return response;
   } catch (error) {

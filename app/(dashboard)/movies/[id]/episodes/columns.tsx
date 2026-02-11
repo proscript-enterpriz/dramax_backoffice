@@ -27,12 +27,12 @@ import { MovieEpisodeType } from '@/services/schema';
 
 import { UpdateOverlay } from './components';
 
-type CellContext<TData, TValue = unknown> = {
-  row: { original: TData };
-  getValue: () => TValue;
-};
+const CELL_BASE = 'flex h-16 items-center';
+const CELL_PAD_XS = 'px-2';
+const CELL_PAD_SM = 'px-3';
+const CELL_PAD_MD = 'px-4';
 
-function CellAction({ row }: CellContext<MovieEpisodeType>) {
+function CellAction({ row }: { row: { original: MovieEpisodeType } }) {
   const [isPending, startTransition] = useTransition();
   const deleteDialogRef = useRef<DeleteDialogRef>(null);
   const { data } = useSession();
@@ -105,11 +105,11 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
     header: 'Зураг',
     size: 80,
     cell: ({ row }) => (
-      <div className="flex items-center justify-center py-2">
+      <div className={`${CELL_BASE} ${CELL_PAD_SM} justify-center`}>
         {row.original.thumbnail ? (
           <ZoomableImage src={row.original.thumbnail} />
         ) : (
-          <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-md border aspect-square">
+          <div className="bg-muted flex aspect-square h-16 w-16 items-center justify-center rounded-md border">
             <span className="text-muted-foreground text-center text-xs leading-tight">
               Зураг байхгүй
             </span>
@@ -123,7 +123,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
     header: 'Гарчиг',
     size: 200,
     cell: ({ row }) => (
-      <div className="flex h-16 items-center px-4">
+      <div className={`${CELL_BASE} ${CELL_PAD_MD}`}>
         <div className="font-medium">{row.original.title}</div>
       </div>
     ),
@@ -133,7 +133,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
     header: 'Дугаар',
     size: 80,
     cell: ({ row }) => (
-      <div className="flex h-16 items-center justify-center px-2">
+      <div className={`${CELL_BASE} ${CELL_PAD_XS} justify-center`}>
         <Badge variant="outline">#{row.original.episode_number}</Badge>
       </div>
     ),
@@ -146,16 +146,14 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
       const description = row.original.description;
 
       return (
-        <div className="flex h-16 w-full items-center px-4">
-          <div className="w-full">
-            {!description ? (
-              <span className="text-muted-foreground">-</span>
-            ) : (
-              <p className="text-foreground line-clamp-2 text-sm leading-relaxed">
-                {removeHTML(description)}
-              </p>
-            )}
-          </div>
+        <div className={`${CELL_BASE} ${CELL_PAD_MD} w-full`}>
+          {!description ? (
+            <span className="text-muted-foreground">-</span>
+          ) : (
+            <p className="text-foreground line-clamp-2 text-sm leading-relaxed">
+              {removeHTML(description)}
+            </p>
+          )}
         </div>
       );
     },
@@ -165,7 +163,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
     header: 'Видео ID',
     size: 150,
     cell: ({ row }) => (
-      <div className="flex h-16 items-center px-3">
+      <div className={`${CELL_BASE} ${CELL_PAD_SM}`}>
         {row.original.cloudflare_video_id ? (
           <code className="bg-muted rounded px-2 py-1 text-xs">
             {row.original.cloudflare_video_id.slice(0, 12)}...
@@ -185,7 +183,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
 
       if (!duration) {
         return (
-          <div className="flex h-16 items-center px-3">
+          <div className={`${CELL_BASE} ${CELL_PAD_SM}`}>
             <span className="text-muted-foreground">-</span>
           </div>
         );
@@ -205,7 +203,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
       }
 
       return (
-        <div className="flex h-16 items-center px-3">
+        <div className={`${CELL_BASE} ${CELL_PAD_SM}`}>
           <span className="text-sm">{formattedDuration}</span>
         </div>
       );
@@ -215,6 +213,10 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
   {
     id: 'actions',
     size: 60,
-    cell: CellAction,
+    cell: ({ row }) => (
+      <div className={`${CELL_BASE} justify-center`}>
+        <CellAction row={row} />
+      </div>
+    ),
   },
 ];

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import { Heading } from '@/components/custom/heading';
 import { DataTable } from '@/components/ui/data-table';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
 import { SearchParams } from '@/services/api/types';
 import { getUploadedImages } from '@/services/images';
@@ -32,7 +33,7 @@ export default async function ImagesPage(props: {
         <Heading title={`Зурагууд (${count})`} />
       </div>
       <Separator />
-      <Suspense fallback="Loading">
+      <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={imagesColumns}
           data={list}

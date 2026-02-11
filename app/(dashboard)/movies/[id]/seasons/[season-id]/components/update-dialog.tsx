@@ -20,13 +20,49 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { pickChangedValues } from '@/lib/utils';
+import { pickChangedValues, removeHTML } from '@/lib/utils';
 import { updateEpisode } from '@/services/episodes';
 import {
   EpisodeType,
   updateEpisodeSchema,
   UpdateEpisodeType,
 } from '@/services/schema';
+
+const updateEpisodeFormSchema = updateEpisodeSchema.superRefine(
+  (values, ctx) => {
+    if (!values.title?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['title'],
+        message: 'Анги нэр заавал оруулна уу!',
+      });
+    }
+
+    if (!removeHTML(values.description ?? '').trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['description'],
+        message: 'Тайлбар заавал оруулна уу!',
+      });
+    }
+
+    if (!values.thumbnail?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['thumbnail'],
+        message: 'Постер зураг заавал оруулна уу!',
+      });
+    }
+
+    if (!values.cloudflare_video_id?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cloudflare_video_id'],
+        message: 'Streaming URL заавал оруулна уу!',
+      });
+    }
+  },
+);
 
 export function UpdateDialog({
   children,
@@ -39,7 +75,7 @@ export function UpdateDialog({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<UpdateEpisodeType>({
-    resolver: zodResolver(updateEpisodeSchema),
+    resolver: zodResolver(updateEpisodeFormSchema),
     defaultValues: initialData,
   });
 
@@ -52,7 +88,7 @@ export function UpdateDialog({
         pickChangedValues(initialValues, values as EpisodeType),
       )
         .then(() => {
-          toast.success('Updated successfully');
+          toast.success('Амжилттай шинэчлэгдлээ!');
           dialogRef?.current?.close();
           form.reset(values);
         })
@@ -66,18 +102,34 @@ export function UpdateDialog({
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Update episode"
-      submitText="Update"
+      title="Мэдээлэл засах"
+      submitText="Засварлах"
       trigger={children}
     >
       <FormField
         control={form.control}
+        name="thumbnail"
+        render={({ field }) => (
+          <MediaPickerItem
+            field={field}
+            forceRatio="16:9"
+            mediaListComponent={UploadPosterComponent}
+          />
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="title"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Title</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Анги нэр</FormLabel>
             <FormControl>
-              <Input {...field} value={field.value ?? ''} />
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                placeholder="Ангийн нэр оруулна уу?"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -88,7 +140,7 @@ export function UpdateDialog({
         control={form.control}
         name="episode_number"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col gap-1">
             <FormLabel>Episode number</FormLabel>
             <FormControl>
               <Input
@@ -108,13 +160,7 @@ export function UpdateDialog({
         control={form.control}
         name="description"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <HtmlTipTapItem field={field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <HtmlTipTapItem field={field} label="Description" />
         )}
       />
 
@@ -122,7 +168,7 @@ export function UpdateDialog({
         control={form.control}
         name="duration"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col gap-1">
             <FormLabel>Duration (seconds)</FormLabel>
             <FormControl>
               <Input
@@ -139,18 +185,6 @@ export function UpdateDialog({
             </FormControl>
             <FormMessage />
           </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="thumbnail"
-        render={({ field }) => (
-          <MediaPickerItem
-            field={field}
-            forceRatio="16:9"
-            mediaListComponent={UploadPosterComponent}
-          />
         )}
       />
 

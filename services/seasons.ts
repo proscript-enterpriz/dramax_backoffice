@@ -8,11 +8,20 @@ import { ListResponseSeasonType, SingleItemResponseSeasonType } from './schema';
 
 // Auto-generated service for seasons
 
-export async function getSeasonsByMovie(movieId: string) {
+export type GetSeasonsByMovieSearchParams = {
+  page?: number;
+  page_size?: number;
+};
+
+export async function getSeasonsByMovie(
+  movieId: string,
+  searchParams?: GetSeasonsByMovieSearchParams,
+) {
   try {
     const res = await actions.get<ListResponseSeasonType>(
       `/seasons/${movieId}`,
       {
+        searchParams,
         next: {
           tags: [RVK_SEASONS],
         },
