@@ -117,6 +117,13 @@ export default function CreateMovie() {
 
   const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
   const isPremium = !!form.watch('is_premium');
+  const currentYear = new Date().getFullYear();
+  const normalizeYear = (value: unknown): number | undefined => {
+    const numericValue = Number(value);
+    if (!Number.isInteger(numericValue)) return undefined;
+    if (numericValue < 1900 || numericValue > currentYear) return undefined;
+    return numericValue;
+  };
 
   async function onSubmitMovie(d: MovieCreateType) {
     setIsLoading(true);
@@ -124,7 +131,7 @@ export default function CreateMovie() {
       title: d.title,
       description: d.description,
       type: d.type,
-      year: Number(d.year),
+      year: normalizeYear(d.year),
       price: Number(d.price),
       trailer_url: d.trailer_url,
       poster_url: d.poster_url || '',
@@ -309,13 +316,18 @@ export default function CreateMovie() {
                       <FormControl>
                         <Input
                           type="number"
-                          placeholder="Кино гарсан он"
-                          {...field}
-                          value={field.value || ''}
-                          className="shadow-none"
-                          onChange={(e) => field.onChange(e.target.value)}
+                          inputMode="numeric"
+                          min={1900}
+                          max={currentYear}
+                          step={1}
+                          placeholder="Он оруулах"
+                          value={field.value ?? ''}
+                          onChange={(e) =>
+                            field.onChange(normalizeYear(e.target.value))
+                          }
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
