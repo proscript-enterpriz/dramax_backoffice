@@ -45,7 +45,7 @@ export function UpdateDialog({
     startTransition(() => {
       updateSeriesSeason(initialData.id, initialData.movie_id!, values)
         .then(() => {
-          toast.success('Updated successfully');
+          toast.success('Амжилттай шинэчлэгдлээ');
           dialogRef?.current?.close();
           form.reset(values);
         })

@@ -49,7 +49,7 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canEdit && (
             <UpdateDialog
@@ -57,7 +57,7 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
               key={JSON.stringify(row.original)}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="h-4 w-4" /> Edit
+                <Edit className="h-4 w-4" /> Засах
               </DropdownMenuItem>
             </UpdateDialog>
           )}
@@ -68,8 +68,8 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
               action={() => {
                 setLoading(true);
                 deleteEpisode(row.original.episode_id, row.original.season_id)
-                  .then((c) => toast.success(c.message || 'Deleted'))
-                  .catch((c) => toast.error(c.message))
+                  .then(() => toast.success('Анги амжилттай устгагдлаа'))
+                  .catch(() => toast.error('Анги устгахад алдаа гарлаа'))
                   .finally(() => {
                     deleteDialogRef.current?.close();
                     setLoading(false);
@@ -78,7 +78,7 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
               description={`Are you sure you want to delete this episode ${row.original.title ?? ''}`}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Trash className="h-4 w-4" /> Delete
+                <Trash className="h-4 w-4" /> Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}

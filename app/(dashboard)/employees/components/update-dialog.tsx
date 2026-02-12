@@ -73,7 +73,7 @@ export function UpdateDialog({
 
       updateEmployee(initialData.id, dirtyValues)
         .then(() => {
-          toast.success('Updated successfully');
+          toast.success('Амжилттай шинэчлэгдлээ');
           dialogRef?.current?.close();
           form.reset();
         })

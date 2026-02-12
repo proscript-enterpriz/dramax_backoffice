@@ -55,7 +55,7 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fileUploader = useFileUploader({
     onUploadComplete: () => {
-      toast.success('Image uploaded successfully');
+      toast.success('Зураг амжилттай байршлаа');
       loadMedia();
     },
     onError: (message) => {
@@ -75,7 +75,7 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setMedia(response.data ?? []);
     } catch (error) {
-      toast.error('Failed to load media');
+      toast.error('Медиа ачаалахад алдаа гарлаа');
       console.error('Error loading media:', error);
     } finally {
       setIsLoading(false);

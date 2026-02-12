@@ -40,7 +40,7 @@ export default async function SeasonsPage(props: {
         }}
       />
       <div className="flex items-start justify-between">
-        <Heading title={`Seasons list (${count})`} />
+        <Heading title={`Улирал (${count})`} />
         {hasPermission(session, 'movies.seasons', 'create') && (
           <CreateDialog>
             <Button variant="outline">

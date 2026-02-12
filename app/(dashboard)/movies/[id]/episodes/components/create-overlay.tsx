@@ -77,9 +77,13 @@ export function CreateOverlay({
   function onSubmit(values: CreateMovieEpisodeType) {
     startTransition(async () => {
       try {
-        const result = await createMovieEpisode(values);
+        const payload: CreateMovieEpisodeType = {
+          ...values,
+          thumbnail: values.thumbnail.trim(),
+        };
+        const result = await createMovieEpisode(payload);
         if (result.status === 'error') {
-          toast.error(result.message);
+          toast.error(result.message || 'Анги нэмэхэд алдаа гарлаа');
           return;
         }
         toast.success('Анги амжилттай нэмэгдлээ');

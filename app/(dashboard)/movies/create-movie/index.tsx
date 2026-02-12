@@ -53,7 +53,7 @@ import {
   AppApiApiV1EndpointsDashboardCategoriesTagResponseType,
   CategoryResponseType,
   GenreResponseType,
-  movieCreateSchema,
+  movieCreateFormSchema,
   MovieCreateType,
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
@@ -99,14 +99,16 @@ export default function CreateMovie() {
   }, [isOpen]);
 
   const form = useForm<MovieCreateType>({
-    resolver: zodResolver(movieCreateSchema),
+    resolver: zodResolver(movieCreateFormSchema),
     defaultValues: {
       title: '',
       description: '',
       type: 'movie',
+      status: 'pending',
       year: new Date().getFullYear(),
-      price: 0,
+      price: undefined,
       poster_url: '',
+      trailer_url: '',
       load_image_url: '',
       is_adult: false,
       is_premium: false,
@@ -131,11 +133,12 @@ export default function CreateMovie() {
       title: d.title,
       description: d.description,
       type: d.type,
-      year: d.year == null ? undefined : Number(d.year),
-      price: Number(d.price),
+      year: Number(d.year ?? currentYear),
+      price: d.is_premium ? Number(d.price) : undefined,
       trailer_url: d.trailer_url,
       poster_url: d.poster_url || '',
       load_image_url: d.load_image_url || '',
+      status: d.status ?? 'pending',
       is_adult: d.is_adult ?? false,
       is_premium: d.is_premium ?? false,
       category_ids: d.category_ids?.map((cat) => Number(cat)),
@@ -205,6 +208,7 @@ export default function CreateMovie() {
                   render={({ field }) => (
                     <MediaPickerItem
                       field={field}
+                      label="Кино постер зураг"
                       forceRatio="0.7:1"
                       mediaListComponent={UploadPosterComponent}
                     />
@@ -231,12 +235,7 @@ export default function CreateMovie() {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col gap-1">
-                      <FormLabel>Дэлгэрэнгүй тайлбар</FormLabel>
-                      <FormControl>
-                        <HtmlTipTapItem field={field} />
-                      </FormControl>
-                    </FormItem>
+                    <HtmlTipTapItem field={field} label="Дэлгэрэнгүй тайлбар" />
                   )}
                 />
                 <div className="grid grid-cols-3 gap-4">
@@ -262,6 +261,7 @@ export default function CreateMovie() {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="genre_ids"
@@ -340,7 +340,9 @@ export default function CreateMovie() {
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
                           hlsUrl={field.value ?? undefined}
-                          onChange={(c) => field.onChange(c.playback?.hls)}
+                          onChange={(c) =>
+                            field.onChange(c.playback?.hls ?? '')
+                          }
                         />
                       </div>
                       <FormMessage />
@@ -348,6 +350,33 @@ export default function CreateMovie() {
                   )}
                 />
                 <div className="border-destructive/15 bg-destructive/5 !my-6 space-y-4 rounded-md border p-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem className="bg-background border-destructive/15 flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="flex flex-col gap-1">
+                          <FormLabel className="text-md font-semibold">
+                            Киноны төлөв
+                          </FormLabel>
+                          <FormDescription className="text-muted-foreground">
+                            Төлөв идэвхтэйгээр сонгосон тохиолдолд тухайн кино
+                            веб дээр дүрслэгдэх болно
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value === 'active'}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked ? 'active' : 'pending')
+                            }
+                            aria-readonly
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="type"
@@ -388,6 +417,7 @@ export default function CreateMovie() {
                         </div>
                         <FormControl>
                           <Switch
+                            checked={!!field.value}
                             onCheckedChange={(checked) =>
                               field.onChange(checked)
                             }

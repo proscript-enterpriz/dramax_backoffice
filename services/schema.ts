@@ -291,6 +291,7 @@ export const movieResponseSchema = z.object({
   title: z.string().min(1).max(500),
   description: z.string().max(5000).nullish(),
   type: z.enum(['movie', 'mini-series', 'series']),
+  status: z.enum(['pending', 'active']).nullish(),
   year: z.int().min(1900).max(2030).nullish(),
   price: z.int().min(0).nullish(),
   is_premium: z.boolean().nullish(),
@@ -322,17 +323,18 @@ export type BaseResponseUnionMovieResponseNoneTypeType = z.infer<
 >;
 
 export const movieCreateSchema = z.object({
-  title: z.string().min(1).max(500),
-  description: z.string().max(5000).nullish(),
+  title: z.string().min(1, 'Киноны нэр оруулна уу').max(500),
+  description: z.string().min(1, 'Дэлгэрэнгүй тайлбар оруулна уу').max(5000),
   type: z.enum(['movie', 'mini-series', 'series']),
-  year: z.int().min(1900).max(2030).nullish(),
-  price: z.int().min(0).nullish(),
+  year: z.int().min(1900).max(2030),
+  price: z.int().min(1, 'Үнийн дүн оруулна уу').nullish(),
   is_premium: z.boolean().nullish(),
   is_adult: z.boolean().nullish(),
-  poster_url: z.string().nullish(),
-  trailer_url: z.string().nullish(),
-  load_image_url: z.string().nullish(),
+  poster_url: z.string().min(1, 'Постер зураг оруулна уу'),
+  trailer_url: z.string().min(1, 'Киноны трейлэр оруулна уу'),
+  load_image_url: z.string().min(1, 'Thumbnail зураг оруулна уу'),
   cloudflare_video_id: z.string().nullish(),
+  status: z.enum(['pending', 'active']),
   aspect_ratio: z.string().nullish(),
   orientation: z.string().nullish(),
   category_ids: z.array(z.int()).nullish(),
@@ -341,6 +343,16 @@ export const movieCreateSchema = z.object({
 });
 
 export type MovieCreateType = z.infer<typeof movieCreateSchema>;
+
+export const movieCreateFormSchema = movieCreateSchema.refine(
+  (data) => !data.is_premium || !!data.price,
+  {
+    message: 'Price is required when premium is enabled',
+    path: ['price'],
+  },
+);
+
+export type MovieCreateFormType = z.infer<typeof movieCreateFormSchema>;
 
 export const movieListResponseSchema = z.object({
   id: z.uuid(),
@@ -388,6 +400,7 @@ export const movieUpdateSchema = z.object({
   title: z.string().min(1).max(500).nullish(),
   description: z.string().max(5000).nullish(),
   type: z.enum(['movie', 'mini-series', 'series']).nullish(),
+  status: z.enum(['pending', 'active']).nullish(),
   year: z.int().min(1900).max(2030).nullish(),
   price: z.int().min(0).nullish(),
   poster_url: z.string().nullish(),
@@ -404,6 +417,17 @@ export const movieUpdateSchema = z.object({
 });
 
 export type MovieUpdateType = z.infer<typeof movieUpdateSchema>;
+
+export const movieUpdateFormSchema = movieResponseSchema
+  .extend({
+    tag_ids: z.array(z.int()).nullish(),
+  })
+  .refine((data) => !data.is_premium || !!data.price, {
+    message: 'Price is required when premium is enabled',
+    path: ['price'],
+  });
+
+export type MovieUpdateFormType = z.infer<typeof movieUpdateFormSchema>;
 
 export const captionResponseSchema = z.object({
   language: z.string(),

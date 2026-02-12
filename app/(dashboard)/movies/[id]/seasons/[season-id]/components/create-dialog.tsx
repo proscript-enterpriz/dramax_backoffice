@@ -72,14 +72,27 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   });
 
   function onSubmit(values: CreateEpisodeType) {
-    startTransition(() => {
-      createEpisode(values)
-        .then(() => {
-          toast.success('Episode created successfully');
-          dialogRef?.current?.close();
-          form.reset();
-        })
-        .catch((e) => toast.error(e.message));
+    startTransition(async () => {
+      try {
+        const payload: CreateEpisodeType = {
+          ...values,
+          thumbnail: values.thumbnail?.trim() || '',
+        };
+
+        const result = await createEpisode(payload);
+        if (result.status === 'error') {
+          toast.error(result.message || 'Анги нэмэхэд алдаа гарлаа');
+          return;
+        }
+
+        toast.success('Анги амжилттай нэмэгдлээ');
+        dialogRef?.current?.close();
+        form.reset();
+      } catch (e) {
+        toast.error(
+          e instanceof Error ? e.message : 'Анги нэмэхэд алдаа гарлаа',
+        );
+      }
     });
   }
 
@@ -142,7 +155,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       <FormField
         control={form.control}
         name="description"
-        render={({ field }) => <HtmlTipTapItem field={field} label="Description" />}
+        render={({ field }) => (
+          <HtmlTipTapItem field={field} label="Description" />
+        )}
       />
 
       <FormField

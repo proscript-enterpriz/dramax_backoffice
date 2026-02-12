@@ -52,7 +52,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
     startTransition(() => {
       createEmployee(values)
         .then(() => {
-          toast.success('Created successfully');
+          toast.success('Амжилттай нэмэгдлээ');
           dialogRef?.current?.close();
           form.reset();
         })

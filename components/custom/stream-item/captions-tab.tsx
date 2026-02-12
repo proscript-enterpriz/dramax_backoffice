@@ -281,8 +281,8 @@ function UploadCaptionDialog({
     e.stopPropagation();
 
     if (!streamId) return;
-    if (!uploadLang) return toast.error('Please select a language');
-    if (!uploadFile) return toast.error('Please choose a caption file');
+    if (!uploadLang) return toast.error('Хэлийг сонгоно уу');
+    if (!uploadFile) return toast.error('Хадмал файлаа сонгоно уу');
 
     startUploading(() => {
       uploadCaptionToCloudflare(
@@ -295,7 +295,7 @@ function UploadCaptionDialog({
           onUpload(res.result);
           resetForm();
           setOpen(false);
-          toast.success('Uploaded caption');
+          toast.success('Хадмал амжилттай байршлаа');
         })
         .catch((err) => {
           const msg =
