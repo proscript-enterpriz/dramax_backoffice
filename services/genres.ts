@@ -28,6 +28,7 @@ export async function getGenres(searchParams?: GetGenresSearchParams) {
       await actions.get<BaseResponseUnionListGenreResponseNoneTypeType>(
         `/genres`,
         {
+          cache: 'no-store',
           searchParams,
           next: {
             tags: [RVK_GENRES],

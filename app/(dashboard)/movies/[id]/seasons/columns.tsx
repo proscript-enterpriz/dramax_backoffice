@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { Edit, FilmIcon, MoreHorizontal, Trash } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -14,7 +15,6 @@ import {
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
 import { TableHeaderWrapper } from '@/components/custom/table-header-wrapper';
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -51,7 +51,7 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canAccessEpisodes && (
@@ -61,7 +61,9 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
               </Link>
             </DropdownMenuItem>
           )}
-          {canAccessEpisodes && (canEdit || canDelete) && <DropdownMenuSeparator />}
+          {canAccessEpisodes && (canEdit || canDelete) && (
+            <DropdownMenuSeparator />
+          )}
           {canEdit && (
             <UpdateDialog
               initialData={row.original}
@@ -111,12 +113,22 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
 
 export const seasonsColumns: ColumnDef<SeasonType>[] = [
   {
-    id: 'cover_image_url',
+    id: 'Зураг',
     accessorKey: 'cover_image_url',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => (
-      <ZoomableImage src={row.original.cover_image_url || ''} />
-    ),
+    cell: ({ row }) =>
+      row.original.cover_image_url ? (
+        <Image
+          src={row.original.cover_image_url}
+          alt=""
+          width={64}
+          height={64}
+          unoptimized
+          className="h-16 w-16 rounded-md object-cover"
+        />
+      ) : (
+        '-'
+      ),
     enableSorting: true,
     enableColumnFilter: true,
   },
@@ -129,7 +141,7 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'season_number',
+    id: 'Улирал дугаар',
     accessorKey: 'season_number',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.season_number,
@@ -137,7 +149,7 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'title',
+    id: 'Гарчиг',
     accessorKey: 'title',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.title?.slice(0, 300),
@@ -145,7 +157,7 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'description',
+    id: 'Тайлбар',
     accessorKey: 'description',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => (

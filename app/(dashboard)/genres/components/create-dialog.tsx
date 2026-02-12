@@ -51,7 +51,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
+          <FormItem className="flex flex-col gap-1">
             <FormLabel>Жанрын нэр</FormLabel>
             <FormControl>
               <Input placeholder="Жанрын нэр" {...field} />

@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { currencyFormat } from '@interpriz/lib/utils';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { Edit, GitBranch, MoreHorizontal, Trash } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
@@ -12,9 +13,8 @@ import {
   DeleteDialog,
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Badge } from '@/components/ui/badge';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,7 +72,9 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
               </Link>
             </DropdownMenuItem>
           )}
-          {(canAccessMiniSeries || canAccessSeasons) && <DropdownMenuSeparator />}
+          {(canAccessMiniSeries || canAccessSeasons) && (
+            <DropdownMenuSeparator />
+          )}
           {canEdit && (
             <DropdownMenuItem
               onClick={() => setEditDrawerOpen(true)}
@@ -131,7 +133,19 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     id: 'poster_url',
     accessorKey: 'poster_url',
     header: () => <h1>Зураг</h1>,
-    cell: ({ row }) => <ZoomableImage src={row.original.poster_url!} />,
+    cell: ({ row }) =>
+      row.original.poster_url ? (
+        <Image
+          src={row.original.poster_url}
+          alt=""
+          width={64}
+          height={64}
+          unoptimized
+          className="h-16 w-16 rounded-md object-cover"
+        />
+      ) : (
+        '-'
+      ),
     enableSorting: false,
     enableColumnFilter: true,
   },
@@ -159,6 +173,28 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     enableColumnFilter: true,
   },
   {
+    id: 'status',
+    accessorKey: 'status',
+    header: () => <h1>Төлөв</h1>,
+    cell: ({ row }) => {
+      const status = row.original.status ?? 'pending';
+      return (
+        <Badge
+          variant="outline"
+          className={
+            status === 'active'
+              ? 'pointer-events-none border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+              : 'pointer-events-none border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300'
+          }
+        >
+          {status === 'active' ? 'Published' : 'Draft'}
+        </Badge>
+      );
+    },
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
+  {
     id: 'price',
     accessorKey: 'price',
     header: () => <h1>Үнийн дүн</h1>,
@@ -171,7 +207,7 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'is_premium',
     header: () => <h1>Premium</h1>,
 
-    cell: ({ row }) => (row.original.is_premium ? 'Active' : 'Inactive'),
+    cell: ({ row }) => (row.original.is_premium ? 'Түрээсийн кино' : 'Багц'),
     enableSorting: false,
     enableColumnFilter: true,
   },

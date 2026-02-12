@@ -35,6 +35,9 @@ export default async function MoviesPage(props: {
     page_size: Number(searchParams?.page_size) || 30,
     ...(searchParams?.filters?.title && { title: searchParams.filters.title }),
     ...(searchParams?.filters?.type && { type: searchParams.filters.type }),
+    ...(searchParams?.filters?.status && {
+      movie_status: searchParams.filters.status,
+    }),
     ...(searchParams?.filters?.['year.min'] && {
       year: parseInt(searchParams.filters['year.min']),
     }),
@@ -76,11 +79,19 @@ export default async function MoviesPage(props: {
               ]}
             />
             <StatusFilter
+              name="filters.status"
+              placeholder="Төлөв"
+              options={[
+                { value: 'active', label: 'Published' },
+                { value: 'pending', label: 'Draft' },
+              ]}
+            />
+            <StatusFilter
               name="filters.is_premium"
               placeholder="Түрээсийн төлөв"
               options={[
-                { value: 'true', label: 'Premium Active' },
-                { value: 'false', label: 'Premium Inactive' },
+                { value: 'true', label: 'Түрээсийн кино' },
+                { value: 'false', label: 'Багцын кино' },
               ]}
             />
             <StatusFilter

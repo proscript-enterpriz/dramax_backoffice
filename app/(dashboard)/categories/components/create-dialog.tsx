@@ -43,7 +43,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         })
         .catch((e) => {
           const errorMessage =
-            e instanceof Error ? e.message : 'Failed to create category';
+            e instanceof Error ? e.message : 'Ангилал үүсгэхэд алдаа гарлаа';
           toast.error(errorMessage);
         });
     });
@@ -56,7 +56,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       onSubmit={onSubmit}
       loading={isPending}
       title="Шинэ ангилал оруулах"
-      submitText="Оруулах"
+      submitText="Үргэлжлүүлэх"
       trigger={children}
       onOpenChange={(open) => {
         form.reset();
@@ -66,10 +66,10 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>Ангилалын нэр</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Ангиллын нэр</FormLabel>
             <FormControl>
-              <Input placeholder="Ангилалын нэр" {...field} />
+              <Input placeholder="Ангиллын нэр" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

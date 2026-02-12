@@ -416,7 +416,7 @@ export default function UpdateMovie({
                             Киноны төлөв
                           </FormLabel>
                           <FormDescription className="text-muted-foreground">
-                            Унтраалттай үед pending, асаахад active болно
+                            Унтраалттай үед Draft, асаахад Published болно
                           </FormDescription>
                         </div>
                         <FormControl>

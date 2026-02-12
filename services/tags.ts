@@ -28,6 +28,7 @@ export async function getTags(searchParams?: GetTagsSearchParams) {
       await actions.get<AppModelsBaseBaseResponseUnionListTagResponseNoneType_1Type>(
         `/tags`,
         {
+          cache: 'no-store',
           searchParams,
           next: {
             tags: [RVK_TAGS],

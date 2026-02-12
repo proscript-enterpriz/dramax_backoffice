@@ -2,12 +2,7 @@
 
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 
-import {
-  FormControl,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { FormControl, FormItem, FormMessage } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 
 import { MinimalTiptapEditor } from '../minimal-tiptap';
@@ -24,9 +19,6 @@ export function HtmlTipTapItem({
 
   return (
     <FormItem>
-      <FormLabel className={cn({ 'sr-only': !label })}>
-        {label || 'Body'}
-      </FormLabel>
       <FormControl>
         <MinimalTiptapEditor
           {...field}
@@ -40,6 +32,7 @@ export function HtmlTipTapItem({
           editable={true}
           injectCSS={true}
           editorClassName="focus:outline-none p-5"
+          placeholder="Дэлгэрэнгүй тайлбар оруулна уу"
         />
       </FormControl>
       <FormMessage />

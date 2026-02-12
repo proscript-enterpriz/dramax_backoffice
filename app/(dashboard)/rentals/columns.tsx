@@ -1,8 +1,8 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import Image from 'next/image';
 
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Badge } from '@/components/ui/badge';
 import { MovieRentalDataType } from '@/services/schema';
 
@@ -11,7 +11,19 @@ export const rentalsColumns: ColumnDef<MovieRentalDataType>[] = [
     id: 'poster_url',
     accessorKey: 'poster_url',
     header: () => <p>Постер зураг</p>,
-    cell: ({ row }) => <ZoomableImage src={row.original.poster_url} />,
+    cell: ({ row }) =>
+      row.original.poster_url ? (
+        <Image
+          src={row.original.poster_url}
+          alt=""
+          width={64}
+          height={64}
+          unoptimized
+          className="h-16 w-16 rounded-md object-cover"
+        />
+      ) : (
+        '-'
+      ),
   },
   {
     id: 'title',
@@ -36,7 +48,7 @@ export const rentalsColumns: ColumnDef<MovieRentalDataType>[] = [
   {
     id: 'movie_id',
     accessorKey: 'movie_id',
-    header: () => <p>Киноны ID</p>,
+    header: () => <p>Киноны Id</p>,
     cell: ({ row }) => (
       <p className="line-clamp-1 font-semibold">{row.original.movie_id}</p>
     ),

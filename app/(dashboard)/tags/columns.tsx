@@ -50,8 +50,8 @@ const Action = ({
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canEdit && (
             <UpdateDialog
@@ -59,7 +59,7 @@ const Action = ({
               key={JSON.stringify(row.original)}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="h-4 w-4" /> Edit
+                <Edit className="h-4 w-4" /> Засах
               </DropdownMenuItem>
             </UpdateDialog>
           )}
@@ -79,14 +79,14 @@ const Action = ({
               }}
               description={
                 <>
-                  Are you sure you want to delete this{' '}
+                  Устгахдаа итгэлтэй байна уу?{' '}
                   <b className="text-foreground">{row.original.name}</b>?
                 </>
               }
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash className="h-4 w-4" />
-                Delete
+                Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}
@@ -116,6 +116,14 @@ export const tagsColumns: ColumnDef<AppApiApiV1EndpointsDashboardCategoriesTagRe
         </span>
       ),
       enableSorting: false,
+      enableColumnFilter: false,
+    },
+    {
+      id: 'movie_count',
+      accessorKey: 'movie_count',
+      header: () => <h1>Киноны тоо</h1>,
+      cell: ({ row }) => row.original.movie_count ?? 0,
+      enableSorting: true,
       enableColumnFilter: false,
     },
     {

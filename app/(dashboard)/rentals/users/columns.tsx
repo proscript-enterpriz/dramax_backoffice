@@ -26,7 +26,7 @@ export const rentalsUsersColumns: ColumnDef<Record<string, unknown>>[] = [
   },
   {
     accessorKey: 'user_id',
-    header: 'User ID',
+    header: 'User Id',
     cell: ({ row }) => String(row.original?.user_id ?? '—'),
     enableSorting: false,
     enableColumnFilter: false,
