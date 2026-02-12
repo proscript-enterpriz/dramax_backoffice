@@ -118,10 +118,10 @@ export default function CreateMovie() {
   const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
   const isPremium = !!form.watch('is_premium');
   const currentYear = new Date().getFullYear();
-  const normalizeYear = (value: unknown): number | undefined => {
+  const parseYearInput = (value: string): number | undefined => {
+    if (value === '') return undefined;
     const numericValue = Number(value);
     if (!Number.isInteger(numericValue)) return undefined;
-    if (numericValue < 1900 || numericValue > currentYear) return undefined;
     return numericValue;
   };
 
@@ -131,7 +131,7 @@ export default function CreateMovie() {
       title: d.title,
       description: d.description,
       type: d.type,
-      year: normalizeYear(d.year),
+      year: d.year == null ? undefined : Number(d.year),
       price: Number(d.price),
       trailer_url: d.trailer_url,
       poster_url: d.poster_url || '',
@@ -323,7 +323,7 @@ export default function CreateMovie() {
                           placeholder="Он оруулах"
                           value={field.value ?? ''}
                           onChange={(e) =>
-                            field.onChange(normalizeYear(e.target.value))
+                            field.onChange(parseYearInput(e.target.value))
                           }
                         />
                       </FormControl>
