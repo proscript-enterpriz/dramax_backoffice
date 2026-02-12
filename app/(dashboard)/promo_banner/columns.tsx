@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -101,6 +102,45 @@ const Action = ({ row }: { row: { original: BannerResponseType } }) => {
 
 export const bannersColumns: ColumnDef<BannerResponseType>[] = [
   {
+    id: 'Баннер зураг',
+    accessorKey: 'image_link',
+    header: ({ column }) => <TableHeaderWrapper column={column} />,
+    cell: ({ row }) => {
+      const value = row.original.image_link;
+      const links = Array.isArray(value) ? value : value ? [value] : [];
+      if (!links.length) return '-';
+
+      return (
+        <div className="flex items-center gap-2">
+          {links.slice(0, 3).map((link) => (
+            <a
+              key={link}
+              href={link}
+              target="_blank"
+              rel="noreferrer"
+              className="relative block h-12 w-12 overflow-hidden rounded-md border"
+            >
+              <Image
+                src={link}
+                alt="banner"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </a>
+          ))}
+          {links.length > 3 && (
+            <span className="text-muted-foreground text-xs">
+              +{links.length - 3}
+            </span>
+          )}
+        </div>
+      );
+    },
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
+  {
     id: 'id',
     accessorKey: 'id',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
@@ -108,28 +148,7 @@ export const bannersColumns: ColumnDef<BannerResponseType>[] = [
     enableSorting: true,
     enableColumnFilter: true,
   },
-  {
-    id: 'image_link',
-    accessorKey: 'image_link',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => {
-      const value = row.original.image_link;
-      return value ? (
-        <a
-          href={value}
-          target="_blank"
-          rel="noreferrer"
-          className="text-primary line-clamp-1 max-w-[320px] underline-offset-2 hover:underline"
-        >
-          {value}
-        </a>
-      ) : (
-        '-'
-      );
-    },
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
+
   {
     id: 'url',
     accessorKey: 'url',

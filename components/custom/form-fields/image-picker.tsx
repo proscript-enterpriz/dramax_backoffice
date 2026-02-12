@@ -20,7 +20,9 @@ import { ImageInfoType } from '@/services/schema';
 
 export interface ImageListComponentProps {
   image?: string;
+  images?: string[];
   uploading: boolean;
+  multiple?: boolean;
   forceRatio?: string;
   availableRatios?: string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,6 +38,7 @@ export interface ImagePickerItemProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field: ControllerRenderProps<any, any>;
   label?: string;
+  multiple?: boolean;
   description?: string;
   onMimeTypeDetected?: (mimeType: string) => void;
   forceRatio?: string;
@@ -45,7 +48,7 @@ export interface ImagePickerItemProps {
 
 export function MediaPickerItem({
   field,
-  label,
+  multiple = false,
   description,
   onMimeTypeDetected,
   forceRatio,
@@ -55,18 +58,25 @@ export function MediaPickerItem({
   const { openDialog } = useMediaDialog();
   const { clearErrors, setError } = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const currentValue = Array.isArray(field.value)
-    ? field.value[0]
-    : field.value;
 
-  const initialUrls = useMemo<string[]>(
-    () => (currentValue ? [currentValue] : []),
-    [currentValue],
+  const currentValues = useMemo<string[]>(
+    () =>
+      Array.isArray(field.value)
+        ? field.value.filter((v): v is string => typeof v === 'string')
+        : typeof field.value === 'string' && field.value.trim().length > 0
+          ? [field.value]
+          : [],
+    [field.value],
   );
 
   const handleUploadComplete = useCallback(
     (urls: string[], mimeTypes?: string[]) => {
-      field.onChange(urls[0] ?? '');
+      if (multiple) {
+        const nextValues = Array.from(new Set([...currentValues, ...urls]));
+        field.onChange(nextValues);
+      } else {
+        field.onChange(urls[0] ?? '');
+      }
 
       if (Array.isArray(mimeTypes) && mimeTypes.length > 0) {
         onMimeTypeDetected?.(mimeTypes[0]!);
@@ -75,7 +85,7 @@ export function MediaPickerItem({
       clearErrors(field.name);
       if (fileInputRef.current) fileInputRef.current.value = '';
     },
-    [clearErrors, field, onMimeTypeDetected],
+    [clearErrors, currentValues, field, multiple, onMimeTypeDetected],
   );
 
   const handleUploadError = useCallback(
@@ -85,7 +95,7 @@ export function MediaPickerItem({
   );
 
   const { loading, accept, previews, handleFileSelect } = useFileUploader({
-    initialUrls,
+    initialUrls: currentValues,
     onUploadComplete: handleUploadComplete,
     onError: handleUploadError,
   });
@@ -104,16 +114,18 @@ export function MediaPickerItem({
     [aspectRatioValue],
   );
 
-  const previewImage = useMemo(
+  const previewImages = useMemo(
     () =>
       Array.from(
         new Set([
           ...previews,
-          ...initialUrls.filter((url) => !previews.includes(url)),
+          ...currentValues.filter((url) => !previews.includes(url)),
         ]),
-      ).find((url) => typeof url === 'string' && url.trim().length > 0),
-    [initialUrls, previews],
+      ).filter((url) => typeof url === 'string' && url.trim().length > 0),
+    [currentValues, previews],
   );
+
+  const previewImage = previewImages[0];
 
   const openMediaDialog = useCallback(
     (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -121,27 +133,49 @@ export function MediaPickerItem({
       e?.stopPropagation();
 
       openDialog({
-        multiple: false,
+        multiple,
         onSelect: (selectedMedias) => {
           if (Array.isArray(selectedMedias)) {
-            field.onChange(selectedMedias[0]?.image_url ?? '');
+            if (multiple) {
+              const selectedUrls = selectedMedias
+                .map((m) => m?.image_url)
+                .filter((url): url is string => !!url);
+              field.onChange(
+                Array.from(new Set([...currentValues, ...selectedUrls])),
+              );
+            } else {
+              field.onChange(selectedMedias[0]?.image_url ?? '');
+            }
             return;
           }
 
-          field.onChange((selectedMedias as ImageInfoType)?.image_url ?? '');
+          const selectedUrl =
+            (selectedMedias as ImageInfoType)?.image_url ?? '';
+          if (multiple) {
+            field.onChange(
+              Array.from(new Set([...currentValues, selectedUrl])),
+            );
+          } else {
+            field.onChange(selectedUrl);
+          }
         },
       });
     },
-    [field, openDialog],
+    [currentValues, field, multiple, openDialog],
   );
 
   const handleRemoveMedia = useCallback(
-    (_mediaUrl: string) => {
-      field.onChange('');
+    (mediaUrl: string) => {
+      if (multiple) {
+        const next = currentValues.filter((v) => v !== mediaUrl);
+        field.onChange(next);
+      } else {
+        field.onChange('');
+      }
       clearErrors(field.name);
       if (fileInputRef.current) fileInputRef.current.value = '';
     },
-    [clearErrors, field],
+    [clearErrors, currentValues, field, multiple],
   );
 
   const handleInputChange = useCallback(
@@ -162,7 +196,7 @@ export function MediaPickerItem({
             type="file"
             accept={accept}
             disabled={loading}
-            multiple={false}
+            multiple={multiple}
             onChange={handleInputChange}
             className="hidden"
           />
@@ -174,6 +208,8 @@ export function MediaPickerItem({
             uploading={loading}
             accept={accept}
             image={previewImage}
+            images={previewImages}
+            multiple={multiple}
             aspectRatioStyle={singleAspectRatioStyle}
             openMediaDialog={openMediaDialog}
             onRemoveMedia={handleRemoveMedia}
@@ -188,6 +224,8 @@ export function MediaPickerItem({
 
 const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
   image,
+  images = [],
+  multiple = false,
   openMediaDialog,
   onRemoveMedia,
   aspectRatioStyle,
@@ -197,6 +235,44 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
     () => accept.replace(/image\//g, ''),
     [accept],
   );
+
+  if (multiple) {
+    return (
+      <div className="space-y-3 rounded-md border border-dashed border-slate-200 bg-slate-50 p-3">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium">Зурагнууд</p>
+          <Button type="button" onClick={openMediaDialog} variant="outline">
+            Зураг сонгох
+          </Button>
+        </div>
+        {images.length ? (
+          <div className="grid grid-cols-3 gap-3">
+            {images.map((img) => (
+              <div
+                key={img}
+                className="relative aspect-square overflow-hidden rounded-md"
+              >
+                <Image src={img} alt="" fill className="object-cover" />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-1 right-1 z-20 h-6 w-6 rounded-full"
+                  onClick={() => onRemoveMedia?.(img)}
+                >
+                  <X className="size-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-muted-foreground py-6 text-center text-sm">
+            Зураг оруулаагүй байна ({acceptedTypesLabel})
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
