@@ -10,7 +10,7 @@ import { RVK_BANNERS } from './rvk';
 
 export type BannerResponseType = {
   id: string;
-  image_link: string | null;
+  image_link: string | string[] | null;
   url: string | null;
   created_at: string;
   updated_at: string | null;
@@ -83,7 +83,7 @@ export async function deleteBanner(bannerId: string) {
 }
 
 export async function createBanner(body: {
-  image_link?: string | null;
+  image_link?: string | string[] | null;
   url?: string | null;
 }) {
   try {
@@ -109,7 +109,7 @@ export async function createBanner(body: {
 export async function updateBanner(
   bannerId: string,
   body: {
-    image_link?: string | null;
+    image_link?: string | string[] | null;
     url?: string | null;
   },
 ) {

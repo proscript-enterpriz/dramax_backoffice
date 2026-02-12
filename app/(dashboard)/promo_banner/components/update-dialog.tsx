@@ -3,8 +3,8 @@
 import { ReactNode, useRef, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import { MediaPickerItem } from '@/components/custom/form-fields';
@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { BannerResponseType, updateBanner } from '@/services/banners';
 
 const updateBannerSchema = z.object({
-  image_link: z.string().max(2048).nullish(),
+  image_link: z.any().nullish(),
   url: z
     .union([
       z
@@ -34,6 +34,36 @@ const updateBannerSchema = z.object({
 
 type UpdateBannerFormType = z.infer<typeof updateBannerSchema>;
 
+function normalizeImageLinks(
+  value: unknown,
+): string | string[] | null | undefined {
+  if (typeof value === 'string') {
+    const v = value.trim();
+    return v || null;
+  }
+
+  if (Array.isArray(value)) {
+    const urls = value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') {
+          const candidate =
+            (item as { url?: string }).url ||
+            (item as { media_url?: string }).media_url;
+          return typeof candidate === 'string' ? candidate : '';
+        }
+        return '';
+      })
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    if (urls.length === 0) return null;
+    return urls.length === 1 ? urls[0] : urls;
+  }
+
+  return null;
+}
+
 export function UpdateDialog({
   children,
   initialData,
@@ -47,7 +77,7 @@ export function UpdateDialog({
   const form = useForm<UpdateBannerFormType>({
     resolver: zodResolver(updateBannerSchema),
     defaultValues: {
-      image_link: initialData.image_link ?? '',
+      image_link: initialData.image_link ?? [],
       url: initialData.url ?? '',
     },
   });
@@ -55,7 +85,7 @@ export function UpdateDialog({
   function onSubmit(values: UpdateBannerFormType) {
     startTransition(() => {
       updateBanner(initialData.id, {
-        image_link: values.image_link?.trim() || null,
+        image_link: normalizeImageLinks(values.image_link),
         url: values.url?.trim() || null,
       })
         .then((res) => {
@@ -63,7 +93,7 @@ export function UpdateDialog({
           toast.success('Promo banner амжилттай шинэчлэгдлээ.');
           dialogRef?.current?.close();
           form.reset({
-            image_link: values.image_link ?? '',
+            image_link: values.image_link ?? [],
             url: values.url ?? '',
           });
         })
@@ -89,7 +119,7 @@ export function UpdateDialog({
       onOpenChange={(open) => {
         if (open) {
           form.reset({
-            image_link: initialData.image_link ?? '',
+            image_link: initialData.image_link ?? [],
             url: initialData.url ?? '',
           });
         }
@@ -101,6 +131,7 @@ export function UpdateDialog({
         render={({ field }) => (
           <MediaPickerItem
             field={field}
+            multiple
             label="Баннер зураг (image_link)"
             forceRatio="1:1"
           />

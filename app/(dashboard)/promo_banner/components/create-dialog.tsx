@@ -3,8 +3,8 @@
 import { ReactNode, useRef, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import { MediaPickerItem } from '@/components/custom/form-fields';
@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { createBanner } from '@/services/banners';
 
 const createBannerSchema = z.object({
-  image_link: z.string().max(2048).nullish(),
+  image_link: z.any().nullish(),
   url: z
     .union([
       z
@@ -34,6 +34,36 @@ const createBannerSchema = z.object({
 
 type CreateBannerFormType = z.infer<typeof createBannerSchema>;
 
+function normalizeImageLinks(
+  value: unknown,
+): string | string[] | null | undefined {
+  if (typeof value === 'string') {
+    const v = value.trim();
+    return v || null;
+  }
+
+  if (Array.isArray(value)) {
+    const urls = value
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object') {
+          const candidate =
+            (item as { url?: string }).url ||
+            (item as { media_url?: string }).media_url;
+          return typeof candidate === 'string' ? candidate : '';
+        }
+        return '';
+      })
+      .map((v) => v.trim())
+      .filter(Boolean);
+
+    if (urls.length === 0) return null;
+    return urls.length === 1 ? urls[0] : urls;
+  }
+
+  return null;
+}
+
 export function CreateDialog({ children }: { children: ReactNode }) {
   const dialogRef = useRef<FormDialogRef>(null);
   const [isPending, startTransition] = useTransition();
@@ -41,7 +71,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const form = useForm<CreateBannerFormType>({
     resolver: zodResolver(createBannerSchema),
     defaultValues: {
-      image_link: '',
+      image_link: [],
       url: '',
     },
   });
@@ -49,7 +79,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   function onSubmit(values: CreateBannerFormType) {
     startTransition(() => {
       createBanner({
-        image_link: values.image_link?.trim() || null,
+        image_link: normalizeImageLinks(values.image_link),
         url: values.url?.trim() || null,
       })
         .then((res) => {
@@ -60,7 +90,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         })
         .catch((e) =>
           toast.error(
-            e instanceof Error ? e.message : 'Promo banner үүсгэхэд алдаа гарлаа',
+            e instanceof Error
+              ? e.message
+              : 'Promo banner үүсгэхэд алдаа гарлаа',
           ),
         );
     });
@@ -83,6 +115,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         render={({ field }) => (
           <MediaPickerItem
             field={field}
+            multiple
             label="Баннер зураг (image_link)"
             forceRatio="1:1"
           />
