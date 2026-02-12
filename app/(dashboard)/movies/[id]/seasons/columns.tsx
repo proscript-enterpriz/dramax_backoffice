@@ -15,7 +15,7 @@ import {
 } from '@/components/custom/delete-dialog';
 import { TableHeaderWrapper } from '@/components/custom/table-header-wrapper';
 import ZoomableImage from '@/components/custom/zoomable-image';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPagePermission, hasPermission } from '@/lib/permission';
-import { cn, removeHTML } from '@/lib/utils';
+import { removeHTML } from '@/lib/utils';
 import { SeasonType } from '@/services/schema';
 import { deleteSeriesSeason } from '@/services/season';
 
@@ -34,11 +34,13 @@ import { UpdateDialog } from './components/update-dialog';
 const Action = ({ row }: CellContext<SeasonType, unknown>) => {
   const [loading, setLoading] = useState(false);
   const deleteDialogRef = useRef<DeleteDialogRef>(null);
+  const params = useParams();
   const { data } = useSession();
   const canDelete = hasPermission(data, 'movies.seasons', 'delete');
   const canEdit = hasPermission(data, 'movies.seasons', 'update');
+  const canAccessEpisodes = hasPagePermission(data, 'movies.episodes');
 
-  if (!canDelete && !canEdit) return null;
+  if (!canDelete && !canEdit && !canAccessEpisodes) return null;
 
   return (
     <div className="me-2 flex justify-end gap-4">
@@ -50,15 +52,23 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {canAccessEpisodes && (
+            <DropdownMenuItem asChild>
+              <Link href={`/movies/${params.id}/seasons/${row.original.id}`}>
+                <FilmIcon className="h-4 w-4" /> Ангиуд
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {canAccessEpisodes && (canEdit || canDelete) && <DropdownMenuSeparator />}
           {canEdit && (
             <UpdateDialog
               initialData={row.original}
               key={JSON.stringify(row.original)}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="h-4 w-4" /> Edit
+                <Edit className="h-4 w-4" /> Засах
               </DropdownMenuItem>
             </UpdateDialog>
           )}
@@ -70,8 +80,8 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
                 setLoading(true);
                 // TODO: Please check after generate
                 deleteSeriesSeason(row.original.id, row.original.movie_id!)
-                  .then((c) => toast.success(c.message))
-                  .catch((c) => toast.error(c.message))
+                  .then(() => toast.success('Улирал амжилттай устгагдлаа'))
+                  .catch(() => toast.error('Улирал устгахад алдаа гарлаа'))
                   .finally(() => {
                     deleteDialogRef.current?.close();
                     setLoading(false);
@@ -89,28 +99,13 @@ const Action = ({ row }: CellContext<SeasonType, unknown>) => {
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash className="h-4 w-4" />
-                Delete
+                Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
-
-const Navigation = ({ row }: CellContext<SeasonType, unknown>) => {
-  const { data } = useSession();
-  const params = useParams();
-
-  if (!hasPagePermission(data, 'movies.episodes')) return null;
-  return (
-    <Link
-      href={`/movies/${params.id}/seasons/${row.original.id}`}
-      className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
-    >
-      <FilmIcon className="h-4 w-4" /> Ангиуд
-    </Link>
   );
 };
 
@@ -193,6 +188,5 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     enableSorting: true,
     enableColumnFilter: true,
   },
-  { id: 'navigations', cell: Navigation },
   { id: 'actions', cell: Action },
 ];

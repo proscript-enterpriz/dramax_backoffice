@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPagePermission, hasPermission } from '@/lib/permission';
-import { cn } from '@/lib/utils';
 import { deleteMovie, getMovie } from '@/services/movies-generated';
 import { MovieListResponseType } from '@/services/schema';
 
@@ -36,9 +35,16 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
   const { data } = useSession();
   const canDelete = hasPermission(data, 'movies', 'delete');
   const canEdit = hasPermission(data, 'movies', 'update');
+  const canAccessSeasons =
+    hasPagePermission(data, 'movies.seasons') && row.original.type === 'series';
+  const canAccessMiniSeries =
+    hasPagePermission(data, 'movies.movie-episodes') &&
+    row.original.type === 'mini-series';
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
 
-  if (!canEdit && !canDelete) return null;
+  if (!canEdit && !canDelete && !canAccessSeasons && !canAccessMiniSeries) {
+    return null;
+  }
 
   return (
     <div className="me-2 flex justify-end gap-4">
@@ -50,14 +56,29 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {canAccessMiniSeries && (
+            <DropdownMenuItem asChild>
+              <Link href={`/movies/${row.original.id}/episodes`}>
+                <GitBranch className="h-4 w-4" /> Ангиуд
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {canAccessSeasons && (
+            <DropdownMenuItem asChild>
+              <Link href={`/movies/${row.original.id}/seasons`}>
+                <GitBranch className="h-4 w-4" /> Цувралууд
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {(canAccessMiniSeries || canAccessSeasons) && <DropdownMenuSeparator />}
           {canEdit && (
             <DropdownMenuItem
               onClick={() => setEditDrawerOpen(true)}
               onClickCapture={() => getMovie(row.original.id.toString())}
             >
-              <Edit className="h-4 w-4" /> Edit
+              <Edit className="h-4 w-4" /> Засах
             </DropdownMenuItem>
           )}
           {canDelete && (
@@ -69,10 +90,10 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
                 // TODO: Please check after generate
                 deleteMovie(row.original.id.toString())
                   .then((c) =>
-                    toast.success(c.message || 'Movie deleted successfully'),
+                    toast.success(c.message || 'Кино амжилттай устгагдлаа'),
                   )
                   .catch((c) =>
-                    toast.error(c.message || 'Failed to delete movie'),
+                    toast.error(c.message || 'Кино устгахад алдаа гарлаа'),
                   )
                   .finally(() => {
                     deleteDialogRef.current?.close();
@@ -88,7 +109,7 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash className="h-4 w-4" />
-                Delete
+                Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}
@@ -103,36 +124,6 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
       )}
     </div>
   );
-};
-
-const Navigation = ({ row }: CellContext<MovieListResponseType, unknown>) => {
-  const { data } = useSession();
-  const canAccessSeasons =
-    hasPagePermission(data, 'movies.seasons') && row.original.type === 'series';
-  const canAccessMiniSeries =
-    hasPagePermission(data, 'movies.movie-episodes') &&
-    row.original.type === 'mini-series';
-
-  if (canAccessMiniSeries)
-    return (
-      <Link
-        href={`/movies/${row.original.id}/episodes`}
-        className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
-      >
-        <GitBranch className="h-4 w-4" /> Ангиуд
-      </Link>
-    );
-
-  if (canAccessSeasons)
-    return (
-      <Link
-        href={`/movies/${row.original.id}/seasons`}
-        className={cn(buttonVariants({ variant: 'outline', size: 'cxs' }))}
-      >
-        <GitBranch className="h-4 w-4" /> Цувралууд
-      </Link>
-    );
-  return null;
 };
 
 export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
@@ -218,11 +209,6 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     cell: ({ row }) => row.original.year,
     enableSorting: true,
     enableColumnFilter: true,
-  },
-
-  {
-    id: 'navigation',
-    cell: Navigation,
   },
 
   {

@@ -44,7 +44,7 @@ export function UpdateDialog({
     startTransition(() => {
       updateTag(initialData.id, values)
         .then(() => {
-          toast.success('Updated successfully');
+          toast.success('Амжилттай шинэчлэгдлээ');
           dialogRef?.current?.close();
           form.reset();
         })

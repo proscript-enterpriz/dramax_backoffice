@@ -70,16 +70,12 @@ function CellAction({ row }: { row: { original: MovieEpisodeType } }) {
                     row.original.movie_id,
                   );
                   if (result.status === 'error') {
-                    toast.error(result.message);
+                    toast.error('Анги устгахад алдаа гарлаа');
                     return;
                   }
                   toast.success('Анги амжилттай устгагдлаа');
                 } catch (error) {
-                  toast.error(
-                    error instanceof Error
-                      ? error.message
-                      : 'Устгахад алдаа гарлаа',
-                  );
+                  toast.error('Анги устгахад алдаа гарлаа');
                 }
               });
             }}

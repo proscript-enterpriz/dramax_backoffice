@@ -70,7 +70,7 @@ const Action = ({
               action={() => {
                 setLoading(true);
                 deleteTag(row.original.id)
-                  .then(() => toast.success('Tag deleted successfully'))
+                  .then(() => toast.success('Таг амжилттай устгагдлаа'))
                   .catch((c) => toast.error(c.message))
                   .finally(() => {
                     deleteDialogRef.current?.close();

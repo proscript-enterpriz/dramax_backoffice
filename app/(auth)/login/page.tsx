@@ -22,13 +22,9 @@ export default function Page() {
 
   useEffect(() => {
     if (state.status === 'failed') {
-      toast.error(
-        'Invalid credentials! Please check your username and password.',
-      );
+      toast.error('Нэвтрэх мэдээлэл буруу байна. Нэр, нууц үгээ шалгана уу.');
     } else if (state.status === 'invalid_data') {
-      toast.error(
-        'Failed validating your submission! Please check your input.',
-      );
+      toast.error('Оруулсан мэдээлэл буруу байна. Талбаруудаа шалгана уу.');
     } else if (state.status === 'success') {
       setTimeout(() => {
         session.update().finally(() => router.push('/'));

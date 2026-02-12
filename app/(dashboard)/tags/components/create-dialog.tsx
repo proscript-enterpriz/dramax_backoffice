@@ -30,7 +30,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
     startTransition(() => {
       createTag(values)
         .then(() => {
-          toast.success('Created successfully');
+          toast.success('Амжилттай нэмэгдлээ');
           dialogRef?.current?.close();
           form.reset();
         })

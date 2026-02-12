@@ -29,7 +29,7 @@ export default function RevalidateMenu() {
               onClick={() => {
                 setLoading(true);
                 Promise.allSettled([revalidateLocal(), revalidateClientFull()])
-                  .then(() => toast.success('Revalidate successfully'))
+                  .then(() => toast.success('Дахин шинэчлэлт амжилттай боллоо'))
                   .finally(() => setLoading(false));
               }}
             >

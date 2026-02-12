@@ -47,7 +47,7 @@ export function InfoTab({
 
         const updated = (res.result || res) as StreamVideo;
         onUpdate?.(updated);
-        toast.success('Stream updated successfully');
+        toast.success('Стрийм амжилттай шинэчлэгдлээ');
       } catch (errorUnknown: unknown) {
         toast.error((errorUnknown as any)?.message || String(errorUnknown));
       }
@@ -74,7 +74,7 @@ export function InfoTab({
               className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
               onClick={() =>
                 handleCopy(data.uid, () =>
-                  toast.success('ID copied to clipboard'),
+                  toast.success('ID амжилттай хууллаа'),
                 )
               }
             >

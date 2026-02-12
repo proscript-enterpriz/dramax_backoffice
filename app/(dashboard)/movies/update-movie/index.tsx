@@ -52,8 +52,9 @@ import {
   AppApiApiV1EndpointsDashboardCategoriesTagResponseType,
   CategoryResponseType,
   GenreResponseType,
-  movieResponseSchema,
   MovieResponseType,
+  movieUpdateFormSchema,
+  MovieUpdateFormType,
 } from '@/services/schema';
 import { getTags } from '@/services/tags';
 
@@ -124,17 +125,13 @@ export default function UpdateMovie({
     }
   }, [editDrawerOpen]);
 
-  const form = useForm<MovieResponseType>({
-    resolver: zodResolver(
-      movieResponseSchema.refine((data) => !data.is_premium || !!data.price, {
-        message: 'Price is required when premium is enabled',
-        path: ['price'],
-      }),
-    ),
+  const form = useForm<MovieUpdateFormType>({
+    resolver: zodResolver(movieUpdateFormSchema),
     values: {
       title: initialData?.title || '',
       description: initialData?.description || '',
       type: initialData?.type || 'movie',
+      status: initialData?.status || 'pending',
       year: initialData?.year || 0,
       price: initialData?.price || 0,
       is_premium: initialData?.is_premium || false,
@@ -144,7 +141,7 @@ export default function UpdateMovie({
       is_adult: initialData?.is_adult || false,
       categories: initialData?.categories || [],
       genres: initialData?.genres || [],
-      tags: initialData?.tags || [],
+      tag_ids: initialData?.tags?.map((tag) => Number(tag.id)) || [],
       movie_id: initialData?.movie_id || '',
       cloudflare_video_id: initialData?.cloudflare_video_id,
       created_at: '2025-09-24T05:20:30.123Z',
@@ -154,14 +151,14 @@ export default function UpdateMovie({
   const isPremium = !!form.watch('is_premium');
   const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
 
-  const onSubmit = async (d: MovieResponseType) => {
+  const onSubmit = async (d: MovieUpdateFormType) => {
     setIsLoading(true);
     try {
       const response = await updateMovie(id, {
-        ...omit(d, ['categories', 'genres', 'tags', 'created_at']),
+        ...omit(d, ['categories', 'genres', 'created_at']),
         categories: d.categories?.map((cat) => Number(cat.id)),
         genres: d.genres?.map((genre) => Number(genre.id)),
-        tag_ids: d.tags?.map((tag) => Number(tag.id)),
+        tag_ids: d.tag_ids?.map((tag) => Number(tag)),
       });
 
       if (response.status === 'error') throw Error(response.message);
@@ -248,21 +245,23 @@ export default function UpdateMovie({
                     control={form.control}
                     name="categories"
                     render={({ field }) => {
-                      const currentValues = field.value?.map((cat) =>
-                        cat.id.toString(),
+                      const options = categories.map((cat) => ({
+                        label: cat.name,
+                        value: cat.id.toString(),
+                      }));
+                      const optionValueSet = new Set(
+                        options.map((option) => option.value),
                       );
+                      const currentValues = (
+                        field.value?.map((cat) => cat.id.toString()) || []
+                      ).filter((value) => optionValueSet.has(value));
                       return (
                         <FormItem className="flex flex-col gap-1">
                           <FormLabel>Кино категори сонгох</FormLabel>
                           <FormControl>
                             <MultiSelect
                               disabled={loadingData}
-                              options={categories.map((cat) => {
-                                return {
-                                  label: cat.name,
-                                  value: cat.id.toString(),
-                                };
-                              })}
+                              options={options}
                               onValueChange={(selectedValues: string[]) => {
                                 const selectedCategories = selectedValues.map(
                                   (value) => {
@@ -293,21 +292,23 @@ export default function UpdateMovie({
                     control={form.control}
                     name="genres"
                     render={({ field }) => {
-                      const currentValues = field.value?.map((genre) =>
-                        genre.id.toString(),
+                      const options = genres.map((genre) => ({
+                        label: genre.name,
+                        value: genre.id.toString(),
+                      }));
+                      const optionValueSet = new Set(
+                        options.map((option) => option.value),
                       );
+                      const currentValues = (
+                        field.value?.map((genre) => genre.id.toString()) || []
+                      ).filter((value) => optionValueSet.has(value));
                       return (
                         <FormItem className="flex flex-col gap-1">
                           <FormLabel>Кино genre сонгох</FormLabel>
                           <FormControl>
                             <MultiSelect
                               disabled={loadingData}
-                              options={genres.map((genre) => {
-                                return {
-                                  label: genre.name,
-                                  value: genre.id.toString(),
-                                };
-                              })}
+                              options={options}
                               onValueChange={(selectedValues: string[]) => {
                                 const selectedGenres = selectedValues.map(
                                   (value) => {
@@ -333,40 +334,34 @@ export default function UpdateMovie({
 
                   <FormField
                     control={form.control}
-                    name="tags"
+                    name="tag_ids"
                     render={({ field }) => {
-                      const currentValues = field.value?.map((tag) =>
-                        tag.id.toString(),
+                      const options = tags.map((tag) => ({
+                        label: tag.name,
+                        value: tag.id.toString(),
+                      }));
+                      const optionValueSet = new Set(
+                        options.map((option) => option.value),
                       );
+                      const currentValues = (
+                        field.value?.map((tagId) => tagId.toString()) || []
+                      ).filter((value) => optionValueSet.has(value));
                       return (
                         <FormItem className="flex flex-col gap-1">
                           <FormLabel>Кино tag сонгох</FormLabel>
                           <FormControl>
                             <MultiSelect
                               disabled={loadingData}
-                              options={tags.map((tag) => {
-                                return {
-                                  label: tag.name,
-                                  value: tag.id.toString(),
-                                };
-                              })}
+                              options={options}
                               onValueChange={(selectedValues: string[]) => {
                                 field.onChange(
-                                  selectedValues.map((value) => {
-                                    const tagId = Number(value);
-                                    const tag = tags.find(
-                                      (g) => g.id === tagId,
-                                    );
-                                    return {
-                                      id: tagId,
-                                      name: tag?.name || '',
-                                    };
-                                  }),
+                                  selectedValues.map((value) => Number(value)),
                                 );
                               }}
                               defaultValue={currentValues}
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       );
                     }}
@@ -411,6 +406,32 @@ export default function UpdateMovie({
                 />
 
                 <div className="border-destructive/15 bg-destructive/5 !my-6 space-y-4 rounded-md border p-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem className="bg-background border-destructive/15 flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="flex flex-col gap-1">
+                          <FormLabel className="text-md font-semibold">
+                            Киноны төлөв
+                          </FormLabel>
+                          <FormDescription className="text-muted-foreground">
+                            Унтраалттай үед pending, асаахад active болно
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value === 'active'}
+                            onCheckedChange={(checked) =>
+                              field.onChange(checked ? 'active' : 'pending')
+                            }
+                            aria-readonly
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="type"
@@ -551,7 +572,7 @@ export default function UpdateMovie({
                   {isLoading ? (
                     <LoaderIcon className="animate-spin" />
                   ) : (
-                    'Нэмэх'
+                    'Шинэчлэх'
                   )}
                 </Button>
               </div>
