@@ -5,6 +5,7 @@ import {
   GemIcon,
   Home,
   ImagePlusIcon,
+  Megaphone,
   type LucideIcon,
   Tag,
   TvMinimalPlay,
@@ -87,6 +88,11 @@ export const systemAdminRoutes = [
     title: 'Ажилчид',
     url: '/employees',
     icon: UsersRoundIcon,
+  },
+  {
+    title: 'Promo banner',
+    url: '/promo_banner',
+    icon: Megaphone,
   },
 ] as const;
 

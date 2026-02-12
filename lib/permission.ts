@@ -83,6 +83,7 @@ type UrlEnumType = RemoveSlash<
 const subjects = {
   '': [],
   categories: [],
+  promo_banner: [],
   employees: [],
   rentals: ['users'],
   medias: [],
@@ -121,6 +122,7 @@ const restricted = { create: false, delete: false, read: false, update: false };
 const full = { create: true, delete: true, read: true, update: true };
 const modify = { ...restricted, create: true, read: true, update: true }; // defaults to ignore
 const read = { ...restricted, read: true }; // defaults to ignore
+const editRead = { ...restricted, read: true, update: true };
 
 const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   // Full platform admin
@@ -150,6 +152,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   admin: {
     '': full,
     employees: modify,
+    promo_banner: editRead,
     rentals: read,
     'rentals.users': read,
     medias: full,
@@ -173,6 +176,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   editor: {
     '': full,
     categories: modify,
+    promo_banner: editRead,
     genres: full,
     medias: full,
     movies: modify,
@@ -196,6 +200,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   moderator: {
     '': full,
     categories: read,
+    promo_banner: editRead,
     genres: read,
     medias: read,
     movies: read,
@@ -219,6 +224,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   support: {
     '': full,
     categories: read,
+    promo_banner: editRead,
     genres: read,
     medias: read,
     movies: read,
@@ -242,6 +248,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
   content_owner: {
     '': full,
     employees: restricted,
+    promo_banner: editRead,
     rentals: read, // can see rentals related to their content
     'rentals.users': restricted,
     medias: modify, // own media
