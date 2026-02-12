@@ -10,7 +10,6 @@ import {
   FormControl,
   FormDescription,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -20,8 +19,7 @@ import { useMediaDialog } from '@/providers';
 import { ImageInfoType } from '@/services/schema';
 
 export interface ImageListComponentProps {
-  medias: string[];
-  isMultiple: boolean;
+  image?: string;
   uploading: boolean;
   forceRatio?: string;
   availableRatios?: string[];
@@ -57,7 +55,6 @@ export function MediaPickerItem({
   const { openDialog } = useMediaDialog();
   const { clearErrors, setError } = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMultiple = false;
   const currentValue = Array.isArray(field.value)
     ? field.value[0]
     : field.value;
@@ -103,18 +100,18 @@ export function MediaPickerItem({
   }, [availableRatios, forceRatio]);
 
   const singleAspectRatioStyle = useMemo(
-    () => (isMultiple ? undefined : { aspectRatio: aspectRatioValue }),
-    [aspectRatioValue, isMultiple],
+    () => ({ aspectRatio: aspectRatioValue }),
+    [aspectRatioValue],
   );
 
-  const mergedMedias = useMemo(
+  const previewImage = useMemo(
     () =>
       Array.from(
         new Set([
           ...previews,
           ...initialUrls.filter((url) => !previews.includes(url)),
         ]),
-      ),
+      ).find((url) => typeof url === 'string' && url.trim().length > 0),
     [initialUrls, previews],
   );
 
@@ -158,7 +155,6 @@ export function MediaPickerItem({
 
   return (
     <FormItem>
-      {label && <FormLabel>{label}</FormLabel>}
       <FormControl>
         <div className="relative">
           <Input
@@ -171,14 +167,13 @@ export function MediaPickerItem({
             className="hidden"
           />
           <MediasRenderer
-            isMultiple={isMultiple}
             forceRatio={forceRatio}
             availableRatios={availableRatios}
             field={field}
             getInputRef={getInputRef}
             uploading={loading}
             accept={accept}
-            medias={mergedMedias}
+            image={previewImage}
             aspectRatioStyle={singleAspectRatioStyle}
             openMediaDialog={openMediaDialog}
             onRemoveMedia={handleRemoveMedia}
@@ -192,8 +187,7 @@ export function MediaPickerItem({
 }
 
 const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
-  medias,
-  isMultiple,
+  image,
   openMediaDialog,
   onRemoveMedia,
   aspectRatioStyle,
@@ -208,45 +202,33 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
     <div
       className={cn(
         'group relative border-spacing-10 rounded-md bg-slate-50',
-        medias.length > 0
+        image
           ? 'border border-transparent'
           : 'border border-dashed border-slate-200',
       )}
     >
-      <div
-        className={cn({
-          'grid grid-cols-4 gap-2 md:grid-cols-6': isMultiple,
-        })}
-        style={aspectRatioStyle}
-      >
-        {medias.length ? (
-          medias.map((preview, idx) => (
-            <div
-              className="aspect-cover relative h-full w-full"
-              key={`${preview}-${idx}`}
+      <div style={aspectRatioStyle}>
+        {image ? (
+          <div className="aspect-cover relative h-full w-full">
+            <Image
+              src={image}
+              alt=""
+              className={cn(
+                'mb-2 h-full w-full rounded-md object-cover',
+                image.startsWith('blob') ? 'opacity-70' : 'opacity-100',
+              )}
+              fill
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full"
+              onClick={() => onRemoveMedia?.(image)}
             >
-              <Image
-                src={preview}
-                alt=""
-                className={cn(
-                  'mb-2 rounded-md object-cover',
-                  isMultiple ? 'h-32 w-32' : 'h-full w-full',
-                  idx < medias.length - 1 ? 'mr-2' : '',
-                  preview.startsWith('blob') ? 'opacity-70' : 'opacity-100',
-                )}
-                fill
-              />
-              <Button
-                type="button"
-                size="icon"
-                variant="secondary"
-                className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full"
-                onClick={() => onRemoveMedia?.(preview)}
-              >
-                <X className="size-4" />
-              </Button>
-            </div>
-          ))
+              <X className="size-4" />
+            </Button>
+          </div>
         ) : (
           <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-2">
             <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-white">
@@ -264,13 +246,13 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
           </div>
         )}
       </div>
-      {medias.length > 0 && (
+      {image && (
         <div className="pointer-events-none absolute inset-0 z-10 rounded-md bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 transition-opacity duration-500 ease-in-out group-focus-within:opacity-100 group-hover:opacity-100" />
       )}
-      {medias.length > 0 && (
+      {image && (
         <div className="pointer-events-none absolute right-3 bottom-3 z-30 translate-y-1 opacity-0 transition-all duration-500 ease-in-out group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
           <Button type="button" onClick={openMediaDialog} variant="outline">
-            {isMultiple ? 'Зураг нэмэх' : 'Зураг солих'}
+            Зураг солих
           </Button>
         </div>
       )}

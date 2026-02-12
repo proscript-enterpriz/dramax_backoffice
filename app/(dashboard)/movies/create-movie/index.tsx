@@ -360,8 +360,7 @@ export default function CreateMovie() {
                             Киноны төлөв
                           </FormLabel>
                           <FormDescription className="text-muted-foreground">
-                            Төлөв идэвхтэйгээр сонгосон тохиолдолд тухайн кино
-                            веб дээр дүрслэгдэх болно
+                            Унтраалттай үед Draft, асаахад Published болно
                           </FormDescription>
                         </div>
                         <FormControl>

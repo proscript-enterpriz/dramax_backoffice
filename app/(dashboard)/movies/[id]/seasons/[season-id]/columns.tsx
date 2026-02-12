@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { formatDuration } from '@interpriz/lib/utils';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -12,7 +13,6 @@ import {
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
 import { TableHeaderWrapper } from '@/components/custom/table-header-wrapper';
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -48,7 +48,7 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canEdit && (
@@ -90,12 +90,19 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
 
 export const episodesColumns: ColumnDef<EpisodeType>[] = [
   {
-    id: 'thumbnail',
+    id: 'Зураг',
     accessorKey: 'thumbnail',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) =>
       row.original.thumbnail ? (
-        <ZoomableImage src={row.original.thumbnail} />
+        <Image
+          src={row.original.thumbnail}
+          alt=""
+          width={64}
+          height={64}
+          unoptimized
+          className="h-16 w-16 rounded-md object-cover"
+        />
       ) : (
         <div className="bg-muted flex aspect-square h-16 w-16 items-center justify-center rounded-md border">
           <span className="text-muted-foreground text-center text-xs leading-tight">
@@ -107,7 +114,7 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableColumnFilter: false,
   },
   {
-    id: 'title',
+    id: 'Гарчиг',
     accessorKey: 'title',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.title?.slice(0, 300) ?? '-',
@@ -126,14 +133,14 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     id: 'cloudflare_video_id',
     accessorKey: 'cloudflare_video_id',
     header: ({ column }) => (
-      <TableHeaderWrapper column={column} label="Cloudflare ID" />
+      <TableHeaderWrapper column={column} label="Cloudflare Id" />
     ),
     cell: ({ row }) => row.original.cloudflare_video_id ?? '-',
     enableSorting: false,
     enableColumnFilter: true,
   },
   {
-    id: 'episode_number',
+    id: 'Ангийн дугаар',
     accessorKey: 'episode_number',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.episode_number ?? '-',
@@ -141,7 +148,7 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'description',
+    id: 'Тайлбар',
     accessorKey: 'description',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => (
@@ -153,7 +160,7 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableColumnFilter: false,
   },
   {
-    id: 'duration',
+    id: 'Хугацаа',
     accessorKey: 'duration',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => {
@@ -171,5 +178,5 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableSorting: true,
     enableColumnFilter: true,
   },
-  { id: 'actions', cell: Action },
+  { id: 'Үйлдэл', cell: Action },
 ];

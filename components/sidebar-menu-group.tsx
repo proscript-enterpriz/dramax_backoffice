@@ -57,8 +57,9 @@ export function SidebarMenuGroup({
                                 <Link
                                   href={child.url}
                                   withChildRoutes={
-                                    child.url.split('/').length > 1 ||
-                                    child.subRoutes
+                                    child.url !== '/' &&
+                                    (child.url.split('/').length > 1 ||
+                                      child.subRoutes)
                                   }
                                   activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                                 >
@@ -84,7 +85,8 @@ export function SidebarMenuGroup({
                     <Link
                       href={item.url}
                       withChildRoutes={
-                        item.url.split('/').length > 1 || item.subRoutes
+                        item.url !== '/' &&
+                        (item.url.split('/').length > 1 || item.subRoutes)
                       }
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                     >
@@ -102,7 +104,9 @@ export function SidebarMenuGroup({
                           <Link
                             href={child.url}
                             withChildRoutes={
-                              child.url.split('/').length > 1 || child.subRoutes
+                              child.url !== '/' &&
+                              (child.url.split('/').length > 1 ||
+                                child.subRoutes)
                             }
                             activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                           >

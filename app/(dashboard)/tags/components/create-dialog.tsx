@@ -44,18 +44,18 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Шинэ тааг оруулах"
-      submitText="Create"
+      title="Шинэ таг оруулах"
+      submitText="Үргэлжлүүлэх"
       trigger={children}
     >
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>Тааг нэр</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Тагийн нэр</FormLabel>
             <FormControl>
-              <Input placeholder="Тааг нэр" {...field} />
+              <Input placeholder="Тагийн нэр" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -66,7 +66,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="description"
         render={({ field }) => (
-          <FormItem>
+          <FormItem className="flex flex-col gap-1">
             <FormLabel>Дэлгэрэнгүй тайлбар</FormLabel>
             <FormControl>
               <HtmlTipTapItem field={field} />

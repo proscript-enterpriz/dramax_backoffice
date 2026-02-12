@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { Trash } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -11,7 +12,6 @@ import {
   DeleteDialog,
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Button } from '@/components/ui/button';
 // import { Checkbox } from '@/components/ui/checkbox';
 import { hasPermission } from '@/lib/permission';
@@ -94,14 +94,26 @@ export const imagesColumns: ColumnDef<ImageInfoType>[] = [
     id: 'image_url',
     accessorKey: 'image_url',
     header: () => 'Зураг',
-    cell: ({ row }) => <ZoomableImage src={row.original.image_url ?? ''} />,
+    cell: ({ row }) =>
+      row.original.image_url ? (
+        <Image
+          src={row.original.image_url}
+          alt=""
+          width={64}
+          height={64}
+          unoptimized
+          className="h-16 w-16 rounded-md object-cover"
+        />
+      ) : (
+        '-'
+      ),
     enableSorting: true,
     enableColumnFilter: true,
   },
   {
     id: 'id',
     accessorKey: 'id',
-    header: () => 'ID',
+    header: () => 'Id',
     cell: ({ row }) => row.original.id,
     enableSorting: true,
     enableColumnFilter: true,

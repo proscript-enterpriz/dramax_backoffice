@@ -44,7 +44,7 @@ const Action = ({ row }: CellContext<GenreResponseType, unknown>) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canEdit && (
@@ -53,7 +53,7 @@ const Action = ({ row }: CellContext<GenreResponseType, unknown>) => {
               key={JSON.stringify(row.original)}
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Edit className="h-4 w-4" /> Edit
+                <Edit className="h-4 w-4" /> Засварлах
               </DropdownMenuItem>
             </UpdateDialog>
           )}
@@ -81,7 +81,7 @@ const Action = ({ row }: CellContext<GenreResponseType, unknown>) => {
             >
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Trash className="h-4 w-4" />
-                Delete
+                Устгах
               </DropdownMenuItem>
             </DeleteDialog>
           )}
@@ -93,12 +93,20 @@ const Action = ({ row }: CellContext<GenreResponseType, unknown>) => {
 
 export const genresColumns: ColumnDef<GenreResponseType>[] = [
   {
-    id: 'name',
+    id: 'Нэр',
     accessorKey: 'name',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
     cell: ({ row }) => row.original.name?.slice(0, 300),
     enableSorting: true,
     enableColumnFilter: true,
+  },
+  {
+    id: 'movie_count',
+    accessorKey: 'movie_count',
+    header: () => <h1>Киноны тоо</h1>,
+    cell: ({ row }) => row.original.movie_count ?? 0,
+    enableSorting: true,
+    enableColumnFilter: false,
   },
   {
     id: 'actions',

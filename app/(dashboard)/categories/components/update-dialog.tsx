@@ -58,19 +58,19 @@ export function UpdateDialog({
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Update Category"
-      submitText="Update"
+      title="Ангилал шинэчлэх"
+      submitText="Хадгалах"
       trigger={children}
     >
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-2">
-            <FormLabel>Ангилалын нэр</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Ангиллын нэр</FormLabel>
             <FormControl>
               <Input
-                placeholder="Enter category name"
+                placeholder="Ангиллын нэр"
                 {...field}
                 value={field.value ?? undefined}
               />
@@ -107,7 +107,7 @@ export function UpdateDialog({
       <FormField
         control={form.control}
         name="description"
-        render={({ field }) => <HtmlTipTapItem field={field} />}
+        render={({ field }) => <HtmlTipTapItem field={field} label="Тайлбар" />}
       />
     </FormDialog>
   );

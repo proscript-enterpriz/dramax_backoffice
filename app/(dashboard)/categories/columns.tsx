@@ -45,7 +45,7 @@ const Action = ({ row }: CellContext<CategoryResponseType, unknown>) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {canEdit && (
@@ -97,7 +97,7 @@ export const categoriesColumns: ColumnDef<CategoryResponseType>[] = [
   {
     id: 'id',
     accessorKey: 'id',
-    header: () => <h1>ID</h1>,
+    header: () => <h1>Id</h1>,
     cell: ({ row }) => row.original.id,
     enableSorting: true,
     enableColumnFilter: true,
@@ -111,6 +111,28 @@ export const categoriesColumns: ColumnDef<CategoryResponseType>[] = [
     enableColumnFilter: true,
   },
   {
+    id: 'movie_count',
+    accessorKey: 'movie_count',
+    header: () => <h1>Киноны тоо</h1>,
+    cell: ({ row }) => row.original.movie_count ?? 0,
+    enableSorting: true,
+    enableColumnFilter: false,
+  },
+
+  {
+    id: 'is_adult',
+    accessorKey: 'is_adult',
+    header: () => <h1>Насанд хүрэгчдэд</h1>,
+    cell: ({ row }) => (
+      <Badge variant="secondary">
+        {row.original.is_adult ? 'Тийм' : 'Үгүй'}
+      </Badge>
+    ),
+    enableSorting: true,
+    enableColumnFilter: true,
+  },
+
+  {
     id: 'description',
     accessorKey: 'description',
     header: () => <h1>Дэлгэрэнгүй тайлбар</h1>,
@@ -121,18 +143,6 @@ export const categoriesColumns: ColumnDef<CategoryResponseType>[] = [
     ),
     enableSorting: false,
     enableColumnFilter: false,
-  },
-  {
-    id: 'is_adult',
-    accessorKey: 'is_adult',
-    header: () => <h1>Насанд хүрэгчдийн кино эсэх</h1>,
-    cell: ({ row }) => (
-      <Badge variant="secondary">
-        {row.original.is_adult ? 'Тийм' : 'Үгүй'}
-      </Badge>
-    ),
-    enableSorting: true,
-    enableColumnFilter: true,
   },
   {
     id: 'actions',

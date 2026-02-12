@@ -24,11 +24,11 @@ export default async function TagsPage(props: { searchParams?: SearchParams }) {
   return (
     <>
       <div className="flex items-start justify-between">
-        <Heading title={`Tags list (${total_count ?? data?.length})`} />
+        <Heading title={`Таг (${total_count ?? data?.length})`} />
         {hasPermission(session, 'tags', 'create') && (
           <CreateDialog>
             <Button className="text-xs md:text-sm" variant="outline">
-              <Plus className="h-4 w-4" /> Шинэ тааг оруулах
+              <Plus className="h-4 w-4" /> Шинэ таг оруулах
             </Button>
           </CreateDialog>
         )}

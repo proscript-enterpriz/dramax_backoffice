@@ -54,19 +54,19 @@ export function UpdateDialog({
       form={form}
       onSubmit={onSubmit}
       loading={isPending}
-      title="Update Genres"
-      submitText="Update"
+      title="Жанр шинэчлэх"
+      submitText="Хадгалах"
       trigger={children}
     >
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
-          <FormItem>
-            <FormLabel>Name</FormLabel>
+          <FormItem className="flex flex-col gap-1">
+            <FormLabel>Жанрын нэр</FormLabel>
             <FormControl>
               <Input
-                placeholder="Enter Name"
+                placeholder="Жанрын нэр"
                 {...field}
                 value={field.value ?? undefined}
               />

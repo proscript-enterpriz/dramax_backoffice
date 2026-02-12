@@ -158,10 +158,20 @@ const columns: ColumnDef<MovieListResponseType>[] = [
 
 ## Customized column renderers
 
-- Use zoomable-image on image fields.
+- Use a simple thumbnail image on image fields.
 
 ```tsx
-	cell: ({ row }) => <ZoomableImage src={row.original.fieldName!} />
+cell: ({ row }) =>
+  row.original.fieldName ? (
+    <img
+      src={row.original.fieldName}
+      alt=""
+      className="h-16 w-16 rounded-md object-cover"
+      loading="lazy"
+    />
+  ) : (
+    '-'
+  )
 ```
 
 - Format currency fields using `currencyFormat` from `lib/utils`

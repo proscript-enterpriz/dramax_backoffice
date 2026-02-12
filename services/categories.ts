@@ -25,6 +25,7 @@ export async function getCategories(searchParams?: GetCategoriesSearchParams) {
       await actions.get<BaseResponseListUnionCategoryResponseNoneTypeType>(
         `/categories`,
         {
+          cache: 'no-store',
           searchParams,
           next: {
             tags: [RVK_CATEGORIES],

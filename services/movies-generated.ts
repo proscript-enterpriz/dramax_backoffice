@@ -2,7 +2,12 @@
 
 import * as actions from './api/actions';
 import { executeRevalidate, truncateErrorMessage } from './api/helpers';
-import { RVK_MOVIES } from './rvk';
+import {
+  RVK_CATEGORIES,
+  RVK_GENRES,
+  RVK_MOVIES,
+  RVK_TAGS,
+} from './rvk';
 import {
   BaseResponseDictType,
   BaseResponseUnionListMovieListResponseNoneTypeType,
@@ -22,7 +27,16 @@ export async function createMovieAction(body: MovieCreateType) {
   const { body: response, error } = res;
 
   if (error) throw new Error(error);
-  executeRevalidate([RVK_MOVIES, { tag: RVK_MOVIES }]);
+  executeRevalidate([
+    RVK_MOVIES,
+    RVK_CATEGORIES,
+    RVK_GENRES,
+    RVK_TAGS,
+    { tag: RVK_MOVIES },
+    { tag: RVK_CATEGORIES },
+    { tag: RVK_GENRES },
+    { tag: RVK_TAGS },
+  ]);
   return response;
 }
 
@@ -32,6 +46,7 @@ export async function getMovies(
     page_size?: number;
     title?: string;
     type?: string;
+    movie_status?: 'pending' | 'active';
     year?: number;
     category_id?: number;
     genre_id?: number;
@@ -84,7 +99,13 @@ export async function updateMovie(movieId: string, body: MovieUpdateType) {
 
     executeRevalidate([
       RVK_MOVIES,
+      RVK_CATEGORIES,
+      RVK_GENRES,
+      RVK_TAGS,
       { tag: `${RVK_MOVIES}_movie_id_${movieId}` },
+      { tag: RVK_CATEGORIES },
+      { tag: RVK_GENRES },
+      { tag: RVK_TAGS },
     ]);
 
     return response;
@@ -111,7 +132,13 @@ export async function deleteMovie(movieId: string) {
 
     executeRevalidate([
       RVK_MOVIES,
+      RVK_CATEGORIES,
+      RVK_GENRES,
+      RVK_TAGS,
       { tag: `${RVK_MOVIES}_movie_id_${movieId}` },
+      { tag: RVK_CATEGORIES },
+      { tag: RVK_GENRES },
+      { tag: RVK_TAGS },
     ]);
 
     return response;

@@ -132,6 +132,7 @@ export const categoryResponseSchema = z.object({
   description: z.string().nullish(),
   is_adult: z.boolean().nullish(),
   image_url: z.string().nullish(),
+  movie_count: z.int().nullish(),
 });
 
 export type CategoryResponseType = z.infer<typeof categoryResponseSchema>;
@@ -190,6 +191,7 @@ export type AppModelsBaseBaseResponseUnionDictNoneTypeType = z.infer<
 export const genreResponseSchema = z.object({
   id: z.int(),
   name: z.string(),
+  movie_count: z.int().nullish(),
 });
 
 export type GenreResponseType = z.infer<typeof genreResponseSchema>;
@@ -233,6 +235,7 @@ export const appApiApiV1EndpointsDashboardCategoriesTagResponseSchema =
     name: z.string(),
     description: z.string().nullish(),
     id: z.int(),
+    movie_count: z.int().nullish(),
   });
 
 export type AppApiApiV1EndpointsDashboardCategoriesTagResponseType = z.infer<
@@ -359,6 +362,7 @@ export const movieListResponseSchema = z.object({
   title: z.string(),
   description: z.string().nullish(),
   type: z.enum(['movie', 'mini-series', 'series']),
+  status: z.enum(['pending', 'active']).nullish(),
   year: z.int().nullish(),
   price: z.int().nullish(),
   is_premium: z.boolean().nullish(),

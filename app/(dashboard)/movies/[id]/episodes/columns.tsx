@@ -3,6 +3,7 @@
 import { useRef, useTransition } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -10,7 +11,6 @@ import {
   DeleteDialog,
   DeleteDialogRef,
 } from '@/components/custom/delete-dialog';
-import ZoomableImage from '@/components/custom/zoomable-image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -103,7 +103,14 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
     cell: ({ row }) => (
       <div className={`${CELL_BASE} ${CELL_PAD_SM} justify-center`}>
         {row.original.thumbnail ? (
-          <ZoomableImage src={row.original.thumbnail} />
+          <Image
+            src={row.original.thumbnail}
+            alt=""
+            width={64}
+            height={64}
+            unoptimized
+            className="h-16 w-16 rounded-md object-cover"
+          />
         ) : (
           <div className="bg-muted flex aspect-square h-16 w-16 items-center justify-center rounded-md border">
             <span className="text-muted-foreground text-center text-xs leading-tight">
@@ -156,7 +163,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
   },
   {
     accessorKey: 'cloudflare_video_id',
-    header: 'Видео ID',
+    header: 'Видео Id',
     size: 150,
     cell: ({ row }) => (
       <div className={`${CELL_BASE} ${CELL_PAD_SM}`}>

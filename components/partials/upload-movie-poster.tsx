@@ -6,22 +6,25 @@ import Image from 'next/image';
 
 import { ImageListComponentProps } from '@/components/custom/form-fields/image-picker';
 import { Button } from '@/components/ui/button';
-import { cn, imageResize } from '@/lib/utils';
+import { imageResize } from '@/lib/utils';
 
 export function UploadPosterComponent({
   uploading,
   getInputRef,
-  medias,
+  image,
   openMediaDialog,
   accept,
   aspectRatioStyle,
 }: ImageListComponentProps) {
-  const [poster] = medias || [];
+  const poster = image;
+  const hasPoster = typeof poster === 'string' && poster.trim().length > 0;
+  const posterSrc = hasPoster ? imageResize(poster, 'original') : '';
   const inputRef = getInputRef?.();
   const [w, h] = aspectRatioStyle?.aspectRatio
     ? aspectRatioStyle.aspectRatio.split('/').map(Number)
     : [0, 1];
   const aspect = w / h;
+  const previewWidth = aspect > 0 ? Math.round(240 * aspect) : 250;
 
   return (
     <div className="border-border flex w-full items-center justify-between gap-4 rounded-lg border p-5">
@@ -47,16 +50,9 @@ export function UploadPosterComponent({
       </div>
 
       <div
-        className={cn(
-          'relative h-[200px] overflow-hidden rounded-lg bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15',
-          aspect && aspect >= 1 ? 'w-[200px]' : 'w-[156px]',
-        )}
+        className="relative isolate h-[200px] overflow-hidden rounded-md bg-neutral-100 duration-300 dark:bg-gray-500/20 dark:hover:bg-gray-500/15"
         style={{
-          backgroundImage: `url(${imageResize(poster, 'blur')})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          ...(aspectRatioStyle || {}),
+          width: `${previewWidth}px`,
         }}
         onClick={() => inputRef?.click()}
       >
@@ -66,18 +62,22 @@ export function UploadPosterComponent({
           </div>
         )}
 
-        {!!poster && (
+        {hasPoster && (
           <Image
-            src={imageResize(poster, 'tiny')}
-            alt="cover"
+            src={posterSrc}
+            alt="poster"
             fill
-            className="object-contain backdrop-blur-md"
+            loading="eager"
+            unoptimized={poster.startsWith('blob:')}
+            className="rounded-xl object-cover"
           />
         )}
-        <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-sm">
-          <ImageIcon size={24} className="min-h-6 basis-6" />
-          <span>Постер зураг оруулна уу</span>
-        </div>
+        {!hasPoster && (
+          <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-4 p-4 text-center text-sm">
+            <ImageIcon size={20} />
+            <span className="text-xs">Постер зураг оруулна уу</span>
+          </div>
+        )}
       </div>
     </div>
   );
