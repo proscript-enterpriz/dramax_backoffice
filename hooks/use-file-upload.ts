@@ -26,6 +26,37 @@ const maxSize = MAX_IMAGE_SIZE;
 const sizeError = `Зургийн хэмжээ ${humanizeBytes(MAX_IMAGE_SIZE)}-аас том байна.`;
 const typeError = `Зөвшөөрөгдсөн форматууд: ${stringifyTypes(ALLOWED_IMAGE_TYPES)}.`;
 
+const sanitizeFileName = (file: File): File => {
+  const originalName = file.name || 'upload-image';
+  const dotIndex = originalName.lastIndexOf('.');
+  const rawBase =
+    dotIndex > 0 ? originalName.slice(0, dotIndex) : originalName;
+  const rawExt = dotIndex > 0 ? originalName.slice(dotIndex + 1) : '';
+
+  const normalizedBase = rawBase
+    .normalize('NFKD')
+    .replace(/[^\x00-\x7F]/g, '')
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const normalizedExt = rawExt
+    .normalize('NFKD')
+    .replace(/[^\x00-\x7F]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+  const safeBase = normalizedBase || `upload-${Date.now()}`;
+  const safeName = normalizedExt ? `${safeBase}.${normalizedExt}` : safeBase;
+
+  return new File([file], safeName, {
+    type: file.type,
+    lastModified: file.lastModified,
+  });
+};
+
 export function useFileUploader(options: UseFileUploaderOptions) {
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [previews, setPreviews] = useState<string[]>([]);
@@ -54,13 +85,15 @@ export function useFileUploader(options: UseFileUploaderOptions) {
   const handleFileSelect = async (files?: File | File[] | FileList | null) => {
     if (!files) return;
 
-    const fileArray = Array.isArray(files)
+    const incomingFiles = Array.isArray(files)
       ? files
       : files instanceof FileList
         ? Array.from(files)
         : [files];
 
-    if (fileArray.length === 0) return;
+    if (incomingFiles.length === 0) return;
+
+    const fileArray = incomingFiles.map(sanitizeFileName);
 
     const invalidFiles = fileArray.filter((file) => !validateFile(file));
     if (invalidFiles.length > 0) return;
