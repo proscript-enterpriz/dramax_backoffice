@@ -1011,7 +1011,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
             aria-multiselectable="true"
             aria-label="Available options"
             className={cn(
-              'w-auto p-0',
+              'w-[var(--radix-popover-trigger-width)] min-w-[var(--radix-popover-trigger-width)] p-0',
               getPopoverAnimationClass(),
               screenSize === 'mobile' && 'w-[85vw] max-w-[280px]',
               screenSize === 'tablet' && 'w-[70vw] max-w-md',
