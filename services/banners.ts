@@ -54,7 +54,8 @@ export async function getBanners(searchParams?: GetBannersSearchParams) {
     return {
       status: 'error',
       message: truncateErrorMessage(
-        (error as Error)?.message || 'An error occurred while fetching banners.',
+        (error as Error)?.message ||
+          'An error occurred while fetching banners.',
       ),
       data: [],
     };

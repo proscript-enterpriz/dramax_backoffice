@@ -14,7 +14,5 @@ export function SortDropDownMenu<TData, TValue>({
   label?: string;
 }) {
   const text = label || toCapitalizedHeader(column.id);
-  return (
-    <p>{text}</p>
-  );
+  return <p>{text}</p>;
 }

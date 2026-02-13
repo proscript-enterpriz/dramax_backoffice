@@ -71,19 +71,16 @@ export default async function Page({
       </div>
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         {!data || data.length === 0 ? (
-          <div className="border-dashed flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 p-8 text-center">
+          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center">
             <div className="bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full">
               <FileVideo className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="mt-4 text-lg font-semibold">Анги байхгүй байна</h3>
-            <p className="text-muted-foreground mb-4 mt-2 text-sm">
+            <p className="text-muted-foreground mt-2 mb-4 text-sm">
               Та эхний ангиа үүсгэж эхэлнэ үү
             </p>
             {canCreate && (
-              <CreateOverlay
-                movieId={movieId}
-                epNum={1}
-              >
+              <CreateOverlay movieId={movieId} epNum={1}>
                 <Button>
                   <PlusCircleIcon />
                   Эхний анги нэмэх

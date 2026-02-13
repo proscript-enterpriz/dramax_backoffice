@@ -2,12 +2,7 @@
 
 import * as actions from './api/actions';
 import { executeRevalidate, truncateErrorMessage } from './api/helpers';
-import {
-  RVK_CATEGORIES,
-  RVK_GENRES,
-  RVK_MOVIES,
-  RVK_TAGS,
-} from './rvk';
+import { RVK_CATEGORIES, RVK_GENRES, RVK_MOVIES, RVK_TAGS } from './rvk';
 import {
   BaseResponseDictType,
   BaseResponseUnionListMovieListResponseNoneTypeType,
