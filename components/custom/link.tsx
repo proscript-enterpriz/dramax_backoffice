@@ -51,7 +51,10 @@ export function Link({
           : '')
       }
       className={cn(className, {
-        [activeClassName ?? '']: checkActive(locationObj.pathname, locationObj.qs),
+        [activeClassName ?? '']: checkActive(
+          locationObj.pathname,
+          locationObj.qs,
+        ),
       })}
     />
   );

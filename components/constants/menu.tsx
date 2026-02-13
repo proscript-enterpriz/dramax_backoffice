@@ -8,6 +8,7 @@ import {
   Layers,
   Megaphone,
   type LucideIcon,
+  Megaphone,
   Tag,
   TvMinimalPlay,
   UsersRoundIcon,

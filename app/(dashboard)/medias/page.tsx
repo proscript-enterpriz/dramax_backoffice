@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 
 import { Heading } from '@/components/custom/heading';
 import { DataTable } from '@/components/ui/data-table';
-import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Separator } from '@/components/ui/separator';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SearchParams } from '@/services/api/types';
 import { getUploadedImages } from '@/services/images';
 
