@@ -45,6 +45,7 @@ export async function getMovies(
     year?: number;
     category_id?: number;
     genre_id?: number;
+    tag_id?: number;
     is_premium?: boolean;
     is_adult?: boolean;
   } = {},

@@ -43,18 +43,23 @@ export default function PaymentSwitch() {
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Hide payment method related features until we implement them">
-              {isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <TriangleAlert />
-              )}
-              <span className="flex-1">Activate payment</span>
-              <Switch
-                checked={enabled}
-                onCheckedChange={handleToggle}
-                disabled={isPending}
-              />
+            <SidebarMenuButton
+              asChild
+              tooltip="Hide payment method related features until we implement them"
+            >
+              <div>
+                {isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <TriangleAlert />
+                )}
+                <span className="flex-1">Activate payment</span>
+                <Switch
+                  checked={enabled}
+                  onCheckedChange={handleToggle}
+                  disabled={isPending}
+                />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

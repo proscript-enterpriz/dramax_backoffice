@@ -5,8 +5,9 @@ import {
   GemIcon,
   Home,
   ImagePlusIcon,
-  type LucideIcon,
+  Layers,
   Megaphone,
+  type LucideIcon,
   Tag,
   TvMinimalPlay,
   UsersRoundIcon,
@@ -33,6 +34,12 @@ export const operationsRoutes = [
     url: '/movies',
     subRoutes: false,
     icon: FilmIcon,
+  },
+  {
+    title: 'Кино багц',
+    url: '/batches',
+    subRoutes: false,
+    icon: Layers,
   },
   {
     title: 'Ангилал',
