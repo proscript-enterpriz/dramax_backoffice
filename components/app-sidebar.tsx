@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
             />
           </Suspense>
         ))}
-        <PaymentSwitch />
+        {session?.user?.role === 'super_admin' && <PaymentSwitch />}
         <RevalidateMenu />
       </SidebarContent>
       <SidebarFooter>{session && <NavUser session={session} />}</SidebarFooter>

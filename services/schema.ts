@@ -817,3 +817,21 @@ export const taskStatusResponseSchema = z.object({
 });
 
 export type TaskStatusResponseType = z.infer<typeof taskStatusResponseSchema>;
+
+export const settingsModelSchema = z.object({
+  payments_enabled: z.boolean().nullish(),
+  facebook_oauth_enabled: z.boolean().nullish(),
+  google_oauth_enabled: z.boolean().nullish(),
+});
+
+export type SettingsModelType = z.infer<typeof settingsModelSchema>;
+
+export const singleItemResponseSettingsModelSchema = z.object({
+  success: z.boolean(),
+  message: z.string().nullish(),
+  data: settingsModelSchema.nullish(),
+});
+
+export type SingleItemResponseSettingsModelType = z.infer<
+  typeof singleItemResponseSettingsModelSchema
+>;
