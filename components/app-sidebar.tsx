@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 
 import { menuData } from '@/components/constants/menu';
 import { NavUser } from '@/components/nav-user';
+import PaymentSwitch from '@/components/payment-switch';
 import { SidebarMenuGroup } from '@/components/sidebar-menu-group';
 import {
   Sidebar,
@@ -49,6 +50,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
             />
           </Suspense>
         ))}
+        <PaymentSwitch />
         <RevalidateMenu />
       </SidebarContent>
       <SidebarFooter>{session && <NavUser session={session} />}</SidebarFooter>
