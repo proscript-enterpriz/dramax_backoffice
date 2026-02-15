@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+import AudioTab from '@/components/custom/stream-item/audio-tab';
 import { CaptionsTab } from '@/components/custom/stream-item/captions-tab';
 import { InfoTab } from '@/components/custom/stream-item/info-tab';
 import { PreviewTab } from '@/components/custom/stream-item/preview-tab';
@@ -25,7 +26,7 @@ export function StreamDetailClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[1440px] space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/streams">
@@ -45,10 +46,11 @@ export function StreamDetailClient({
 
       {/* Tabs */}
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="info">Stream Info</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
           <TabsTrigger value="captions">Captions</TabsTrigger>
+          <TabsTrigger value="audio">Audio</TabsTrigger>
         </TabsList>
 
         <TabsContent value="info" className="bg-muted/50 mt-6 rounded-lg p-6">
@@ -67,6 +69,10 @@ export function StreamDetailClient({
           className="bg-muted/50 mt-6 rounded-lg p-6"
         >
           <CaptionsTab streamId={video.uid} videoName={videoName} />
+        </TabsContent>
+
+        <TabsContent value="audio" className="bg-muted/50 mt-6 rounded-lg p-6">
+          <AudioTab streamId={video.uid} />
         </TabsContent>
       </Tabs>
     </div>

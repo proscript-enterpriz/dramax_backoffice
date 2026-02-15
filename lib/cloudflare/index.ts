@@ -9,6 +9,7 @@ import { objToQs, QueryParams } from '@/lib/utils';
 
 import { RVK_CAPTIONS, RVK_STREAM_DETAIL, RVK_STREAMS } from './rvk';
 import {
+  StreamAudio,
   StreamCaption,
   StreamDetailResponse,
   StreamResponse,
@@ -347,4 +348,36 @@ export async function uploadCaptionToCloudflare(
 
   revalidateTag(`${RVK_CAPTIONS}_${language}`, 'max');
   return data;
+}
+
+export async function audioList(streamId: string) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  try {
+    const response = await fetch(`${baseURL}/${streamId}/audio`, {
+      method: 'GET',
+      headers: defaultHeader,
+      next: {
+        tags: [`${RVK_STREAM_DETAIL}_${streamId}_audio`],
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    const data: StreamDetailResponse<{ audio: StreamAudio[] }> =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.errors?.[0]?.message || 'Failed to fetch audio tracks',
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching audio tracks:', error);
+    throw error;
+  }
 }
