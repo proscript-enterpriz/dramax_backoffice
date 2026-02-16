@@ -113,7 +113,7 @@ export function CaptionsTab({
   return (
     <div className="space-y-2 py-2">
       <div className="flex justify-between gap-4">
-        <p>Captions ({captions.length})</p>
+        <h2 className="text-lg font-semibold">Captions ({captions.length})</h2>
         <div className="flex items-center gap-2">
           {loadedCap && (
             <Button
@@ -157,20 +157,22 @@ export function CaptionsTab({
               <DropdownMenuContent>
                 {CLOUDFLARE_LANGUAGES.filter(
                   (c) => !captions.find((cc) => cc.language === c.code),
-                ).map((caption, idx) => (
-                  <DropdownMenuItem
-                    key={idx}
-                    onSelect={() =>
-                      startGenerateLoading(() => {
-                        generateCaptions(streamId, caption.code).then((c) =>
-                          handleUpdateCaptions([c.result]),
-                        );
-                      })
-                    }
-                  >
-                    {caption.name}
-                  </DropdownMenuItem>
-                ))}
+                )
+                  .sort((a, b) => b.weight - a.weight)
+                  .map((caption, idx) => (
+                    <DropdownMenuItem
+                      key={idx}
+                      onSelect={() =>
+                        startGenerateLoading(() => {
+                          generateCaptions(streamId, caption.code).then((c) =>
+                            handleUpdateCaptions([c.result]),
+                          );
+                        })
+                      }
+                    >
+                      {caption.name}
+                    </DropdownMenuItem>
+                  ))}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

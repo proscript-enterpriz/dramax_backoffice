@@ -1,7 +1,7 @@
 'use server';
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
@@ -9,6 +9,7 @@ import { objToQs, QueryParams } from '@/lib/utils';
 
 import { RVK_CAPTIONS, RVK_STREAM_DETAIL, RVK_STREAMS } from './rvk';
 import {
+  StreamAudio,
   StreamCaption,
   StreamDetailResponse,
   StreamResponse,
@@ -208,8 +209,8 @@ export async function updateStream(
       );
     }
 
-    revalidateTag(`${RVK_STREAM_DETAIL}_${streamId}`, 'max');
-    revalidateTag(RVK_STREAMS, 'max');
+    updateTag(`${RVK_STREAM_DETAIL}_${streamId}`);
+    updateTag(RVK_STREAMS);
     return data;
   } catch (error) {
     console.error('Error updating Stream:', error);
@@ -275,7 +276,7 @@ export async function generateCaptions(
       );
     }
 
-    revalidateTag(RVK_CAPTIONS, 'max');
+    updateTag(RVK_CAPTIONS);
     return data;
   } catch (error) {
     console.error('Error generating captions:', error);
@@ -345,6 +346,124 @@ export async function uploadCaptionToCloudflare(
     );
   }
 
-  revalidateTag(`${RVK_CAPTIONS}_${language}`, 'max');
+  updateTag(`${RVK_CAPTIONS}_${language}`);
+  return data;
+}
+
+export async function audioList(streamId: string) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  try {
+    const response = await fetch(`${baseURL}/${streamId}/audio`, {
+      method: 'GET',
+      headers: defaultHeader,
+      next: {
+        tags: [`${RVK_STREAM_DETAIL}_${streamId}_audio`],
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    const data: StreamDetailResponse<{ audio: StreamAudio[] }> =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.errors?.[0]?.message || 'Failed to fetch audio tracks',
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching audio tracks:', error);
+    throw error;
+  }
+}
+
+export async function editAudioTrack(
+  streamId: string,
+  trackId: string,
+  payload: {
+    default?: boolean;
+    label?: string;
+  },
+) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  try {
+    const response = await fetch(`${baseURL}/${streamId}/audio/${trackId}`, {
+      method: 'PATCH',
+      headers: defaultHeader,
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.errors?.[0]?.message ||
+          `Failed to update audio track: ${response.status}`,
+      );
+    }
+
+    updateTag(`${RVK_STREAM_DETAIL}_${streamId}_audio`);
+    return data;
+  } catch (error) {
+    console.error('Error updating audio track:', error);
+    throw error;
+  }
+}
+
+export async function deleteAudioTrack(streamId: string, trackId: string) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  try {
+    const response = await fetch(`${baseURL}/${streamId}/audio/${trackId}`, {
+      method: 'DELETE',
+      headers: defaultHeader,
+      cache: 'no-store',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.errors?.[0]?.message ||
+          `Failed to delete audio track: ${response.status}`,
+      );
+    }
+
+    updateTag(`${RVK_STREAM_DETAIL}_${streamId}_audio`);
+    return data;
+  } catch (error) {
+    console.error('Error deleting audio track:', error);
+    throw error;
+  }
+}
+
+export async function uploadAudioTrack(streamId: string, formData: FormData) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  const url = `${baseURL}/${streamId}/audio`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: defaultHeader.Authorization }, // Let browser set Content-Type with boundary
+    body: formData,
+  });
+
+  const data: StreamDetailResponse<StreamAudio> = await response.json();
+
+  if (!response.ok || !data.success) {
+    console.error('Upload failed:', data.errors);
+    throw new Error(
+      data.errors?.[0]?.message || `Upload failed: ${response.status}`,
+    );
+  }
+
+  updateTag(`${RVK_STREAM_DETAIL}_${streamId}_audio`);
   return data;
 }

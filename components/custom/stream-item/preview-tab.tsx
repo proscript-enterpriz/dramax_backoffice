@@ -33,7 +33,7 @@ export function PreviewTab({ video }: { video?: StreamVideo }) {
 
   if (loading) {
     return (
-      <div className="bg-muted relative mx-auto flex aspect-video max-w-4xl items-center justify-center overflow-hidden rounded-lg">
+      <div className="bg-muted relative mx-auto flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg">
         <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
@@ -63,7 +63,7 @@ export function PreviewTab({ video }: { video?: StreamVideo }) {
         {cfPreview ? (
           <iframe
             src={`https://videodelivery.net/${cfPreview}/iframe?poster=${encodeURIComponent(video.thumbnail || '')}`}
-            className="h-full w-full"
+            className="bg-background h-full w-full"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             title={video.meta?.name || 'Video preview'}

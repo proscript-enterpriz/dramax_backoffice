@@ -121,3 +121,10 @@ export interface StreamCaption {
   // The status of a generated caption.
   status?: 'ready' | 'inprogress' | 'error';
 }
+
+export interface StreamAudio {
+  default: boolean;
+  label: string;
+  status: 'queued' | 'ready' | 'error';
+  uid: string;
+}

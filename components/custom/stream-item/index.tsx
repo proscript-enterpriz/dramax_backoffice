@@ -29,7 +29,7 @@ export default function StreamItem({ video }: { video: StreamVideo }) {
                   className="h-full w-full object-cover transition-transform duration-200 group-hover/thumb:scale-105"
                   width={64}
                   height={64}
-                  priority
+                  loading="lazy"
                   unoptimized
                 />
               </div>

@@ -41,6 +41,15 @@ const nextConfig = {
       bodySizeLimit: '500MB',
     },
   },
+  redirects: async () => {
+    return [
+      {
+        source: '/movies/:id',
+        destination: '/movies/:id/seasons',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
