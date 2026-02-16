@@ -34,8 +34,8 @@ export function StreamDetailClient({
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate text-2xl font-bold">
             {video.meta?.name || 'Untitled Video'}
           </h1>
           <p className="text-muted-foreground text-sm">

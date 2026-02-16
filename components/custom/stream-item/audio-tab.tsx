@@ -99,76 +99,85 @@ export default function AudioTab({ streamId }: { streamId: string }) {
           </UploadAudioDialog>
         </div>
 
-        {tracks.map((track) => (
-          <div
-            key={track.uid}
-            className="hover:bg-muted/40 flex items-center justify-between rounded-xl border p-4 transition"
-          >
-            <div className="flex flex-1 items-center gap-4">
-              <div className="bg-muted relative flex size-9 items-center justify-center rounded-md">
-                <Music2
-                  className={cn('h-5 w-5', {
-                    'text-muted-foreground': !track.default,
-                    'text-green-500': track.default,
-                  })}
-                />
-              </div>
+        {tracks.length ? (
+          tracks.map((track) => (
+            <div
+              key={track.uid}
+              className="hover:bg-muted/40 flex items-center justify-between rounded-xl border p-4 transition"
+            >
+              <div className="flex flex-1 items-center gap-4">
+                <div className="bg-muted relative flex size-9 items-center justify-center rounded-md">
+                  <Music2
+                    className={cn('h-5 w-5', {
+                      'text-muted-foreground': !track.default,
+                      'text-green-500': track.default,
+                    })}
+                  />
+                </div>
 
-              <div className="flex w-full max-w-md flex-col gap-1">
-                <span className="font-medium">
-                  {track.label} {track.default && '(default)'}
-                </span>
+                <div className="flex w-full max-w-md flex-col gap-1">
+                  <span className="font-medium">
+                    {track.label} {track.default && '(default)'}
+                  </span>
 
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={track.status} />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={track.status} />
+                  </div>
                 </div>
               </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
+                    disabled={loading ?? track.status !== 'ready'}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  {/* Edit */}
+                  <DropdownMenuItem
+                    disabled={track.status !== 'ready'}
+                    onClick={() => setEditingTrack(track)}
+                    className="gap-2"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Засах
+                  </DropdownMenuItem>
+
+                  {/* Set Default */}
+                  {!track.default && (
+                    <SetToDefaultButton
+                      trackId={track.uid}
+                      streamId={streamId}
+                    />
+                  )}
+
+                  <DropdownMenuSeparator />
+
+                  {/* Delete */}
+                  <DropdownMenuItem
+                    onClick={() => setDeletingTrack(track)}
+                    className="text-destructive focus:text-destructive gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Устгах
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0"
-                  disabled={loading ?? track.status !== 'ready'}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuLabel>Үйлдэл</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-
-                {/* Edit */}
-                <DropdownMenuItem
-                  disabled={track.status !== 'ready'}
-                  onClick={() => setEditingTrack(track)}
-                  className="gap-2"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Засах
-                </DropdownMenuItem>
-
-                {/* Set Default */}
-                {!track.default && (
-                  <SetToDefaultButton trackId={track.uid} streamId={streamId} />
-                )}
-
-                <DropdownMenuSeparator />
-
-                {/* Delete */}
-                <DropdownMenuItem
-                  onClick={() => setDeletingTrack(track)}
-                  className="text-destructive focus:text-destructive gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Устгах
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          ))
+        ) : (
+          <div className="text-muted-foreground flex flex-col items-center justify-center py-6 text-sm">
+            No additional audio available for this stream.
           </div>
-        ))}
+        )}
       </div>
 
       <EditDialog track={editingTrack} streamId={streamId} />
