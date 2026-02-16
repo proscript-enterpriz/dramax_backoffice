@@ -455,8 +455,7 @@ export async function uploadAudioTrack(streamId: string, formData: FormData) {
     body: formData,
   });
 
-  const data: StreamDetailResponse<{ audio: StreamAudio }> =
-    await response.json();
+  const data: StreamDetailResponse<StreamAudio> = await response.json();
 
   if (!response.ok || !data.success) {
     console.error('Upload failed:', data.errors);

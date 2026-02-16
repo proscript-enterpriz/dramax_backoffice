@@ -244,7 +244,7 @@ function UploadAudioDialog({
       uploadAudioTrack(streamId, objToFormData({ file: uploadFile, label }))
         .then((res) => {
           // res.result is single StreamCaption, append to list
-          onUpload(res.result?.audio);
+          onUpload(res.result);
           resetForm();
           setOpen(false);
           toast.success('Audio амжилттай байршлаа');
