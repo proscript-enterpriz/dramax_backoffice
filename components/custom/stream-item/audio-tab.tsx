@@ -1,6 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {
+  FormEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 import {
   Loader2,
   MoreVertical,
@@ -8,6 +15,7 @@ import {
   Pencil,
   Star,
   Trash2,
+  Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -25,10 +33,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -39,9 +50,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { audioList, deleteAudioTrack, editAudioTrack } from '@/lib/cloudflare';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  audioList,
+  deleteAudioTrack,
+  editAudioTrack,
+  uploadAudioTrack,
+} from '@/lib/cloudflare';
 import { StreamAudio } from '@/lib/cloudflare/type';
-import { cn } from '@/lib/utils';
+import { cn, objToFormData } from '@/lib/utils';
 
 export default function AudioTab({ streamId }: { streamId: string }) {
   const [tracks, setTracks] = useState<StreamAudio[]>([]);
@@ -61,15 +78,25 @@ export default function AudioTab({ streamId }: { streamId: string }) {
       .finally(() => setLoading(false));
   }, [streamId]);
 
+  if (loading) return <AudioTabSkeleton />;
+
   return (
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Additional Audio Tracks</h2>
-          <span className="text-muted-foreground text-sm">
-            {tracks.length} track
-            {tracks.length !== 1 && 's'}
-          </span>
+          <h2 className="text-lg font-semibold">
+            Additional Audio Tracks ({tracks.length})
+          </h2>
+          <UploadAudioDialog
+            streamId={streamId}
+            onUpload={(newTrack) =>
+              setTracks((prev) => Array.from(new Set([...prev, newTrack])))
+            }
+          >
+            <Button type="button" size="sm">
+              <Upload /> Upload
+            </Button>
+          </UploadAudioDialog>
         </div>
 
         {tracks.map((track) => (
@@ -150,6 +177,143 @@ export default function AudioTab({ streamId }: { streamId: string }) {
   );
 }
 
+export function AudioTabSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-4 w-16" />
+      </div>
+
+      {/* Rows */}
+      {[...Array(3)].map((_, i) => (
+        <div
+          key={i}
+          className="flex items-center justify-between rounded-xl border p-4"
+        >
+          <div className="flex flex-1 items-center gap-4">
+            {/* Icon box */}
+            <Skeleton className="h-9 w-9 rounded-md" />
+
+            {/* Text area */}
+            <div className="flex w-full max-w-md flex-col gap-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+          </div>
+
+          {/* Dropdown button */}
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UploadAudioDialog({
+  streamId,
+  onUpload,
+  children,
+}: {
+  streamId?: string;
+  onUpload: (track: StreamAudio) => void;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState<string>('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, startUploading] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const resetForm = () => {
+    setLabel('');
+    setUploadFile(null);
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const handleUploadSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!streamId) return;
+    if (!label) return toast.error('Audio нэр оруулна уу');
+    if (!uploadFile) return toast.error('Audio сонгоно уу');
+
+    startUploading(() => {
+      uploadAudioTrack(streamId, objToFormData({ file: uploadFile, label }))
+        .then((res) => {
+          // res.result is single StreamCaption, append to list
+          onUpload(res.result?.audio);
+          resetForm();
+          setOpen(false);
+          toast.success('Audio амжилттай байршлаа');
+        })
+        .catch((err) => {
+          const msg =
+            typeof err === 'object' && err !== null && 'message' in err
+              ? (err as { message?: unknown }).message
+              : String(err);
+          toast.error(msg as string);
+        });
+    });
+  };
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(c) => {
+        setOpen(c);
+        if (!c) resetForm();
+      }}
+    >
+      <DialogTrigger asChild disabled={uploading}>
+        {children}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Upload track</DialogTitle>
+          <DialogDescription>
+            Upload a audio file (.MP3, .M4A). Fill label before upload.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleUploadSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium">Label</label>
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium">File</label>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".mp3,.m4a"
+              disabled={uploading}
+              onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2">
+            <Button type="submit" size="sm" disabled={uploading}>
+              {uploading && <Loader2 className="animate-spin" />} Upload
+            </Button>
+            <DialogClose asChild disabled={uploading}>
+              <Button variant="outline" size="sm" type="button">
+                Cancel
+              </Button>
+            </DialogClose>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function SetToDefaultButton({
   trackId,
   streamId,
@@ -215,6 +379,10 @@ function EditDialog({
           <Button
             onClick={() => {
               setLoading(true);
+              editAudioTrack(streamId, track!.uid, { label: label })
+                .then(() => toast.success('Audio track set as default'))
+                .catch(() => toast.error('Failed to set default track'))
+                .finally(() => setLoading(false));
             }}
             disabled={loading}
           >

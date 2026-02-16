@@ -443,3 +443,28 @@ export async function deleteAudioTrack(streamId: string, trackId: string) {
     throw error;
   }
 }
+
+export async function uploadAudioTrack(streamId: string, formData: FormData) {
+  const { defaultHeader, baseURL } = await cfInfo();
+
+  const url = `${baseURL}/${streamId}/audio`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: defaultHeader.Authorization }, // Let browser set Content-Type with boundary
+    body: formData,
+  });
+
+  const data: StreamDetailResponse<{ audio: StreamAudio }> =
+    await response.json();
+
+  if (!response.ok || !data.success) {
+    console.error('Upload failed:', data.errors);
+    throw new Error(
+      data.errors?.[0]?.message || `Upload failed: ${response.status}`,
+    );
+  }
+
+  updateTag(`${RVK_STREAM_DETAIL}_${streamId}_audio`);
+  return data;
+}
