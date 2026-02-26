@@ -31,8 +31,8 @@ const createHeroBannerSchema = z.object({
   movie_id: z
     .union([z.uuid('movie_id UUID хэлбэртэй байх ёстой'), z.literal('')])
     .nullish(),
-  is_active: z.boolean().default(false),
-  sort_order: z.coerce.number().int().min(0).default(0),
+  is_active: z.boolean(),
+  sort_order: z.number().int().min(0),
 });
 
 type CreateHeroBannerFormType = z.infer<typeof createHeroBannerSchema>;

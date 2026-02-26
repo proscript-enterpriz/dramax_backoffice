@@ -22,21 +22,21 @@ import { cn } from '@/lib/utils';
 import { getMovie, getMovies } from '@/services/movies-generated';
 import { MovieListResponseType } from '@/services/schema';
 
-import type { ControllerRenderProps, FieldValues } from 'react-hook-form';
+import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
 
-type MovieSelectItemProps = {
-  field: ControllerRenderProps<FieldValues, string>;
+type MovieSelectItemProps<T extends FieldValues> = {
+  field: ControllerRenderProps<T, Path<T>>;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
 };
 
-export function MovieSelectItem({
+export function MovieSelectItem<T extends FieldValues>({
   field,
   placeholder = 'Кино сонгох',
   disabled,
   className,
-}: MovieSelectItemProps) {
+}: MovieSelectItemProps<T>) {
   const [open, setOpen] = useState(false);
   const [movies, setMovies] = useState<MovieListResponseType[]>([]);
   const [search, setSearch] = useState('');
