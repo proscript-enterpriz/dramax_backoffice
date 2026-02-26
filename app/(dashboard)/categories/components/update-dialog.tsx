@@ -6,7 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import { HtmlTipTapItem } from '@/components/custom/form-fields';
+import {
+  HtmlTipTapItem,
+  MediaPickerItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormDescription,
@@ -108,6 +111,18 @@ export function UpdateDialog({
         control={form.control}
         name="description"
         render={({ field }) => <HtmlTipTapItem field={field} label="Тайлбар" />}
+      />
+
+      <FormField
+        control={form.control}
+        name="image_url"
+        render={({ field }) => (
+          <MediaPickerItem
+            field={field}
+            label="Banner зураг"
+            forceRatio="0.7:1"
+          />
+        )}
       />
     </FormDialog>
   );

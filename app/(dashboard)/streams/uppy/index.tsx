@@ -26,7 +26,11 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
       chunkSize: 50 * 1024 ** 2,
       headers: (file) => ({
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_CLOUDFLARE_AUTHORIZATION}`,
-        'Upload-Metadata': metadata + `,name ${btoa(file.name ?? '')}`,
+        'Upload-Metadata':
+          metadata +
+          `,name ${btoa(
+            String.fromCharCode(...new TextEncoder().encode(file.name ?? '')),
+          )}`,
       }),
       endpoint: `https://api.cloudflare.com/client/v4/accounts/${process.env.NEXT_PUBLIC_CLOUDFLARE_ACCOUNT_ID}/stream`,
     });

@@ -211,6 +211,7 @@ export async function updateStream(
 
     updateTag(`${RVK_STREAM_DETAIL}_${streamId}`);
     updateTag(RVK_STREAMS);
+
     return data;
   } catch (error) {
     console.error('Error updating Stream:', error);
