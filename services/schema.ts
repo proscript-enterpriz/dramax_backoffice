@@ -835,3 +835,20 @@ export const singleItemResponseSettingsModelSchema = z.object({
 export type SingleItemResponseSettingsModelType = z.infer<
   typeof singleItemResponseSettingsModelSchema
 >;
+
+export const requestUploadLinkSchema = z.object({
+  upload_length: z.string(),
+  upload_meta: z.string(),
+});
+
+export type RequestUploadLinkType = z.infer<typeof requestUploadLinkSchema>;
+
+export const requestUploadLinkResponseSchema = z.object({
+  video_id: z.string().nullish(),
+  upload_url: z.string().nullish(),
+  success: z.boolean(),
+});
+
+export type RequestUploadLinkResponseType = z.infer<
+  typeof requestUploadLinkResponseSchema
+>;
