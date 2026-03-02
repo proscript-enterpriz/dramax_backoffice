@@ -863,3 +863,97 @@ export const videoCaptionResponseSchema = z.object({
 export type VideoCaptionResponseType = z.infer<
   typeof videoCaptionResponseSchema
 >;
+
+const heroBannerResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  image_url: z.string(),
+  link_url: z.string().optional(),
+  is_active: z.boolean(),
+  display_order: z.number().int(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export type HeroBannerResponseType = z.infer<typeof heroBannerResponseSchema>;
+
+const createHeroBannerSchema = z.object({
+  title: z.string(),
+  image_url: z.string(),
+  link_url: z.string().optional(),
+  is_active: z.boolean().optional(),
+  display_order: z.number().int().optional(),
+});
+
+export type CreateHeroBannerType = z.infer<typeof createHeroBannerSchema>;
+
+const updateHeroBannerSchema = z.object({
+  title: z.string().optional(),
+  image_url: z.string().optional(),
+  link_url: z.string().optional(),
+  is_active: z.boolean().optional(),
+  display_order: z.number().int().optional(),
+});
+
+export type UpdateHeroBannerType = z.infer<typeof updateHeroBannerSchema>;
+
+const singleItemResponseHeroBannerResponseSchema = z.object({
+  success: z.boolean(),
+  data: heroBannerResponseSchema,
+  message: z.string().optional(),
+});
+
+export type SingleItemResponseHeroBannerResponseType = z.infer<
+  typeof singleItemResponseHeroBannerResponseSchema
+>;
+
+const baseResponseListHeroBannerResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.array(heroBannerResponseSchema),
+  message: z.string().optional(),
+  total: z.number().int().optional(),
+  page: z.number().int().optional(),
+  page_size: z.number().int().optional(),
+});
+
+export type BaseResponseListHeroBannerResponseType = z.infer<
+  typeof baseResponseListHeroBannerResponseSchema
+>;
+
+const sendToUserRequestSchema = z.object({
+  user_id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.any()).optional(),
+});
+
+export type SendToUserRequestType = z.infer<typeof sendToUserRequestSchema>;
+
+const sendToUsersRequestSchema = z.object({
+  user_ids: z.array(z.string()),
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.any()).optional(),
+});
+
+export type SendToUsersRequestType = z.infer<typeof sendToUsersRequestSchema>;
+
+const sendNotificationRequestSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.any()).optional(),
+});
+
+export type SendNotificationRequestType = z.infer<
+  typeof sendNotificationRequestSchema
+>;
+
+const baseResponseDictStrAnySchema = z.object({
+  success: z.boolean(),
+  data: z.record(z.any()),
+  message: z.string().optional(),
+});
+
+export type BaseResponseDictStrAnyType = z.infer<
+  typeof baseResponseDictStrAnySchema
+>;
