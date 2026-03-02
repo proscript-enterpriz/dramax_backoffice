@@ -23,8 +23,12 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
       },
       allowMultipleUploadBatches: false,
     }).use(Tus, {
-      retryDelays: [0, 1000, 3000, 5000],
+      retryDelays: [],
       chunkSize: 50 * 1024 ** 2,
+      onShouldRetry: (error) => {
+        toast.error('Upload failed: ' + error.message);
+        return false;
+      },
     });
   }, []);
 

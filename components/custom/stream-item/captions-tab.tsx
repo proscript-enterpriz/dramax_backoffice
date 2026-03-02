@@ -39,14 +39,12 @@ import {
   fetchCaptions,
   fetchCaptionVTT,
   generateCaptions,
-  uploadCaptionToCloudflare,
 } from '@/lib/cloudflare';
 import { CLOUDFLARE_LANGUAGES } from '@/lib/cloudflare/languages';
-import {
-  StreamCaption,
-  SupportedCaptionLanguages,
-} from '@/lib/cloudflare/type';
-import { cn, downloadToPreview, objToFormData } from '@/lib/utils';
+import { SupportedCaptionLanguages } from '@/lib/cloudflare/type';
+import { cn, downloadToPreview } from '@/lib/utils';
+import { uploadVideoCaption } from '@/services/cloudflare';
+import { VideoCaptionResponseType } from '@/services/schema';
 
 export function CaptionsTab({
   streamId,
@@ -55,16 +53,14 @@ export function CaptionsTab({
   streamId?: string;
   videoName: string;
 }) {
-  const [captions, setCaptions] = useState<StreamCaption[]>([]);
+  const [captions, setCaptions] = useState<VideoCaptionResponseType[]>([]);
   const [loading, startLoading] = useTransition();
   const [loadingVtt, startLoadingVtt] = useTransition();
   const [generating, startGenerateLoading] = useTransition();
-  const [selectedCap, setSelectedCap] = useState<
-    SupportedCaptionLanguages | undefined
-  >();
+  const [selectedCap, setSelectedCap] = useState<string | undefined>();
   const [loadedCap, setLoadedCap] = useState<string>('');
 
-  const handleUpdateCaptions = (newCaptions: StreamCaption[]) =>
+  const handleUpdateCaptions = (newCaptions: VideoCaptionResponseType[]) =>
     setCaptions((prev) =>
       Array.from(
         new Map([...prev, ...newCaptions].map((c) => [c.language, c])).values(),
@@ -96,7 +92,7 @@ export function CaptionsTab({
     }
   }, [streamId]);
 
-  const loadCaptionVtt = (lang?: SupportedCaptionLanguages) => {
+  const loadCaptionVtt = (lang?: string) => {
     if (!lang) return;
     setSelectedCap(lang);
     startLoadingVtt(() => {
@@ -263,7 +259,7 @@ function UploadCaptionDialog({
   children,
 }: {
   streamId?: string;
-  onUpload: (caption: StreamCaption) => void;
+  onUpload: (caption: VideoCaptionResponseType) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -287,14 +283,14 @@ function UploadCaptionDialog({
     if (!uploadFile) return toast.error('Хадмал файлаа сонгоно уу');
 
     startUploading(() => {
-      uploadCaptionToCloudflare(
+      uploadVideoCaption(
         streamId,
         uploadLang as SupportedCaptionLanguages,
-        objToFormData({ file: uploadFile }),
+        uploadFile,
       )
         .then((res) => {
-          // res.result is single StreamCaption, append to list
-          onUpload(res.result);
+          // res.result is single VideoCaptionResponseType, append to list
+          onUpload(res);
           resetForm();
           setOpen(false);
           toast.success('Хадмал амжилттай байршлаа');

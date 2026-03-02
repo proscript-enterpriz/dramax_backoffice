@@ -285,10 +285,7 @@ export async function generateCaptions(
   }
 }
 
-export async function fetchCaptionVTT(
-  streamId: string,
-  language: SupportedCaptionLanguages,
-) {
+export async function fetchCaptionVTT(streamId: string, language: string) {
   const { defaultHeader, baseURL } = await cfInfo();
   try {
     const url = `${baseURL}/${streamId}/captions/${encodeURIComponent(

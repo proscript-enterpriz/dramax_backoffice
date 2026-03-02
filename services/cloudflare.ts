@@ -1,5 +1,9 @@
 import * as actions from './api/actions';
-import { RequestUploadLinkResponseType, RequestUploadLinkType } from './schema';
+import {
+  RequestUploadLinkResponseType,
+  RequestUploadLinkType,
+  VideoCaptionResponseType,
+} from './schema';
 
 export async function requestCloudflareStreamUploadUrl(
   body: RequestUploadLinkType,
@@ -24,4 +28,23 @@ export async function requestCloudflareStreamUploadUrl(
         'An error occurred while requesting the upload URL.',
     };
   }
+}
+
+export async function uploadVideoCaption(
+  videoId: string,
+  language: string,
+  captionFile: File,
+) {
+  const formData = new FormData();
+  formData.append('file', captionFile);
+
+  const res = await actions.put<VideoCaptionResponseType>(
+    `/upload/captions/${videoId}/${language}`,
+    formData,
+  );
+
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
+
+  return response;
 }

@@ -852,3 +852,14 @@ export const requestUploadLinkResponseSchema = z.object({
 export type RequestUploadLinkResponseType = z.infer<
   typeof requestUploadLinkResponseSchema
 >;
+
+export const videoCaptionResponseSchema = z.object({
+  language: z.string(),
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
+});
+
+export type VideoCaptionResponseType = z.infer<
+  typeof videoCaptionResponseSchema
+>;
