@@ -37,14 +37,15 @@ import {
 } from '@/components/ui/select';
 import {
   fetchCaptions,
-  fetchCaptionVTT,
+  fetchCaptionVtt,
   generateCaptions,
-} from '@/lib/cloudflare';
+} from '@/services/cf';
 import { CLOUDFLARE_LANGUAGES } from '@/lib/cloudflare/languages';
-import { SupportedCaptionLanguages } from '@/lib/cloudflare/type';
 import { cn, downloadToPreview } from '@/lib/utils';
-import { uploadVideoCaption } from '@/services/cloudflare';
-import { VideoCaptionResponseType } from '@/services/schema';
+import { uploadACaptionFileForAVideo } from '@/services/cf';
+import { StreamCaptionType } from '@/services/schema';
+
+type SupportedCaptionLanguages = string;
 
 export function CaptionsTab({
   streamId,
@@ -53,14 +54,14 @@ export function CaptionsTab({
   streamId?: string;
   videoName: string;
 }) {
-  const [captions, setCaptions] = useState<VideoCaptionResponseType[]>([]);
+  const [captions, setCaptions] = useState<StreamCaptionType[]>([]);
   const [loading, startLoading] = useTransition();
   const [loadingVtt, startLoadingVtt] = useTransition();
   const [generating, startGenerateLoading] = useTransition();
   const [selectedCap, setSelectedCap] = useState<string | undefined>();
   const [loadedCap, setLoadedCap] = useState<string>('');
 
-  const handleUpdateCaptions = (newCaptions: VideoCaptionResponseType[]) =>
+  const handleUpdateCaptions = (newCaptions: StreamCaptionType[]) =>
     setCaptions((prev) =>
       Array.from(
         new Map([...prev, ...newCaptions].map((c) => [c.language, c])).values(),
@@ -71,7 +72,7 @@ export function CaptionsTab({
     if (streamId) {
       startLoading(() => {
         fetchCaptions(streamId)
-          .then((c) => handleUpdateCaptions(c.result || []))
+          .then((response) => handleUpdateCaptions(response?.data || []))
           .catch((err) => {
             setCaptions([]);
             const msg =
@@ -96,7 +97,7 @@ export function CaptionsTab({
     if (!lang) return;
     setSelectedCap(lang);
     startLoadingVtt(() => {
-      fetchCaptionVTT(streamId!, lang).then((vtt) => setLoadedCap(vtt));
+      fetchCaptionVtt(streamId!, lang).then((response) => setLoadedCap(response || ''));
     });
   };
 
@@ -160,9 +161,11 @@ export function CaptionsTab({
                       key={idx}
                       onSelect={() =>
                         startGenerateLoading(() => {
-                          generateCaptions(streamId, caption.code).then((c) =>
-                            handleUpdateCaptions([c.result]),
-                          );
+                          generateCaptions(streamId, caption.code, {}).then((response) => {
+                            if (response?.data) {
+                              handleUpdateCaptions([response.data]);
+                            }
+                          });
                         })
                       }
                     >
@@ -283,14 +286,18 @@ function UploadCaptionDialog({
     if (!uploadFile) return toast.error('Хадмал файлаа сонгоно уу');
 
     startUploading(() => {
-      uploadVideoCaption(
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      
+      uploadACaptionFileForAVideo(
         streamId,
         uploadLang as SupportedCaptionLanguages,
-        uploadFile,
+        formData as any,
       )
         .then((res) => {
-          // res.result is single VideoCaptionResponseType, append to list
-          onUpload(res);
+          if (res?.data) {
+            onUpload(res.data);
+          }
           resetForm();
           setOpen(false);
           toast.success('Хадмал амжилттай байршлаа');

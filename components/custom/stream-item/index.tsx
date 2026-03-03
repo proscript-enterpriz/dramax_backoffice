@@ -5,16 +5,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
-import { StreamVideo } from '@/lib/cloudflare/type';
+import { CloudflareVideoResponseType } from '@/services/schema';
 import { humanizeBytes } from '@/lib/utils';
 
 import { PreviewPlayerDialog } from './video_player';
 
-export default function StreamItem({ video }: { video: StreamVideo }) {
-  const isTrailer = !video.requireSignedURLs;
+export default function StreamItem({ video }: { video: CloudflareVideoResponseType }) {
+  const isTrailer = !video.require_signed_urls;
 
-  // Use pre-fetched signed thumbnail if available, otherwise fallback to regular thumbnail
-  const thumbnailUrl = video.signedThumbnail || video.thumbnail || '';
+  // Use thumbnail
+  const thumbnailUrl = video.thumbnail || '';
 
   return (
     <div className="group border-border hover:border-primary/50 bg-card overflow-hidden rounded-lg border transition-all hover:shadow-md">
@@ -41,7 +41,7 @@ export default function StreamItem({ video }: { video: StreamVideo }) {
           )}
 
           {/* Content - wrapped in Link for navigation */}
-          <Link href={`/streams/${video.uid}`}>
+          <Link href={`/streams/${video.stream_id}`}>
             <div className="mb-1.5 flex items-center gap-2">
               <h2 className="group-hover:text-primary truncate text-base leading-tight font-semibold transition-colors">
                 {video.meta?.name || 'Untitled Video'}
@@ -58,7 +58,7 @@ export default function StreamItem({ video }: { video: StreamVideo }) {
             </div>
 
             <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
-              <span>{dayjs(video.uploaded).format('YYYY/MM/DD')}</span>
+              <span>{dayjs(video.created_on).format('YYYY/MM/DD')}</span>
               {video.size && (
                 <>
                   <span className="text-muted-foreground/50">•</span>
@@ -82,10 +82,10 @@ export default function StreamItem({ video }: { video: StreamVideo }) {
 
         {/* Status badge */}
         <Link
-          href={`/streams/${video.uid}`}
+          href={`/streams/${video.stream_id}`}
           className="flex shrink-0 flex-col items-end gap-1.5"
         >
-          {video.readyToStream && (
+          {video.ready_to_stream && (
             <Badge
               variant="outline"
               className="flex h-6 w-fit items-center gap-1.5 border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"

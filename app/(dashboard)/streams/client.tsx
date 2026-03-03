@@ -6,16 +6,16 @@ import { useSession } from 'next-auth/react';
 
 import StreamItem from '@/components/custom/stream-item';
 import { Button } from '@/components/ui/button';
-import { StreamVideo } from '@/lib/cloudflare/type';
+import { CloudflareVideoResponseType } from '@/services/schema';
 import { hasPermission } from '@/lib/permission';
 
-const isTrailer = (video: StreamVideo) => {
+const isTrailer = (video: CloudflareVideoResponseType) => {
   // If requireSignedURLs is false or undefined, it's a public trailer
   // If requireSignedURLs is true, it's a protected movie
-  return !video.requireSignedURLs;
+  return !video.require_signed_urls;
 };
 
-export function Client({ data }: { data: StreamVideo[] }) {
+export function Client({ data }: { data: CloudflareVideoResponseType[] }) {
   const router = useRouter();
   const session = useSession();
   const [filter, setFilter] = useState<'all' | 'movie' | 'trailer'>('all');
@@ -83,7 +83,7 @@ export function Client({ data }: { data: StreamVideo[] }) {
           </div>
         ) : (
           filteredData.map((video) => (
-            <StreamItem key={video.uid} video={video} />
+            <StreamItem key={video.stream_id} video={video} />
           ))
         )}
       </div>

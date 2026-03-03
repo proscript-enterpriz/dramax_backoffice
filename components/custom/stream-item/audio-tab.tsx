@@ -53,26 +53,25 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   audioList,
-  deleteAudioTrack,
-  editAudioTrack,
+  updateAudioTrack,
   uploadAudioTrack,
-} from '@/lib/cloudflare';
-import { StreamAudio } from '@/lib/cloudflare/type';
+} from '@/services/cf';
+import { StreamAudioType } from '@/services/schema';
 import { cn, objToFormData } from '@/lib/utils';
 
 export default function AudioTab({ streamId }: { streamId: string }) {
-  const [tracks, setTracks] = useState<StreamAudio[]>([]);
+  const [tracks, setTracks] = useState<StreamAudioType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [editingTrack, setEditingTrack] = useState<StreamAudio | null>(null);
+  const [editingTrack, setEditingTrack] = useState<StreamAudioType | null>(null);
 
-  const [deletingTrack, setDeletingTrack] = useState<StreamAudio | null>(null);
+  const [deletingTrack, setDeletingTrack] = useState<StreamAudioType | null>(null);
 
   useEffect(() => {
     setLoading(true);
     audioList(streamId)
-      .then((c) => {
-        setTracks(c.result?.audio ?? []);
+      .then((response) => {
+        setTracks(response?.data ?? []);
       })
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));
@@ -250,10 +249,14 @@ function UploadAudioDialog({
     if (!uploadFile) return toast.error('Audio сонгоно уу');
 
     startUploading(() => {
-      uploadAudioTrack(streamId, objToFormData({ file: uploadFile, label }))
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      
+      uploadAudioTrack(streamId, { label }, formData as any)
         .then((res) => {
-          // res.result is single StreamCaption, append to list
-          onUpload(res.result);
+          if (res?.data) {
+            onUpload(res.data);
+          }
           resetForm();
           setOpen(false);
           toast.success('Audio амжилттай байршлаа');
@@ -336,7 +339,7 @@ function SetToDefaultButton({
     <DropdownMenuItem
       onClick={() => {
         setLoading(true);
-        editAudioTrack(streamId, trackId, { default: true })
+        updateAudioTrack(streamId, trackId, { default: true })
           .then(() => toast.success('Audio track set as default'))
           .catch(() => toast.error('Failed to set default track'))
           .finally(() => setLoading(false));
@@ -388,9 +391,9 @@ function EditDialog({
           <Button
             onClick={() => {
               setLoading(true);
-              editAudioTrack(streamId, track!.uid, { label: label })
-                .then(() => toast.success('Audio track set as default'))
-                .catch(() => toast.error('Failed to set default track'))
+              updateAudioTrack(streamId, track!.uid, { label })
+                .then(() => toast.success('Audio track updated'))
+                .catch(() => toast.error('Failed to update track'))
                 .finally(() => setLoading(false));
             }}
             disabled={loading}
