@@ -1,21 +1,154 @@
 # Dramax Admin MCP Schema Generation Issues
 
 **Date**: 2026-03-03  
-**Issue**: Missing enum types in generated schemas from OpenAPI specification
+**Issue**: Incorrect schema generation from OpenAPI specification
 
 ---
 
 ## Executive Summary
 
-The `dramax_admin` MCP tool generates TypeScript/Zod schemas from our OpenAPI specification, but it **fails to preserve enum constraints** for certain fields. This results in less type-safe code that accepts any string value instead of validating against a specific set of allowed values.
+The `dramax_admin` MCP tool generates TypeScript/Zod schemas from our OpenAPI specification, but it has **multiple critical issues**:
+1. **Incorrect field names and structures** - Wrapping flat schemas in nested objects
+2. **Wrong field types** - Converting integers to strings
+3. **Missing enum constraints** - Converting enums to plain strings  
+4. **Adding non-existent fields** - Fields that don't exist in OpenAPI spec
+5. **Missing required fields** - Omitting fields from OpenAPI spec
+
+These issues result in schemas that don't match the actual API responses, causing runtime errors and type mismatches.
 
 ---
 
 ## Problem Details
 
-### Issue: Language Enum Not Generated
+### Issue 1: SignedUrlResponse - Completely Wrong Structure
 
-The OpenAPI specification defines `StreamCaption.language` with an enum of 39 specific language codes:
+**OpenAPI Schema (Correct)**:
+```json
+{
+  "properties": {
+    "success": { "type": "boolean" },
+    "token": { "type": "string" },
+    "iframe_url": { "type": "string" },
+    "hls_url": { "type": "string" },
+    "dash_url": { "type": "string" },
+    "thumbnail_url": { "type": "string" }
+  },
+  "required": ["success", "token", "iframe_url", "hls_url", "dash_url", "thumbnail_url"]
+}
+```
+
+**Generated Schema (WRONG)**:
+```typescript
+export const signedUrlResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.object({
+    signed_url: z.string(),      // ❌ Should be at top level, not nested
+    token: z.string().optional(), // ❌ Should be required, not optional
+  }),
+  message: z.string().optional(),  // ❌ Doesn't exist in OpenAPI
+});
+```
+
+**What's Wrong:**
+- ❌ Wraps URLs in a `data` object that doesn't exist in OpenAPI
+- ❌ Missing 5 required fields: `iframe_url`, `hls_url`, `dash_url`, `thumbnail_url`, and proper `token`
+- ❌ Adds non-existent `message` field
+- ❌ Invents a `signed_url` field that doesn't exist (should be separate URL fields)
+- ❌ Makes `token` optional when it's required
+
+### Issue 2: UploadTokenRequest - Wrong Field Type
+
+**OpenAPI Schema (Correct)**:
+```json
+{
+  "properties": {
+    "upload_length": { "type": "integer" },  // ← INTEGER
+    "upload_meta": { "type": "string" }
+  },
+  "required": ["upload_length", "upload_meta"]
+}
+```
+
+**Generated Schema (WRONG)**:
+```typescript
+export const uploadTokenRequestSchema = z.object({
+  upload_length: z.string(),  // ❌ Should be z.number().int() not string
+  upload_meta: z.string(),
+});
+```
+
+**What's Wrong:**
+- ❌ `upload_length` is defined as `string` but OpenAPI says `integer`
+- This will cause validation errors when sending numbers
+
+### Issue 3: UploadUrlResponse - Wrong Field Types & Extra Field
+
+**OpenAPI Schema (Correct)**:
+```json
+{
+  "properties": {
+    "success": { "type": "boolean" },
+    "upload_url": { 
+      "anyOf": [{ "type": "string" }, { "type": "null" }]
+    },
+    "video_id": { 
+      "anyOf": [{ "type": "string" }, { "type": "null" }]
+    }
+  },
+  "required": ["success", "upload_url", "video_id"]
+}
+```
+
+**Generated Schema (WRONG)**:
+```typescript
+export const uploadUrlResponseSchema = z.object({
+  success: z.boolean(),
+  upload_url: z.string(),           // ❌ Should be nullable
+  video_id: z.string(),             // ❌ Should be nullable
+  internal_id: z.string().optional(), // ❌ Doesn't exist in OpenAPI!
+});
+```
+
+**What's Wrong:**
+- ❌ `upload_url` should be `z.string().nullable()` not `z.string()`
+- ❌ `video_id` should be `z.string().nullable()` not `z.string()`
+- ❌ Adds `internal_id` field that **doesn't exist** in OpenAPI spec
+
+### Issue 4: CaptionResponse - Completely Different Structure
+
+**OpenAPI Schema (Correct)**:
+```json
+{
+  "properties": {
+    "language": { "type": "string" },
+    "label": { "type": "string" },
+    "generated": { "type": "boolean" },
+    "status": { 
+      "type": "string",
+      "enum": ["ready", "inprogress", "error"]
+    }
+  },
+  "required": ["language", "label", "generated", "status"],
+  "description": "Response containing caption information"
+}
+```
+
+**Generated Schema (WRONG)**:
+```typescript
+export const captionResponseSchema = z.object({
+  success: z.boolean(),           // ❌ Doesn't exist in OpenAPI
+  data: streamCaptionSchema,      // ❌ Wrong! Should be flat, not nested
+  message: z.string().optional(), // ❌ Doesn't exist in OpenAPI
+});
+```
+
+**What's Wrong:**
+- ❌ Wraps actual caption fields in a `data` object that doesn't exist
+- ❌ Adds non-existent `success` and `message` fields
+- ❌ Missing all actual required fields: `language`, `label`, `generated`, `status`
+- ❌ Uses `streamCaptionSchema` (which has nullable fields) instead of the actual non-nullable schema
+
+### Issue 5: StreamCaption - Missing Language Enum
 
 **OpenAPI Schema (Correct)**:
 ```json
@@ -24,13 +157,11 @@ The OpenAPI specification defines `StreamCaption.language` with an enum of 39 sp
     "anyOf": [
       {
         "type": "string",
-        "enum": [
-          "en", "zh-CN", "ko", "ru", "zh", "zh-TW", "ja", 
-          "es", "fr", "de", "it", "pt", "pt-BR", "nl", 
-          "sv", "no", "da", "fi", "pl", "cs", "hu", "ro", 
-          "bg", "el", "tr", "uk", "he", "ar", "fa", "hi", 
-          "bn", "pa", "gu", "ur", "vi", "id", "ms", "th"
-        ]
+        "enum": ["en", "zh-CN", "ko", "ru", "zh", "zh-TW", "ja", 
+                 "es", "fr", "de", "it", "pt", "pt-BR", "nl", "sv", 
+                 "no", "da", "fi", "pl", "cs", "hu", "ro", "bg", "el", 
+                 "tr", "uk", "he", "ar", "fa", "hi", "bn", "pa", "gu", 
+                 "ur", "vi", "id", "ms", "th"]
       },
       { "type": "null" }
     ]
@@ -38,52 +169,92 @@ The OpenAPI specification defines `StreamCaption.language` with an enum of 39 sp
 }
 ```
 
-**Generated Schema (Incorrect)**:
+**Generated Schema (WRONG - before our fix)**:
 ```typescript
 export const streamCaptionSchema = z.object({
   language: z.string().nullable(),  // ❌ Should be enum, not generic string
   label: z.string().nullable(),
   generated: z.boolean().nullable(),
-  status: z.enum(['ready', 'inprogress', 'error']).nullable(),
+  status: z.enum(['ready', 'inprogress', 'error']).nullable(), // ✅ This one works!
 });
 ```
 
-Notice that `status` enum **IS** correctly generated, but `language` enum is **NOT**.
+**What's Wrong:**
+- ❌ Converts 39-value enum to plain string
+- ✅ Correctly handles `status` enum (3 values)
+- Inconsistent handling of enums based on size or structure
 
 ---
 
 ## Impact Analysis
 
-### ❌ What We Lose
+### Critical Issues Summary
 
-| Issue | Impact |
-|-------|--------|
-| **No Type Safety** | Any string is accepted, including invalid language codes like `"invalid"` or `"xyz"` |
-| **No IDE Autocomplete** | Developers must manually look up valid language codes |
-| **Runtime Errors** | Invalid language codes only fail at API call time, not at compile time |
-| **No Validation** | Zod validation passes for any string, allowing bugs to slip through |
-| **Maintenance Burden** | Language codes are not centralized, requiring manual updates in multiple places |
+| Schema | Issue Type | Severity | Impact |
+|--------|-----------|----------|--------|
+| `SignedUrlResponse` | Wrong structure | 🔴 CRITICAL | **Complete data loss** - Missing 5 required URL fields |
+| `UploadTokenRequest` | Wrong type | 🟡 HIGH | Type mismatch - numbers sent as strings fail validation |
+| `UploadUrlResponse` | Missing nullable + extra field | 🟡 HIGH | Null values cause crashes, extra field confuses code |
+| `CaptionResponse` | Wrong structure | 🔴 CRITICAL | **All fields missing** - Wrapped in non-existent `data` object |
+| `StreamCaption.language` | Missing enum | 🟠 MEDIUM | No type safety, accepts invalid language codes |
 
-### ✅ What We Should Have
+### Real-World Consequences
 
+#### 1. SignedUrlResponse Failures
 ```typescript
-// Correct implementation (manually added)
-export const captionLanguageSchema = z.enum([
-  'en', 'zh-CN', 'ko', 'ru', 'zh', 'zh-TW', 'ja', 'es', 
-  'fr', 'de', 'it', 'pt', 'pt-BR', 'nl', 'sv', 'no', 
-  'da', 'fi', 'pl', 'cs', 'hu', 'ro', 'bg', 'el', 'tr', 
-  'uk', 'he', 'ar', 'fa', 'hi', 'bn', 'pa', 'gu', 'ur', 
-  'vi', 'id', 'ms', 'th'
-]);
+// API returns this:
+{
+  success: true,
+  token: "abc123",
+  iframe_url: "https://...",
+  hls_url: "https://...",
+  dash_url: "https://...",
+  thumbnail_url: "https://..."
+}
 
-export type CaptionLanguageType = z.infer<typeof captionLanguageSchema>;
+// But our schema expects this:
+{
+  success: true,
+  data: {
+    signed_url: "...",  // Doesn't exist!
+    token: "..."
+  },
+  message: "..."  // Doesn't exist!
+}
 
-export const streamCaptionSchema = z.object({
-  language: captionLanguageSchema.nullable(), // ✅ Type-safe enum
-  label: z.string().nullable(),
-  generated: z.boolean().nullable(),
-  status: z.enum(['ready', 'inprogress', 'error']).nullable(),
-});
+// Result: Cannot access iframe_url, hls_url, dash_url, thumbnail_url
+// ❌ Video player cannot load!
+```
+
+#### 2. UploadTokenRequest Failures
+```typescript
+// Code sends:
+{ upload_length: 1024000, upload_meta: "..." }  // number
+
+// Schema validates:
+{ upload_length: "1024000", upload_meta: "..." }  // string expected
+
+// Result: ❌ API rejects request with type error
+```
+
+#### 3. CaptionResponse Failures
+```typescript
+// API returns:
+{
+  language: "en",
+  label: "English",
+  generated: true,
+  status: "ready"
+}
+
+// But schema expects:
+{
+  success: true,
+  data: { language: "en", ... },
+  message: "..."
+}
+
+// Result: ❌ Cannot access language, label, generated, status directly
 ```
 
 ---
@@ -109,37 +280,74 @@ The MCP tool **correctly generates enums** for some fields (like `status`) but *
 
 ---
 
-## Root Cause Hypothesis
+## Root Cause Analysis
 
-### Theory 1: anyOf Pattern Not Fully Supported
-```json
-// This pattern might not be handled correctly
-"language": {
-  "anyOf": [
-    { "type": "string", "enum": [...] },  // ← Complex nested structure
-    { "type": "null" }
-  ]
+### Pattern Detection
+
+The MCP tool appears to have a **broken response wrapper detection** logic:
+
+#### Theory 1: Over-aggressive Response Wrapping
+The tool seems to **assume all responses** follow a generic wrapper pattern:
+```typescript
+{
+  success: boolean,
+  data: T,
+  message?: string
 }
 ```
 
-The MCP tool may only handle simple enum patterns like:
-```json
-"status": { "enum": ["ready", "inprogress", "error"] }
+Even when the OpenAPI spec clearly shows a **flat structure**, the generator wraps it unnecessarily.
+
+**Evidence:**
+- `SignedUrlResponse` - Flat in OpenAPI, wrapped in generated code
+- `CaptionResponse` - Flat in OpenAPI, wrapped in generated code
+- Both have invented `success` and `message` fields
+
+#### Theory 2: Type Conversion Bugs
+The tool has **incorrect type mappings**:
+
+```
+OpenAPI "integer" → z.string()  ❌ WRONG
+OpenAPI "integer" → z.number().int()  ✅ CORRECT
 ```
 
-### Theory 2: Enum Size Threshold
-- Small enums (3 values): ✅ Generated correctly
-- Large enums (39 values): ❌ Converted to string
+**Evidence:**
+- `UploadTokenRequest.upload_length` is `integer` in OpenAPI but `z.string()` in generated code
 
-There might be a hardcoded threshold or performance optimization that skips large enums.
+#### Theory 3: Nullable Detection Failure
+The tool **ignores `anyOf` nullable patterns**:
 
-### Theory 3: Backend Inconsistency
-The backend OpenAPI generator (FastAPI) defines `language` differently across schemas:
-- `StreamCaption`: Has enum constraint
-- `CaptionResponse`: No enum constraint (just `"type": "string"`)
-- `CaptionInfo`: No enum constraint (just `"type": "string"`)
+```json
+"anyOf": [
+  { "type": "string" },
+  { "type": "null" }
+]
+```
 
-This suggests the **backend models themselves are inconsistent**.
+Generated as `z.string()` instead of `z.string().nullable()`.
+
+**Evidence:**
+- `UploadUrlResponse.upload_url` and `video_id` should be nullable but aren't
+
+#### Theory 4: Enum Size Threshold
+Large enums (39+ values) are **converted to plain strings**:
+
+```
+Small enum (3 values) → z.enum([...])  ✅ Works
+Large enum (39 values) → z.string()     ❌ Fails
+```
+
+**Evidence:**
+- `StreamCaption.status` (3 values) → Correctly generates enum
+- `StreamCaption.language` (39 values) → Incorrectly generates string
+
+#### Theory 5: Schema Field Invention
+The tool **adds fields that don't exist** in the OpenAPI spec:
+
+**Evidence:**
+- `internal_id` added to `UploadUrlResponse` (not in OpenAPI)
+- `success` and `message` added to `SignedUrlResponse` (not in OpenAPI)
+- `success` and `message` added to `CaptionResponse` (not in OpenAPI)
 
 ---
 

@@ -42,7 +42,11 @@ import {
   generateCaptions,
   uploadACaptionFileForAVideo,
 } from '@/services/cf';
-import { captionLanguageSchema, StreamCaptionType } from '@/services/schema';
+import {
+  captionLanguageSchema,
+  CaptionResponseType,
+  StreamCaptionType,
+} from '@/services/schema';
 
 type SupportedCaptionLanguages = string;
 
@@ -141,7 +145,7 @@ export function CaptionsTab({
           <UploadCaptionDialog
             streamId={streamId}
             onUpload={(newCaption) => {
-              handleUpdateCaptions([newCaption]);
+              handleUpdateCaptions([newCaption as StreamCaptionType]);
               loadCaptionVtt(newCaption.language);
             }}
           >
@@ -174,8 +178,8 @@ export function CaptionsTab({
                         startGenerateLoading(() => {
                           generateCaptions(streamId, caption.code).then(
                             (response) => {
-                              if (response?.data) {
-                                handleUpdateCaptions([response.data]);
+                              if (response) {
+                                handleUpdateCaptions([response]);
                               }
                             },
                           );
@@ -275,7 +279,7 @@ function UploadCaptionDialog({
   children,
 }: {
   streamId?: string;
-  onUpload: (caption: StreamCaptionType) => void;
+  onUpload: (caption: CaptionResponseType) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -308,8 +312,8 @@ function UploadCaptionDialog({
         formData as any,
       )
         .then((res) => {
-          if (res?.data) {
-            onUpload(res.data);
+          if (res) {
+            onUpload(res);
           }
           resetForm();
           setOpen(false);

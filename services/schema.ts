@@ -1112,9 +1112,10 @@ export const uploadUrlResponseSchema = z.object({
 export type UploadUrlResponseType = z.infer<typeof uploadUrlResponseSchema>;
 
 export const captionResponseSchema = z.object({
-  success: z.boolean(),
-  data: streamCaptionSchema,
-  message: z.string().optional(),
+  language: z.string(),
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
 });
 
 export type CaptionResponseType = z.infer<typeof captionResponseSchema>;
@@ -1138,11 +1139,11 @@ export type BodyDashboardUploadAudioTrackType = z.infer<
 
 export const signedUrlResponseSchema = z.object({
   success: z.boolean(),
-  data: z.object({
-    signed_url: z.string(),
-    token: z.string().optional(),
-  }),
-  message: z.string().optional(),
+  token: z.string(),
+  iframe_url: z.string(),
+  hls_url: z.string(),
+  dash_url: z.string(),
+  thumbnail_url: z.string(),
 });
 
 export type SignedUrlResponseType = z.infer<typeof signedUrlResponseSchema>;
