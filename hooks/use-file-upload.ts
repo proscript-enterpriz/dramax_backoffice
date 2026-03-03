@@ -29,8 +29,7 @@ const typeError = `Зөвшөөрөгдсөн форматууд: ${stringifyTyp
 const sanitizeFileName = (file: File): File => {
   const originalName = file.name || 'upload-image';
   const dotIndex = originalName.lastIndexOf('.');
-  const rawBase =
-    dotIndex > 0 ? originalName.slice(0, dotIndex) : originalName;
+  const rawBase = dotIndex > 0 ? originalName.slice(0, dotIndex) : originalName;
   const rawExt = dotIndex > 0 ? originalName.slice(dotIndex + 1) : '';
 
   const normalizedBase = rawBase

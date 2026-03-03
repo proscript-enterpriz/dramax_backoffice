@@ -11,7 +11,9 @@ import {
   SignedUrlResponseType,
   SingleItemResponseCloudflareVideoResponseType,
   SingleItemResponseStreamAudioType,
+  StreamAudioType,
   StreamAudioUpdateType,
+  StreamCaptionType,
   StreamDetailResponseListStreamAudioType,
   StreamDetailResponseListStreamCaptionType,
   UploadTokenRequestType,
@@ -19,21 +21,6 @@ import {
 } from './schema';
 
 // Auto-generated service for cf
-
-export async function cloudflareWebhook(body: any) {
-  try {
-    const res = await actions.post<any>(`/cf/wh`, body);
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
-}
 
 export type GetStreamsSearchParams = {
   page?: number;
@@ -65,7 +52,15 @@ export async function getStreams(searchParams?: GetStreamsSearchParams) {
   } catch (error) {
     console.error(error);
     // implement custom error handler here
-    return null;
+    return {
+      success: false,
+      data: [],
+      total: 0,
+      page: searchParams?.page ?? 1,
+      page_size: searchParams?.page_size ?? 30,
+      message:
+        (error as Error).message ?? 'An error occurred while fetching streams.',
+    };
   }
 }
 
@@ -87,50 +82,42 @@ export async function getStreamDetails(streamId: string) {
     return response;
   } catch (error) {
     console.error(error);
-    // implement custom error handler here
-    return null;
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while fetching stream details.',
+    };
   }
 }
 
-export async function syncStreamDetails(internalId: string, body: any) {
-  try {
-    const res =
-      await actions.put<SingleItemResponseCloudflareVideoResponseType>(
-        `/cf/streams/${internalId}/sync`,
-        body,
-      );
+export async function syncStreamDetails(internalId: string) {
+  const res = await actions.put<SingleItemResponseCloudflareVideoResponseType>(
+    `/cf/streams/${internalId}/sync`,
+    undefined, // this shit required
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function updateStreamDetail(
   internalId: string,
   body: CloudflareVideoUpdateType,
 ) {
-  try {
-    const res =
-      await actions.patch<SingleItemResponseCloudflareVideoResponseType>(
-        `/cf/streams/${internalId}`,
-        body,
-      );
+  const res =
+    await actions.patch<SingleItemResponseCloudflareVideoResponseType>(
+      `/cf/streams/${internalId}`,
+      body,
+    );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function audioList(streamId: string) {
@@ -151,7 +138,13 @@ export async function audioList(streamId: string) {
   } catch (error) {
     console.error(error);
     // implement custom error handler here
-    return null;
+    return {
+      success: false,
+      data: [],
+      message:
+        (error as Error).message ??
+        'An error occurred while fetching audio tracks.',
+    };
   }
 }
 
@@ -173,13 +166,22 @@ export async function fetchCaptions(streamId: string) {
   } catch (error) {
     console.error(error);
     // implement custom error handler here
-    return null;
+    return {
+      success: false,
+      data: [],
+      message:
+        (error as Error).message ??
+        'An error occurred while fetching captions.',
+    };
   }
 }
 
-export async function fetchCaptionVtt(streamId: string, language: string) {
+export async function fetchCaptionVtt(
+  streamId: string,
+  language: string,
+): Promise<string> {
   try {
-    const res = await actions.get<any>(
+    const res = await actions.get<string>(
       `/cf/streams/${streamId}/captions/${language}/vtt`,
       {
         next: {
@@ -199,30 +201,20 @@ export async function fetchCaptionVtt(streamId: string, language: string) {
   } catch (error) {
     console.error(error);
     // implement custom error handler here
-    return null;
+    return 'An error occurred while fetching caption VTT.';
   }
 }
 
-export async function generateCaptions(
-  streamId: string,
-  language: string,
-  body: any,
-) {
-  try {
-    const res = await actions.post<any>(
-      `/cf/streams/${streamId}/captions/${language}/generate`,
-      body,
-    );
+export async function generateCaptions(streamId: string, language: string) {
+  const res = await actions.post<StreamCaptionType>(
+    `/cf/streams/${streamId}/captions/${language}/generate`,
+    undefined,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function updateAudioTrack(
@@ -230,61 +222,41 @@ export async function updateAudioTrack(
   trackId: string,
   body: StreamAudioUpdateType,
 ) {
-  try {
-    const res = await actions.patch<SingleItemResponseStreamAudioType>(
-      `/cf/streams/${streamId}/audio/${trackId}`,
-      body,
-    );
+  const res = await actions.patch<SingleItemResponseStreamAudioType>(
+    `/cf/streams/${streamId}/audio/${trackId}`,
+    body,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function generateSignedToken(streamId: string) {
-  try {
-    const res = await actions.get<SignedUrlResponseType>(
-      `/cf/gen/signed_token/${streamId}`,
-      {
-        next: {
-          tags: [RVK_CF, `${RVK_CF}_stream_id_${streamId}`],
-        },
-      },
-    );
+  const res = await actions.get<SignedUrlResponseType>(
+    `/cf/gen/signed_token/${streamId}`,
+    {
+      cache: 'no-store',
+    },
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function requestUploadToken(body: UploadTokenRequestType) {
-  try {
-    const res = await actions.post<UploadUrlResponseType>(
-      `/cf/upload/token`,
-      body,
-    );
+  const res = await actions.post<UploadUrlResponseType>(
+    `/cf/upload/token`,
+    body,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
 export async function uploadACaptionFileForAVideo(
@@ -292,41 +264,28 @@ export async function uploadACaptionFileForAVideo(
   language: string,
   body: BodyDashboardUploadCaptionsToCfType,
 ) {
-  try {
-    const res = await actions.put<CaptionResponseType>(
-      `/cf/upload/captions/${streamId}/${language}`,
-      body,
-    );
+  const res = await actions.put<CaptionResponseType>(
+    `/cf/upload/captions/${streamId}/${language}`,
+    body,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
-
-export type UploadAudioTrackSearchParams = {
-  label?: string;
-};
 
 export async function uploadAudioTrack(
   streamId: string,
   body: BodyDashboardUploadAudioTrackType,
 ) {
-  try {
-    const res = await actions.put<any>(`/cf/upload/audio/${streamId}`, body);
+  const res = await actions.put<StreamAudioType>(
+    `/cf/upload/audio/${streamId}`,
+    body,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }

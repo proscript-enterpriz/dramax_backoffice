@@ -5,12 +5,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
-import { CloudflareVideoResponseType } from '@/services/schema';
 import { humanizeBytes } from '@/lib/utils';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 import { PreviewPlayerDialog } from './video_player';
 
-export default function StreamItem({ video }: { video: CloudflareVideoResponseType }) {
+export default function StreamItem({
+  video,
+}: {
+  video: CloudflareVideoResponseType;
+}) {
   const isTrailer = !video.require_signed_urls;
 
   // Use thumbnail

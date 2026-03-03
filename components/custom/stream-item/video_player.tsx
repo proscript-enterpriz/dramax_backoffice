@@ -11,8 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { fetchSignedToken } from '@/lib/cloudflare';
-import { StreamVideo } from '@/lib/cloudflare/type';
+import { generateSignedToken } from '@/services/cf';
+import { CloudflareVideoResponseType } from '@/services/schema';
 import { formatDuration } from '@/lib/utils';
 
 export function PreviewPlayerDialog({

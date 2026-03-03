@@ -6,8 +6,8 @@ import { useSession } from 'next-auth/react';
 
 import StreamItem from '@/components/custom/stream-item';
 import { Button } from '@/components/ui/button';
-import { CloudflareVideoResponseType } from '@/services/schema';
 import { hasPermission } from '@/lib/permission';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 const isTrailer = (video: CloudflareVideoResponseType) => {
   // If requireSignedURLs is false or undefined, it's a public trailer

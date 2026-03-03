@@ -944,35 +944,37 @@ export type BaseResponseDictStrAnyType = z.infer<
 // Cloudflare Stream Types
 export const streamAudioSchema = z.object({
   uid: z.string(),
-  label: z.string().optional().nullable(),
-  default: z.boolean().optional(),
-  channels: z.number().int().optional(),
+  label: z.string(),
+  default: z.boolean(),
+  status: z.enum(['queued', 'ready', 'error']),
 });
 
 export type StreamAudioType = z.infer<typeof streamAudioSchema>;
 
 export const streamCaptionSchema = z.object({
-  language: z.string(),
-  label: z.string().optional().nullable(),
-  generated: z.boolean().optional(),
-  status: z.enum(['ready', 'inprogress', 'error']).optional(),
+  language: z.string().nullable(),
+  label: z.string().nullable(),
+  generated: z.boolean().nullable(),
+  status: z.enum(['ready', 'inprogress', 'error']).nullable(),
 });
 
 export type StreamCaptionType = z.infer<typeof streamCaptionSchema>;
 
 export const cloudflareVideoResponseSchema = z.object({
   stream_id: z.string(),
-  name: z.string().optional().nullable(),
-  status: z.string().optional().nullable(),
-  created_on: z.iso.datetime().optional().nullable(),
-  modified_on: z.iso.datetime().optional().nullable(),
-  duration: z.number().optional().nullable(),
-  size: z.number().optional().nullable(),
-  thumbnail: z.string().optional().nullable(),
-  preview: z.string().optional().nullable(),
-  ready_to_stream: z.boolean().optional(),
-  require_signed_urls: z.boolean().optional(),
-  meta: z.record(z.string(), z.any()).optional(),
+  name: z.string().nullable(),
+  status: z.string().nullable(),
+  created_on: z.iso.datetime().nullable(),
+  modified_on: z.iso.datetime().nullable(),
+  duration: z.number().nullable(),
+  size: z.number().nullable(),
+  thumbnail: z.string().nullable(),
+  preview: z.string().nullable(),
+  ready_to_stream: z.boolean().nullable(),
+  require_signed_urls: z.boolean().nullable(),
+  input_height: z.number().int().nullable(),
+  input_width: z.number().int().nullable(),
+  meta: z.record(z.string(), z.any()).nullable(),
 });
 
 export type CloudflareVideoResponseType = z.infer<
@@ -1042,13 +1044,16 @@ export type SingleItemResponseStreamAudioType = z.infer<
   typeof singleItemResponseStreamAudioSchema
 >;
 
+export const streamAudioUpdateSchema = z.object({
+  label: z.string().optional(),
+  default: z.boolean().optional(),
+});
+
+export type StreamAudioUpdateType = z.infer<typeof streamAudioUpdateSchema>;
+
 export const uploadTokenRequestSchema = z.object({
-  max_duration_seconds: z.number().int().optional(),
-  require_signed_urls: z.boolean().optional(),
-  allowed_origins: z.array(z.string()).optional(),
-  thumbnail_timestamp_pct: z.number().optional(),
-  watermark: z.string().optional(),
-  meta: z.record(z.string(), z.any()).optional(),
+  upload_length: z.string(),
+  upload_meta: z.string(),
 });
 
 export type UploadTokenRequestType = z.infer<typeof uploadTokenRequestSchema>;
@@ -1089,15 +1094,6 @@ export type BodyDashboardUploadAudioTrackType = z.infer<
   typeof bodyDashboardUploadAudioTrackSchema
 >;
 
-// Stream Audio Update Type
-export const streamAudioUpdateSchema = z.object({
-  label: z.string().optional(),
-  default: z.boolean().optional(),
-});
-
-export type StreamAudioUpdateType = z.infer<typeof streamAudioUpdateSchema>;
-
-// Signed URL Response Type
 export const signedUrlResponseSchema = z.object({
   success: z.boolean(),
   data: z.object({

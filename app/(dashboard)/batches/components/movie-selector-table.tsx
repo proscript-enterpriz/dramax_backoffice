@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useMemo } from 'react';
+import { currencyFormat } from '@interpriz/lib/utils';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -9,7 +9,7 @@ import {
   DoubleArrowRightIcon,
 } from '@radix-ui/react-icons';
 import { Film } from 'lucide-react';
-import { currencyFormat } from '@interpriz/lib/utils';
+import Image from 'next/image';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -155,13 +155,15 @@ export function MovieSelectorTable({
                     </TableCell>
                     <TableCell className="font-medium">{movie.title}</TableCell>
                     <TableCell>
-                      {(
-                        {
-                          movie: 'Нэг ангит кино',
-                          series: 'Цуврал',
-                          'mini-series': 'Олон ангит',
-                        } as const
-                      )[movie.type]}
+                      {
+                        (
+                          {
+                            movie: 'Нэг ангит кино',
+                            series: 'Цуврал',
+                            'mini-series': 'Олон ангит',
+                          } as const
+                        )[movie.type]
+                      }
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -182,16 +184,21 @@ export function MovieSelectorTable({
                       {movie.is_premium ? 'Түрээсийн кино' : 'Багц'}
                     </TableCell>
                     <TableCell>
-                      {(
-                        {
-                          landscape: 'Хэвтээ',
-                          portrait: 'Босоо',
-                        } as const
-                      )[movie.orientation ?? 'landscape']}
+                      {
+                        (
+                          {
+                            landscape: 'Хэвтээ',
+                            portrait: 'Босоо',
+                          } as const
+                        )[movie.orientation ?? 'landscape']
+                      }
                     </TableCell>
                     <TableCell>
                       {movie.is_adult ? (
-                        <Badge variant="destructive" className="bg-destructive/50">
+                        <Badge
+                          variant="destructive"
+                          className="bg-destructive/50"
+                        >
                           +18
                         </Badge>
                       ) : (

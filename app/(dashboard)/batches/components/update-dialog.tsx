@@ -21,6 +21,7 @@ import {
   MovieBatchResponseType,
   updateMovieBatch,
 } from '@/services/batches';
+
 import { MoviePickerDialog } from './movie-picker-dialog';
 
 const slugPathRegex = /^[a-z0-9-]+$/;
@@ -138,7 +139,9 @@ export function UpdateDialog({
         })
         .catch((e) =>
           toast.error(
-            e instanceof Error ? e.message : 'Кино багц шинэчлэхэд алдаа гарлаа',
+            e instanceof Error
+              ? e.message
+              : 'Кино багц шинэчлэхэд алдаа гарлаа',
           ),
         );
     });
@@ -190,7 +193,9 @@ export function UpdateDialog({
                   {...field}
                   value={field.value ?? ''}
                   className="rounded-l-none"
-                  onChange={(e) => field.onChange(normalizeSlugInput(e.target.value))}
+                  onChange={(e) =>
+                    field.onChange(normalizeSlugInput(e.target.value))
+                  }
                 />
               </div>
             </FormControl>

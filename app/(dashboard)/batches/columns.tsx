@@ -23,8 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPermission } from '@/lib/permission';
-import { deleteMovieBatch } from '@/services/batches';
-import { MovieBatchResponseType } from '@/services/batches';
+import { deleteMovieBatch, MovieBatchResponseType } from '@/services/batches';
 
 import { UpdateDialog } from './components';
 

@@ -10,7 +10,7 @@ import { InfoTab } from '@/components/custom/stream-item/info-tab';
 import { PreviewTab } from '@/components/custom/stream-item/preview-tab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { StreamVideo } from '@/lib/cloudflare/type';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 export function StreamDetailClient({
   video: initialVideo,

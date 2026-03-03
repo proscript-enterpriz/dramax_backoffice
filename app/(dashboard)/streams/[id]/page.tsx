@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { kebabCase } from 'change-case-all';
 import { notFound } from 'next/navigation';
 
-import { getStreamDetails } from '@/services/cf';
 import { splitByVideoExt } from '@/lib/utils';
+import { getStreamDetails } from '@/services/cf';
 
 import { StreamDetailClient } from './client';
 
@@ -24,7 +24,8 @@ export default async function StreamDetailPage({ params }: Props) {
     const video = response.data;
 
     const videoName = kebabCase(
-      splitByVideoExt(video.meta?.name || '').base || `stream-${video.stream_id}`,
+      splitByVideoExt(video.meta?.name || '').base ||
+        `stream-${video.stream_id}`,
     );
 
     return (

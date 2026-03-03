@@ -457,7 +457,7 @@ function DeleteDialog({
   );
 }
 
-function StatusBadge({ status }: { status: StreamAudioType['status'] }) {
+function StatusBadge({ status }: { status: StreamAudio['status'] }) {
   switch (status) {
     case 'ready':
       return <Badge className="bg-green-500">Ready</Badge>;

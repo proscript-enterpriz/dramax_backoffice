@@ -1,125 +1,92 @@
 'use server';
 
 import * as actions from './api/actions';
-import type { ID, PaginatedResType } from './api/types';
-import { SingleItemResponseHeroBannerResponseType, HeroBannerResponseType, CreateHeroBannerType, BaseResponseListHeroBannerResponseType, UpdateHeroBannerType } from './schema';
 import { RVK_HERO_BANNERS } from './rvk';
+import {
+  BaseResponseListHeroBannerResponseType,
+  CreateHeroBannerType,
+  SingleItemResponseHeroBannerResponseType,
+  UpdateHeroBannerType,
+} from './schema';
 
 // Auto-generated service for hero-banners
 
+export async function createHeroBanner(body: CreateHeroBannerType) {
+  const res = await actions.post<SingleItemResponseHeroBannerResponseType>(
+    `/hero-banners`,
+    body,
+  );
 
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-export async function createHeroBanner(
-        body: CreateHeroBannerType,
-) {
-  try {
-        const res = await actions.post<SingleItemResponseHeroBannerResponseType>(`/hero-banners`, body);
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
-
 
 export type ListHeroBannersSearchParams = {
   page?: number;
   page_size?: number;
-  is_active?: boolean
+  is_active?: boolean;
 };
 
 export async function listHeroBanners(
-        searchParams?:ListHeroBannersSearchParams,
+  searchParams?: ListHeroBannersSearchParams,
 ) {
-  try {
-    const res = await actions.get<BaseResponseListHeroBannerResponseType>(`/hero-banners`,
-        {
-            searchParams,
-        next: {
-        tags: [
-        RVK_HERO_BANNERS
-        ]
-        }
-        });
+  const res = await actions.get<BaseResponseListHeroBannerResponseType>(
+    `/hero-banners`,
+    {
+      searchParams,
+      next: {
+        tags: [RVK_HERO_BANNERS],
+      },
+    },
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
-
-
-export async function getHeroBanner(
-        heroBannerId: string,
-) {
-  try {
-    const res = await actions.get<SingleItemResponseHeroBannerResponseType>(`/hero-banners/${heroBannerId}`,
-        {
-        next: {
+export async function getHeroBanner(heroBannerId: string) {
+  const res = await actions.get<SingleItemResponseHeroBannerResponseType>(
+    `/hero-banners/${heroBannerId}`,
+    {
+      next: {
         tags: [
-        RVK_HERO_BANNERS
-                ,`${ RVK_HERO_BANNERS }_hero_banner_id_${heroBannerId}`
-        ]
-        }
-        });
+          RVK_HERO_BANNERS,
+          `${RVK_HERO_BANNERS}_hero_banner_id_${heroBannerId}`,
+        ],
+      },
+    },
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
-
-
 
 export async function updateHeroBanner(
-        heroBannerId: string,
-        body: UpdateHeroBannerType,
+  heroBannerId: string,
+  body: UpdateHeroBannerType,
 ) {
-  try {
-        const res = await actions.put<SingleItemResponseHeroBannerResponseType>(`/hero-banners/${heroBannerId}`, body);
+  const res = await actions.put<SingleItemResponseHeroBannerResponseType>(
+    `/hero-banners/${heroBannerId}`,
+    body,
+  );
 
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }
 
+export async function deleteHeroBanner(heroBannerId: string) {
+  const res = await actions.destroy<any>(`/hero-banners/${heroBannerId}`);
 
+  const { body: response, error } = res;
+  if (error) throw new Error(error);
 
-export async function deleteHeroBanner(
-        heroBannerId: string,
-) {
-  try {
-        const res = await actions.destroy<any>(`/hero-banners/${heroBannerId}`);
-
-    const { body: response, error } = res;
-    if (error) throw new Error(error);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    // implement custom error handler here
-    return null;
-  }
+  return response;
 }

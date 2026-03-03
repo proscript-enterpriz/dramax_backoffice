@@ -266,7 +266,7 @@ function UploadCaptionDialog({
   children,
 }: {
   streamId?: string;
-  onUpload: (caption: StreamCaptionType) => void;
+  onUpload: (caption: VideoCaptionResponseType) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);

@@ -9,9 +9,8 @@ import '@uppy/core/css/style.min.css';
 import '@uppy/dashboard/css/style.min.css';
 
 import { Input } from '@/components/ui/input';
-import { RVK_STREAMS } from '@/lib/cloudflare/rvk';
 import { revalidate } from '@/services/api/actions';
-import { requestCloudflareStreamUploadUrl } from '@/services/cloudflare';
+import { requestUploadToken } from '@/services/cf';
 
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
   const [name, setName] = useState<string | undefined>(undefined);
@@ -57,7 +56,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
         isPaused: true,
       });
 
-      requestCloudflareStreamUploadUrl({
+      requestUploadToken({
         upload_length: file.size!.toString(),
         upload_meta: getMetadata(file.name ?? ''),
       })
