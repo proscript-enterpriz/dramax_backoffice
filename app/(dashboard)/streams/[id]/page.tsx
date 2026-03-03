@@ -17,9 +17,7 @@ export default async function StreamDetailPage({ params }: Props) {
   try {
     const response = await getStreamDetails(id);
 
-    if (!response?.data) {
-      notFound();
-    }
+    if (!response?.data) return notFound();
 
     const video = response.data;
 
@@ -35,6 +33,6 @@ export default async function StreamDetailPage({ params }: Props) {
     );
   } catch (error) {
     console.error('Error fetching stream detail:', error);
-    notFound();
+    return notFound();
   }
 }

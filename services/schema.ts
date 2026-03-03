@@ -1060,11 +1060,9 @@ export type UploadTokenRequestType = z.infer<typeof uploadTokenRequestSchema>;
 
 export const uploadUrlResponseSchema = z.object({
   success: z.boolean(),
-  data: z.object({
-    upload_url: z.string(),
-    uid: z.string(),
-  }),
-  message: z.string().optional(),
+  upload_url: z.string(),
+  video_id: z.string(),
+  internal_id: z.string().optional(),
 });
 
 export type UploadUrlResponseType = z.infer<typeof uploadUrlResponseSchema>;

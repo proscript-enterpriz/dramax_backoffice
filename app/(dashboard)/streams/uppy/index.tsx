@@ -11,6 +11,7 @@ import '@uppy/dashboard/css/style.min.css';
 import { Input } from '@/components/ui/input';
 import { revalidate } from '@/services/api/actions';
 import { requestUploadToken } from '@/services/cf';
+import { RVK_CF } from '@/services/rvk';
 
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
   const [name, setName] = useState<string | undefined>(undefined);
@@ -80,7 +81,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
           toast.error('Failed to get upload URL:', e.message);
         });
     });
-    uppy.on('upload-success', () => revalidate(RVK_STREAMS));
+    uppy.on('upload-success', () => revalidate(RVK_CF));
     return () => {
       uppy.cancelAll();
     };

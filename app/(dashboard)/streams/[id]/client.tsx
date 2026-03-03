@@ -16,12 +16,12 @@ export function StreamDetailClient({
   video: initialVideo,
   videoName,
 }: {
-  video: StreamVideo;
+  video: CloudflareVideoResponseType;
   videoName: string;
 }) {
-  const [video, setVideo] = useState<StreamVideo>(initialVideo);
+  const [video, setVideo] = useState<CloudflareVideoResponseType>(initialVideo);
 
-  const handleUpdate = (updated: StreamVideo) => {
+  const handleUpdate = (updated: CloudflareVideoResponseType) => {
     setVideo(updated);
   };
 
@@ -39,7 +39,7 @@ export function StreamDetailClient({
             {video.meta?.name || 'Untitled Video'}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Cloudflare ID: {video.uid}
+            Cloudflare ID: {video.stream_id}
           </p>
         </div>
       </div>
@@ -68,11 +68,11 @@ export function StreamDetailClient({
           value="captions"
           className="bg-muted/50 mt-6 rounded-lg p-6"
         >
-          <CaptionsTab streamId={video.uid} videoName={videoName} />
+          <CaptionsTab streamId={video.stream_id} videoName={videoName} />
         </TabsContent>
 
         <TabsContent value="audio" className="bg-muted/50 mt-6 rounded-lg p-6">
-          <AudioTab streamId={video.uid} />
+          <AudioTab streamId={video.stream_id} />
         </TabsContent>
       </Tabs>
     </div>

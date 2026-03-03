@@ -1,40 +1,13 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { Loader2 } from 'lucide-react';
-
-import { generateSignedToken } from '@/services/cf';
-import { CloudflareVideoResponseType } from '@/services/schema';
 import { formatDuration } from '@/lib/utils';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
-export function PreviewTab({ video }: { video?: StreamVideo }) {
-  const [cfPreview, setCfPreview] = useState<string>('');
-  const [loading, startLoading] = useTransition();
-
-  useEffect(() => {
-    if (video) {
-      startLoading(() => {
-        fetchSignedToken(video.uid)
-          .then((token) => setCfPreview(token))
-          .catch((error) => {
-            console.error('Failed to fetch signed token:', error);
-          });
-      });
-    }
-  }, [video]);
-
+export function PreviewTab({ video }: { video?: CloudflareVideoResponseType }) {
   if (!video) {
     return (
       <div className="bg-muted relative mx-auto flex aspect-video max-w-4xl items-center justify-center overflow-hidden rounded-lg">
         <p className="text-muted-foreground text-sm">No video available.</p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="bg-muted relative mx-auto flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -47,7 +20,7 @@ export function PreviewTab({ video }: { video?: StreamVideo }) {
           <span className="text-muted-foreground">
             Duration: {formatDuration(Math.floor(video.duration))}
           </span>
-          {video.readyToStream && (
+          {video.ready_to_stream && (
             <>
               <span className="text-muted-foreground">•</span>
               <span className="text-green-600 dark:text-green-400">
@@ -60,9 +33,9 @@ export function PreviewTab({ video }: { video?: StreamVideo }) {
 
       {/* Video player */}
       <div className="bg-background relative aspect-video w-full overflow-hidden rounded-lg">
-        {cfPreview ? (
+        {video.preview ? (
           <iframe
-            src={`https://videodelivery.net/${cfPreview}/iframe?poster=${encodeURIComponent(video.thumbnail || '')}`}
+            src={video.preview}
             className="bg-background h-full w-full"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
