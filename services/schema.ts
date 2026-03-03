@@ -1,5 +1,49 @@
 import { z } from 'zod';
 
+// Caption language enum
+export const captionLanguageSchema = z.enum([
+  'en',
+  'zh-CN',
+  'ko',
+  'ru',
+  'zh',
+  'zh-TW',
+  'ja',
+  'es',
+  'fr',
+  'de',
+  'it',
+  'pt',
+  'pt-BR',
+  'nl',
+  'sv',
+  'no',
+  'da',
+  'fi',
+  'pl',
+  'cs',
+  'hu',
+  'ro',
+  'bg',
+  'el',
+  'tr',
+  'uk',
+  'he',
+  'ar',
+  'fa',
+  'hi',
+  'bn',
+  'pa',
+  'gu',
+  'ur',
+  'vi',
+  'id',
+  'ms',
+  'th',
+]);
+
+export type CaptionLanguageType = z.infer<typeof captionLanguageSchema>;
+
 export const bodyDashboardEmployeeLoginSchema = z.object({
   grant_type: z.string().nullish(),
   username: z.string(),
@@ -837,7 +881,7 @@ export type RequestUploadLinkResponseType = z.infer<
 >;
 
 export const videoCaptionResponseSchema = z.object({
-  language: z.string(),
+  language: captionLanguageSchema,
   label: z.string(),
   generated: z.boolean(),
   status: z.enum(['ready', 'inprogress', 'error']),
@@ -952,10 +996,10 @@ export const streamAudioSchema = z.object({
 export type StreamAudioType = z.infer<typeof streamAudioSchema>;
 
 export const streamCaptionSchema = z.object({
-  language: z.string().nullable(),
-  label: z.string().nullable(),
-  generated: z.boolean().nullable(),
-  status: z.enum(['ready', 'inprogress', 'error']).nullable(),
+  language: captionLanguageSchema,
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
 });
 
 export type StreamCaptionType = z.infer<typeof streamCaptionSchema>;

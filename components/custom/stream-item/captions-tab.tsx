@@ -35,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CLOUDFLARE_LANGUAGES } from '@/lib/cloudflare/languages';
 import { cn, downloadToPreview } from '@/lib/utils';
 import {
   fetchCaptions,
@@ -43,9 +42,19 @@ import {
   generateCaptions,
   uploadACaptionFileForAVideo,
 } from '@/services/cf';
-import { StreamCaptionType } from '@/services/schema';
+import { captionLanguageSchema, StreamCaptionType } from '@/services/schema';
 
 type SupportedCaptionLanguages = string;
+
+const CLOUDFLARE_LANGUAGES: {
+  code: SupportedCaptionLanguages;
+  name: string;
+  weight: number;
+}[] = captionLanguageSchema.options.map((c) => ({
+  code: c,
+  name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
+  weight: ['en', 'mn'].includes(c) ? 1 : 0,
+}));
 
 export function CaptionsTab({
   streamId,
@@ -163,7 +172,7 @@ export function CaptionsTab({
                       key={idx}
                       onSelect={() =>
                         startGenerateLoading(() => {
-                          generateCaptions(streamId, caption.code, {}).then(
+                          generateCaptions(streamId, caption.code).then(
                             (response) => {
                               if (response?.data) {
                                 handleUpdateCaptions([response.data]);
