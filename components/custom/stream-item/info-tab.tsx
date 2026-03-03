@@ -30,7 +30,7 @@ export function InfoTab({
   useEffect(() => {
     setName(base);
     setRequireSigned(!!data?.require_signed_urls);
-  }, [data?.meta?.name, data?.require_signed_urls]);
+  }, [base, data?.require_signed_urls]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();

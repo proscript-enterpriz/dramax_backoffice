@@ -89,7 +89,10 @@ export default function CloudflareTrailer({
             target="_blank"
             className="bg-muted relative h-20 w-36 flex-shrink-0 overflow-hidden rounded-md"
           >
-            <img src={cloudflareData?.thumbnail + '?time=5s'} alt="" />
+            <img
+              src={cloudflareData?.thumbnail + '?time=5s&height=80'}
+              alt=""
+            />
             {cloudflareData?.duration != null && (
               <span className="absolute right-0.5 bottom-0.5 rounded-sm bg-black/65 px-2 py-0.5 font-mono text-xs text-white">
                 {formatDuration(cloudflareData?.duration)}
@@ -103,7 +106,7 @@ export default function CloudflareTrailer({
               target="_blank"
               className="text-sm font-medium"
             >
-              {cloudflareData?.meta?.name || cloudflareData?.stream_id}
+              {cloudflareData?.name || cloudflareData?.stream_id}
             </Link>
             <p className="text-muted-foreground text-xs">
               {cloudflareData?.modified_on

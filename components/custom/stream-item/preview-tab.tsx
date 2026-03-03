@@ -39,7 +39,7 @@ export function PreviewTab({ video }: { video?: CloudflareVideoResponseType }) {
             className="bg-background h-full w-full"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            title={video.meta?.name || 'Video preview'}
+            title={video.name || 'Video preview'}
           />
         ) : (
           <div className="text-muted-foreground flex h-full items-center justify-center text-sm">

@@ -34,8 +34,6 @@ export function Client({
     {} as Record<keyof CloudflareVideoResponseType, any>,
   );
 
-  console.log(data);
-
   return (
     <div className="space-y-4">
       <div className="border-border flex items-center justify-between gap-10 border-b pb-4">

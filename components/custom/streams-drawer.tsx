@@ -239,14 +239,14 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={video.thumbnail}
-                            alt={video.meta?.name || video.stream_id}
+                            alt={video.name || video.stream_id}
                             className="h-full w-full object-cover"
                           />
                         ) : video.preview ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={video.preview}
-                            alt={video.meta?.name || video.stream_id}
+                            alt={video.name || video.stream_id}
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -264,7 +264,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                       <div className="flex flex-1 items-start justify-between gap-4">
                         <div>
                           <h4 className="text-sm font-medium">
-                            {video.meta?.name || video.stream_id}
+                            {video.name || video.stream_id}
                           </h4>
                           <p className="text-muted-foreground text-xs">
                             {video.modified_on
