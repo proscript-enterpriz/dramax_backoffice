@@ -433,15 +433,6 @@ export const movieUpdateFormSchema = movieResponseSchema
 
 export type MovieUpdateFormType = z.infer<typeof movieUpdateFormSchema>;
 
-export const captionResponseSchema = z.object({
-  language: z.string(),
-  label: z.string(),
-  generated: z.boolean(),
-  status: z.enum(['ready', 'inprogress', 'error']),
-});
-
-export type CaptionResponseType = z.infer<typeof captionResponseSchema>;
-
 export const captionGenerateRequestSchema = z.object({
   language: z.string(),
 });
@@ -456,14 +447,6 @@ export const bodyDashboardUploadCaptionsSchema = z.object({
 
 export type BodyDashboardUploadCaptionsType = z.infer<
   typeof bodyDashboardUploadCaptionsSchema
->;
-
-export const captionsListResponseSchema = z.object({
-  captions: z.array(captionResponseSchema),
-});
-
-export type CaptionsListResponseType = z.infer<
-  typeof captionsListResponseSchema
 >;
 
 export const captionDeleteResponseSchema = z.object({
@@ -924,7 +907,7 @@ const sendToUserRequestSchema = z.object({
   user_id: z.string(),
   title: z.string(),
   body: z.string(),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
 });
 
 export type SendToUserRequestType = z.infer<typeof sendToUserRequestSchema>;
@@ -933,7 +916,7 @@ const sendToUsersRequestSchema = z.object({
   user_ids: z.array(z.string()),
   title: z.string(),
   body: z.string(),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
 });
 
 export type SendToUsersRequestType = z.infer<typeof sendToUsersRequestSchema>;
@@ -941,7 +924,7 @@ export type SendToUsersRequestType = z.infer<typeof sendToUsersRequestSchema>;
 const sendNotificationRequestSchema = z.object({
   title: z.string(),
   body: z.string(),
-  data: z.record(z.any()).optional(),
+  data: z.record(z.string(), z.any()).optional(),
 });
 
 export type SendNotificationRequestType = z.infer<
@@ -950,7 +933,7 @@ export type SendNotificationRequestType = z.infer<
 
 const baseResponseDictStrAnySchema = z.object({
   success: z.boolean(),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   message: z.string().optional(),
 });
 
@@ -981,15 +964,15 @@ export const cloudflareVideoResponseSchema = z.object({
   stream_id: z.string(),
   name: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
-  created_on: z.string().datetime().optional().nullable(),
-  modified_on: z.string().datetime().optional().nullable(),
+  created_on: z.iso.datetime().optional().nullable(),
+  modified_on: z.iso.datetime().optional().nullable(),
   duration: z.number().optional().nullable(),
   size: z.number().optional().nullable(),
   thumbnail: z.string().optional().nullable(),
   preview: z.string().optional().nullable(),
   ready_to_stream: z.boolean().optional(),
   require_signed_urls: z.boolean().optional(),
-  meta: z.record(z.any()).optional(),
+  meta: z.record(z.string(), z.any()).optional(),
 });
 
 export type CloudflareVideoResponseType = z.infer<
@@ -1022,7 +1005,7 @@ export type SingleItemResponseCloudflareVideoResponseType = z.infer<
 export const cloudflareVideoUpdateSchema = z.object({
   name: z.string().optional(),
   require_signed_urls: z.boolean().optional(),
-  meta: z.record(z.any()).optional(),
+  meta: z.record(z.string(), z.any()).optional(),
 });
 
 export type CloudflareVideoUpdateType = z.infer<
@@ -1065,7 +1048,7 @@ export const uploadTokenRequestSchema = z.object({
   allowed_origins: z.array(z.string()).optional(),
   thumbnail_timestamp_pct: z.number().optional(),
   watermark: z.string().optional(),
-  meta: z.record(z.any()).optional(),
+  meta: z.record(z.string(), z.any()).optional(),
 });
 
 export type UploadTokenRequestType = z.infer<typeof uploadTokenRequestSchema>;

@@ -51,21 +51,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  audioList,
-  updateAudioTrack,
-  uploadAudioTrack,
-} from '@/services/cf';
+import { cn } from '@/lib/utils';
+import { audioList, updateAudioTrack, uploadAudioTrack } from '@/services/cf';
 import { StreamAudioType } from '@/services/schema';
-import { cn, objToFormData } from '@/lib/utils';
 
 export default function AudioTab({ streamId }: { streamId: string }) {
   const [tracks, setTracks] = useState<StreamAudioType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [editingTrack, setEditingTrack] = useState<StreamAudioType | null>(null);
+  const [editingTrack, setEditingTrack] = useState<StreamAudioType | null>(
+    null,
+  );
 
-  const [deletingTrack, setDeletingTrack] = useState<StreamAudioType | null>(null);
+  const [deletingTrack, setDeletingTrack] = useState<StreamAudioType | null>(
+    null,
+  );
 
   useEffect(() => {
     setLoading(true);
@@ -251,7 +251,7 @@ function UploadAudioDialog({
     startUploading(() => {
       const formData = new FormData();
       formData.append('file', uploadFile);
-      
+
       uploadAudioTrack(streamId, { label }, formData as any)
         .then((res) => {
           if (res?.data) {

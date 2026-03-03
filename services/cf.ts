@@ -315,7 +315,6 @@ export type UploadAudioTrackSearchParams = {
 
 export async function uploadAudioTrack(
   streamId: string,
-  searchParams?: UploadAudioTrackSearchParams,
   body: BodyDashboardUploadAudioTrackType,
 ) {
   try {
