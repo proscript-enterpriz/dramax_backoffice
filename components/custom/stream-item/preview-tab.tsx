@@ -35,7 +35,7 @@ export function PreviewTab({ video }: { video?: CloudflareVideoResponseType }) {
       <div className="bg-background relative aspect-video w-full overflow-hidden rounded-lg">
         {video.preview ? (
           <iframe
-            src={video.preview}
+            src={video.preview.replace('/watch', '/iframe')}
             className="bg-background h-full w-full"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

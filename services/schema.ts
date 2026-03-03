@@ -1005,6 +1005,7 @@ export const streamCaptionSchema = z.object({
 export type StreamCaptionType = z.infer<typeof streamCaptionSchema>;
 
 export const cloudflareVideoResponseSchema = z.object({
+  id: z.uuidv4(),
   stream_id: z.string(),
   name: z.string().nullable(),
   status: z.string().nullable(),
@@ -1060,7 +1061,7 @@ export type CloudflareVideoUpdateType = z.infer<
 
 export const streamDetailResponseListStreamAudioSchema = z.object({
   success: z.boolean(),
-  data: z.array(streamAudioSchema),
+  result: z.array(streamAudioSchema),
   message: z.string().optional(),
 });
 
@@ -1070,7 +1071,7 @@ export type StreamDetailResponseListStreamAudioType = z.infer<
 
 export const streamDetailResponseListStreamCaptionSchema = z.object({
   success: z.boolean(),
-  data: z.array(streamCaptionSchema),
+  result: z.array(streamCaptionSchema),
   message: z.string().optional(),
 });
 

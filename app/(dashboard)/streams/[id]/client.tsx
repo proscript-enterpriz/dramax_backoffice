@@ -35,9 +35,7 @@ export function StreamDetailClient({
           </Button>
         </Link>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-2xl font-bold">
-            {video.meta?.name || 'Untitled Video'}
-          </h1>
+          <h1 className="truncate text-2xl font-bold">{videoName}</h1>
           <p className="text-muted-foreground text-sm">
             Cloudflare ID: {video.stream_id}
           </p>

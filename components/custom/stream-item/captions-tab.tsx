@@ -85,7 +85,7 @@ export function CaptionsTab({
     if (streamId) {
       startLoading(() => {
         fetchCaptions(streamId)
-          .then((response) => handleUpdateCaptions(response?.data || []))
+          .then((response) => handleUpdateCaptions(response?.result || []))
           .catch((err) => {
             setCaptions([]);
             const msg =

@@ -83,7 +83,7 @@ export function Client({ data }: { data: CloudflareVideoResponseType[] }) {
           </div>
         ) : (
           filteredData.map((video) => (
-            <StreamItem key={video.stream_id} video={video} />
+            <StreamItem key={video.id} video={video} />
           ))
         )}
       </div>

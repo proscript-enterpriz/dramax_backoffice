@@ -9,8 +9,6 @@ import StreamsDrawer, {
 } from '@/components/custom/streams-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { fetchSignedToken, fetchStreamDetail } from '@/lib/cloudflare';
-import { StreamVideo } from '@/lib/cloudflare/type';
 import { humanizeBytes } from '@/lib/utils';
 
 export default function CloudflarePreview({

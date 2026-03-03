@@ -8,27 +8,28 @@ import {
   useState,
   useTransition,
 } from 'react';
+import { objToFormData } from '@interpriz/lib/utils';
 import {
   Loader2,
   MoreVertical,
   Music2,
   Pencil,
   Star,
-  Trash2,
+  // Trash2,
   Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +54,10 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { audioList, updateAudioTrack, uploadAudioTrack } from '@/services/cf';
-import { StreamAudioType } from '@/services/schema';
+import {
+  BodyDashboardUploadAudioTrackType,
+  StreamAudioType,
+} from '@/services/schema';
 
 export default function AudioTab({ streamId }: { streamId: string }) {
   const [tracks, setTracks] = useState<StreamAudioType[]>([]);
@@ -63,15 +67,15 @@ export default function AudioTab({ streamId }: { streamId: string }) {
     null,
   );
 
-  const [deletingTrack, setDeletingTrack] = useState<StreamAudioType | null>(
-    null,
-  );
+  // const [deletingTrack, setDeletingTrack] = useState<StreamAudioType | null>(
+  //   null,
+  // );
 
   useEffect(() => {
     setLoading(true);
     audioList(streamId)
       .then((response) => {
-        setTracks(response?.data ?? []);
+        setTracks(response?.result ?? []);
       })
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));
@@ -161,13 +165,13 @@ export default function AudioTab({ streamId }: { streamId: string }) {
                   <DropdownMenuSeparator />
 
                   {/* Delete */}
-                  <DropdownMenuItem
-                    onClick={() => setDeletingTrack(track)}
-                    className="text-destructive focus:text-destructive gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Устгах
-                  </DropdownMenuItem>
+                  {/*<DropdownMenuItem*/}
+                  {/*  onClick={() => setDeletingTrack(track)}*/}
+                  {/*  className="text-destructive focus:text-destructive gap-2"*/}
+                  {/*>*/}
+                  {/*  <Trash2 className="h-4 w-4" />*/}
+                  {/*  Устгах*/}
+                  {/*</DropdownMenuItem>*/}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -180,7 +184,7 @@ export default function AudioTab({ streamId }: { streamId: string }) {
       </div>
 
       <EditDialog track={editingTrack} streamId={streamId} />
-      <DeleteDialog track={deletingTrack} streamId={streamId} />
+      {/*<DeleteDialog track={deletingTrack} streamId={streamId} />*/}
     </>
   );
 }
@@ -249,13 +253,16 @@ function UploadAudioDialog({
     if (!uploadFile) return toast.error('Audio сонгоно уу');
 
     startUploading(() => {
-      const formData = new FormData();
-      formData.append('file', uploadFile);
-
-      uploadAudioTrack(streamId, undefined, formData as any)
+      uploadAudioTrack(
+        streamId,
+        objToFormData({
+          label,
+          file: uploadFile,
+        }) as unknown as BodyDashboardUploadAudioTrackType,
+      )
         .then((res) => {
-          if (res?.data) {
-            onUpload(res.data);
+          if (res?.data?.result) {
+            onUpload(res.data.result);
           }
           resetForm();
           setOpen(false);
@@ -406,56 +413,56 @@ function EditDialog({
   );
 }
 
-function DeleteDialog({
-  track,
-  streamId,
-}: {
-  track?: StreamAudioType | null;
-  streamId: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setOpen(!!track);
-  }, [track]);
-
-  return (
-    <AlertDialog
-      open={open}
-      onOpenChange={(c) => {
-        if (!c) setOpen(false);
-      }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Audio устгах уу?</AlertDialogTitle>
-          <AlertDialogDescription>
-            &#34;{track?.label}&#34; audio бүр мөсөн устгагдана.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-
-          <AlertDialogAction
-            onClick={() => {
-              setLoading(true);
-              deleteAudioTrack(streamId, track!.uid)
-                .then(() => toast.success('Audio track deleted'))
-                .catch(() => toast.error('Failed to delete audio track'))
-                .finally(() => setLoading(false));
-            }}
-            className="bg-destructive hover:bg-destructive/90 text-white"
-            disabled={loading}
-          >
-            {loading && <Loader2 className="h-4 w-4" />} Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
+// function DeleteDialog({
+//   track,
+//   streamId,
+// }: {
+//   track?: StreamAudioType | null;
+//   streamId: string;
+// }) {
+//   const [open, setOpen] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//
+//   useEffect(() => {
+//     setOpen(!!track);
+//   }, [track]);
+//
+//   return (
+//     <AlertDialog
+//       open={open}
+//       onOpenChange={(c) => {
+//         if (!c) setOpen(false);
+//       }}
+//     >
+//       <AlertDialogContent>
+//         <AlertDialogHeader>
+//           <AlertDialogTitle>Audio устгах уу?</AlertDialogTitle>
+//           <AlertDialogDescription>
+//             &#34;{track?.label}&#34; audio бүр мөсөн устгагдана.
+//           </AlertDialogDescription>
+//         </AlertDialogHeader>
+//
+//         <AlertDialogFooter>
+//           <AlertDialogCancel>Cancel</AlertDialogCancel>
+//
+//           <AlertDialogAction
+//             onClick={() => {
+//               setLoading(true);
+//               deleteAudioTrack(streamId, track!.uid)
+//                 .then(() => toast.success('Audio track deleted'))
+//                 .catch(() => toast.error('Failed to delete audio track'))
+//                 .finally(() => setLoading(false));
+//             }}
+//             className="bg-destructive hover:bg-destructive/90 text-white"
+//             disabled={loading}
+//           >
+//             {loading && <Loader2 className="h-4 w-4" />} Delete
+//           </AlertDialogAction>
+//         </AlertDialogFooter>
+//       </AlertDialogContent>
+//     </AlertDialog>
+//   );
+// }
 
 function StatusBadge({ status }: { status: StreamAudioType['status'] }) {
   switch (status) {

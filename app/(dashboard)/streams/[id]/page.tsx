@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { kebabCase } from 'change-case-all';
 import { notFound } from 'next/navigation';
 
 import { splitByVideoExt } from '@/lib/utils';
@@ -21,10 +20,8 @@ export default async function StreamDetailPage({ params }: Props) {
 
     const video = response.data;
 
-    const videoName = kebabCase(
-      splitByVideoExt(video.meta?.name || '').base ||
-        `stream-${video.stream_id}`,
-    );
+    const videoName =
+      splitByVideoExt(video.name || '').base || `stream-${video.stream_id}`;
 
     return (
       <Suspense fallback={<div>Loading...</div>}>

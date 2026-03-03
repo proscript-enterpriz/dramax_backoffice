@@ -30,9 +30,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
-import { fetchStream } from '@/lib/cloudflare';
-import { StreamSearchParams, StreamVideo } from '@/lib/cloudflare/type';
 import { cn, formatDuration, humanizeBytes } from '@/lib/utils';
+import { getStreams, GetStreamsSearchParams } from '@/services/cf';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 export interface StreamsDrawerRef {
   open: () => void;
@@ -46,7 +46,7 @@ interface StreamsDrawerProps {
   footer?: ReactNode;
   onOpenChange?: (open: boolean) => void;
   initialOpen?: boolean;
-  onSelect?: (video: StreamVideo) => void;
+  onSelect?: (video: CloudflareVideoResponseType) => void;
   defaultFilter?: 'all' | 'movie' | 'trailer';
   defaultQuery?: string;
 }
@@ -66,7 +66,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
     ref,
   ) => {
     const [open, setOpen] = useState<boolean>(initialOpen);
-    const [videos, setVideos] = useState<StreamVideo[]>([]);
+    const [videos, setVideos] = useState<CloudflareVideoResponseType[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
@@ -93,11 +93,11 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
         typeof searchOverride === 'string' ? searchOverride : query;
 
       try {
-        const params: StreamSearchParams = searchTerm
+        const params: GetStreamsSearchParams = searchTerm
           ? { search: searchTerm }
           : {};
-        const res = await fetchStream({ ...params } as any);
-        setVideos(res.videos || []);
+        const res = await getStreams({ ...params } as any);
+        setVideos(res.data || []);
         setNextCursor(res.nextCursor);
         setHasMore(!!res.hasMore);
       } catch (err: any) {
@@ -113,10 +113,10 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
       setLoading(true);
       setError(null);
       try {
-        const params: StreamSearchParams = { before: nextCursor };
+        const params: GetStreamsSearchParams = { before: nextCursor };
         if (query) params.search = query;
-        const res = await fetchStream(params as any);
-        setVideos((prev) => [...prev, ...(res.videos || [])]);
+        const res = await getStreams(params as any);
+        setVideos((prev) => [...prev, ...(res.data || [])]);
         setNextCursor(res.nextCursor);
         setHasMore(!!res.hasMore);
       } catch (err: any) {
@@ -142,8 +142,8 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
     useDebounce(resetAndFetch, 400, query);
 
     const filteredVideos = videos.filter((video) => {
-      if (filter === 'movie') return video.requireSignedURLs;
-      if (filter === 'trailer') return !video.requireSignedURLs;
+      if (filter === 'movie') return video.require_signed_urls;
+      if (filter === 'trailer') return !video.require_signed_urls;
       return true;
     });
 
@@ -226,7 +226,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                 <div className="mx-auto w-3xl">
                   {filteredVideos.map((video) => (
                     <div
-                      key={video.uid}
+                      key={video.stream_id}
                       className="border-b-border/30 flex cursor-pointer items-center gap-4 border-b py-3 hover:bg-black/90"
                       onClick={() => {
                         onSelect?.(video);
@@ -239,14 +239,14 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={video.thumbnail}
-                            alt={video.meta?.name || video.uid}
+                            alt={video.meta?.name || video.stream_id}
                             className="h-full w-full object-cover"
                           />
                         ) : video.preview ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={video.preview}
-                            alt={video.meta?.name || video.uid}
+                            alt={video.meta?.name || video.stream_id}
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -264,18 +264,18 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                       <div className="flex flex-1 items-start justify-between gap-4">
                         <div>
                           <h4 className="text-sm font-medium">
-                            {video.meta?.name || video.uid}
+                            {video.meta?.name || video.stream_id}
                           </h4>
                           <p className="text-muted-foreground text-xs">
-                            {video.uploaded
-                              ? dayjs(video.uploaded).format('YYYY/MM/DD')
-                              : dayjs(video.created).format('YYYY/MM/DD')}
+                            {video.modified_on
+                              ? dayjs(video.modified_on).format('YYYY/MM/DD')
+                              : dayjs(video.created_on).format('YYYY/MM/DD')}
                           </p>
                         </div>
 
                         <div className="flex flex-col items-end gap-2">
                           <div className="flex items-center gap-2">
-                            {video.requireSignedURLs ? (
+                            {video.require_signed_urls ? (
                               <Badge variant="outline" className="h-fit w-fit">
                                 Кино
                               </Badge>

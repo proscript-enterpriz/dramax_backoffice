@@ -64,14 +64,14 @@ export async function getStreams(searchParams?: GetStreamsSearchParams) {
   }
 }
 
-export async function getStreamDetails(streamId: string) {
+export async function getStreamDetails(internalId: string) {
   try {
     const res =
       await actions.get<SingleItemResponseCloudflareVideoResponseType>(
-        `/cf/streams/${streamId}`,
+        `/cf/streams/${internalId}`,
         {
           next: {
-            tags: [RVK_CF, `${RVK_CF}_stream_id_${streamId}`],
+            tags: [RVK_CF, `${RVK_CF}_stream_id_${internalId}`],
           },
         },
       );
@@ -101,6 +101,10 @@ export async function syncStreamDetails(internalId: string) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
+  // Revalidate: Stream list + specific stream detail
+  await actions.revalidate(RVK_CF);
+  await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
+
   return response;
 }
 
@@ -117,6 +121,10 @@ export async function updateStreamDetail(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
+  // Revalidate: Stream list + specific stream detail
+  await actions.revalidate(RVK_CF);
+  await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
+
   return response;
 }
 
@@ -126,7 +134,7 @@ export async function audioList(streamId: string) {
       `/cf/streams/${streamId}/audio`,
       {
         next: {
-          tags: [RVK_CF, `${RVK_CF}_stream_id_${streamId}`],
+          tags: [`${RVK_CF}_stream_id_${streamId}`],
         },
       },
     );
@@ -140,7 +148,7 @@ export async function audioList(streamId: string) {
     // implement custom error handler here
     return {
       success: false,
-      data: [],
+      result: [],
       message:
         (error as Error).message ??
         'An error occurred while fetching audio tracks.',
@@ -154,7 +162,7 @@ export async function fetchCaptions(streamId: string) {
       `/cf/streams/${streamId}/captions`,
       {
         next: {
-          tags: [RVK_CF, `${RVK_CF}_stream_id_${streamId}`],
+          tags: [`${RVK_CF}_stream_id_${streamId}`],
         },
       },
     );
@@ -168,7 +176,7 @@ export async function fetchCaptions(streamId: string) {
     // implement custom error handler here
     return {
       success: false,
-      data: [],
+      result: [],
       message:
         (error as Error).message ??
         'An error occurred while fetching captions.',
@@ -185,11 +193,7 @@ export async function fetchCaptionVtt(
       `/cf/streams/${streamId}/captions/${language}/vtt`,
       {
         next: {
-          tags: [
-            RVK_CF,
-            `${RVK_CF}_stream_id_${streamId}`,
-            `${RVK_CF}_language_${language}`,
-          ],
+          tags: [`${RVK_CF}_${streamId}_language_${language}`],
         },
       },
     );
@@ -214,6 +218,8 @@ export async function generateCaptions(streamId: string, language: string) {
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
+  await actions.revalidate(`${RVK_CF}_${streamId}_language_${language}`);
+
   return response;
 }
 
@@ -229,6 +235,8 @@ export async function updateAudioTrack(
 
   const { body: response, error } = res;
   if (error) throw new Error(error);
+
+  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
 
   return response;
 }
@@ -272,6 +280,9 @@ export async function uploadACaptionFileForAVideo(
   const { body: response, error } = res;
   if (error) throw new Error(error);
 
+  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+  await actions.revalidate(`${RVK_CF}_language_${language}`);
+
   return response;
 }
 
@@ -279,13 +290,15 @@ export async function uploadAudioTrack(
   streamId: string,
   body: BodyDashboardUploadAudioTrackType,
 ) {
-  const res = await actions.put<StreamAudioType>(
+  const res = await actions.put<{ data: { result: StreamAudioType } }>(
     `/cf/upload/audio/${streamId}`,
     body,
   );
 
   const { body: response, error } = res;
   if (error) throw new Error(error);
+
+  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
 
   return response;
 }
