@@ -28,8 +28,8 @@ export default function StreamItem({
             <PreviewPlayerDialog video={video}>
               <div className="group/thumb bg-muted relative aspect-square size-16 shrink-0 cursor-pointer overflow-hidden rounded-md">
                 <Image
-                  src={thumbnailUrl}
-                  alt={video.meta?.name || 'Video thumbnail'}
+                  src={thumbnailUrl + '?width=60&height=60&fit=crop'} // Request a smaller thumbnail for better performance
+                  alt={video.name || 'Video thumbnail'}
                   className="h-full w-full object-cover transition-transform duration-200 group-hover/thumb:scale-105"
                   width={64}
                   height={64}
@@ -45,10 +45,10 @@ export default function StreamItem({
           )}
 
           {/* Content - wrapped in Link for navigation */}
-          <Link href={`/streams/${video.stream_id}`}>
+          <Link href={`/streams/${video.id}`}>
             <div className="mb-1.5 flex items-center gap-2">
               <h2 className="group-hover:text-primary truncate text-base leading-tight font-semibold transition-colors">
-                {video.meta?.name || 'Untitled Video'}
+                {video.name || 'Untitled Video'}
               </h2>
               {isTrailer ? (
                 <Badge variant="secondary" className="h-5 shrink-0 text-xs">
@@ -62,7 +62,11 @@ export default function StreamItem({
             </div>
 
             <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
-              <span>{dayjs(video.created_on).format('YYYY/MM/DD')}</span>
+              <span>
+                {dayjs(video.created_on ?? video.ready_to_stream_at).format(
+                  'YYYY/MM/DD',
+                )}
+              </span>
               {video.size && (
                 <>
                   <span className="text-muted-foreground/50">•</span>
@@ -86,7 +90,7 @@ export default function StreamItem({
 
         {/* Status badge */}
         <Link
-          href={`/streams/${video.stream_id}`}
+          href={`/streams/${video.id}`}
           className="flex shrink-0 flex-col items-end gap-1.5"
         >
           {video.ready_to_stream && (

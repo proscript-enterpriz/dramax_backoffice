@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { ReactNode, useEffect, useState, useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import {
@@ -11,16 +11,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { formatDuration } from '@/lib/utils';
 import { generateSignedToken } from '@/services/cf';
 import { CloudflareVideoResponseType } from '@/services/schema';
-import { formatDuration } from '@/lib/utils';
 
 export function PreviewPlayerDialog({
   video,
   children,
 }: {
-  video: StreamVideo;
-  children: React.ReactNode;
+  video: CloudflareVideoResponseType;
+  children: ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [cfPreview, setCfPreview] = useState<string>('');
@@ -30,8 +30,8 @@ export function PreviewPlayerDialog({
   useEffect(() => {
     if (isOpen && video) {
       startLoading(() => {
-        fetchSignedToken(video.uid)
-          .then((token) => setCfPreview(token))
+        generateSignedToken(video.stream_id)
+          .then((token) => setCfPreview(token.iframe_url))
           .catch((error) => {
             console.error('Failed to fetch signed token:', error);
           });
@@ -57,14 +57,14 @@ export function PreviewPlayerDialog({
               setIsOpen(true);
             }
           }}
-          aria-label={`Play ${video.meta?.name || 'video'}`}
+          aria-label={`Play ${video.name || 'video'}`}
         >
           {children}
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>{video.meta?.name || 'Video Preview'}</DialogTitle>
+          <DialogTitle>{video.name || 'Video Preview'}</DialogTitle>
           {video.duration && video.duration > 0 && (
             <DialogDescription>
               Duration: {formatDuration(Math.floor(video.duration))}
@@ -78,11 +78,11 @@ export function PreviewPlayerDialog({
             </div>
           ) : cfPreview ? (
             <iframe
-              src={`https://videodelivery.net/${cfPreview}/iframe?poster=${encodeURIComponent(video.thumbnail || '')}`}
+              src={cfPreview}
               className="h-full w-full"
               allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              title={video.meta?.name || 'Video preview'}
+              title={video.name || 'Video preview'}
             />
           ) : (
             <div className="text-muted-foreground flex h-full items-center justify-center text-sm">

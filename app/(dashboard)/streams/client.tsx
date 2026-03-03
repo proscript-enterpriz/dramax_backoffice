@@ -1,30 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { isNumber } from '@tiptap/react';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
 import StreamItem from '@/components/custom/stream-item';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { hasPermission } from '@/lib/permission';
+import { cn } from '@/lib/utils';
+import { GetStreamsSearchParams } from '@/services/cf';
 import { CloudflareVideoResponseType } from '@/services/schema';
 
-const isTrailer = (video: CloudflareVideoResponseType) => {
-  // If requireSignedURLs is false or undefined, it's a public trailer
-  // If requireSignedURLs is true, it's a protected movie
-  return !video.require_signed_urls;
-};
-
-export function Client({ data }: { data: CloudflareVideoResponseType[] }) {
-  const router = useRouter();
+export function Client({
+  data,
+  total,
+  searchParams,
+}: {
+  data: CloudflareVideoResponseType[];
+  total: number;
+  searchParams?: GetStreamsSearchParams;
+}) {
   const session = useSession();
-  const [filter, setFilter] = useState<'all' | 'movie' | 'trailer'>('all');
+  const filters = (searchParams?.filters?.split(',') || []).reduce(
+    (acc, filter) => {
+      const [k, v] = filter.split('=');
+      let val: any = v;
+      if (v === 'true') val = true;
+      if (v === 'false') val = false;
+      if (isNumber(v)) val = Number(v);
 
-  const trailers = data.filter((video) => isTrailer(video));
-  const movies = data.filter((video) => !isTrailer(video));
+      return { ...acc, [k]: val };
+    },
+    {} as Record<keyof CloudflareVideoResponseType, any>,
+  );
 
-  const filteredData =
-    filter === 'trailer' ? trailers : filter === 'movie' ? movies : data;
+  console.log(data);
 
   return (
     <div className="space-y-4">
@@ -32,60 +42,77 @@ export function Client({ data }: { data: CloudflareVideoResponseType[] }) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <h1 className="text-xl font-bold">Нийт видео</h1>
-            <span className="text-xl font-medium">({data.length})</span>
+            <span className="text-xl font-medium">({total})</span>
           </div>
-          <div className="text-muted-foreground flex items-center gap-3 text-sm">
-            <span>Кино: {movies.length}</span>
-            <span>•</span>
-            <span>Trailer: {trailers.length}</span>
-          </div>
+          {/*<div className="text-muted-foreground flex items-center gap-3 text-sm">*/}
+          {/*  <span>Кино: {movies.length}</span>*/}
+          {/*  <span>•</span>*/}
+          {/*  <span>Trailer: {trailers.length}</span>*/}
+          {/*</div>*/}
         </div>
         {hasPermission(session.data, 'streams.upload', 'create') && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/streams/upload') as any}
+          <Link
+            className={cn(
+              buttonVariants({
+                variant: 'outline',
+                size: 'sm',
+              }),
+            )}
+            href="/streams/upload"
           >
             Видео оруулах
-          </Button>
+          </Link>
         )}
       </div>
 
       {/* Filter Buttons */}
       <div className="flex items-center gap-2">
-        <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('all')}
+        <Link
+          className={cn(
+            buttonVariants({
+              variant:
+                typeof filters.require_signed_urls === 'undefined'
+                  ? 'default'
+                  : 'outline',
+              size: 'sm',
+            }),
+          )}
+          href="/streams"
         >
           Бүгд
-        </Button>
-        <Button
-          variant={filter === 'movie' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('movie')}
+        </Link>
+        <Link
+          className={cn(
+            buttonVariants({
+              variant: filters.require_signed_urls ? 'default' : 'outline',
+              size: 'sm',
+            }),
+          )}
+          href="/streams?filters=require_signed_urls=true"
         >
-          Кино ({movies.length})
-        </Button>
-        <Button
-          variant={filter === 'trailer' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setFilter('trailer')}
+          Кино
+        </Link>
+        <Link
+          className={cn(
+            buttonVariants({
+              variant:
+                typeof filters.require_signed_urls !== 'undefined' &&
+                !filters.require_signed_urls
+                  ? 'default'
+                  : 'outline',
+              size: 'sm',
+            }),
+          )}
+          href="/streams?filters=require_signed_urls=false"
         >
-          Trailer ({trailers.length})
-        </Button>
+          Trailer
+        </Link>
       </div>
 
       <div className="flex flex-col gap-2">
-        {filteredData.length === 0 ? (
-          <div className="text-muted-foreground py-8 text-center">
-            Мэдээлэл олдсонгүй
-          </div>
-        ) : (
-          filteredData.map((video) => (
-            <StreamItem key={video.id} video={video} />
-          ))
-        )}
+        {data.map((video) => (
+          <StreamItem key={video.id} video={video} />
+        ))}
       </div>
     </div>
   );

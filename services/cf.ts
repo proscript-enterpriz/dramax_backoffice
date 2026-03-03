@@ -40,7 +40,10 @@ export async function getStreams(searchParams?: GetStreamsSearchParams) {
       {
         searchParams,
         next: {
-          tags: [RVK_CF],
+          tags: [
+            RVK_CF,
+            `${RVK_CF}_${encodeURIComponent(JSON.stringify(searchParams ?? {}))}`,
+          ],
         },
       },
     );

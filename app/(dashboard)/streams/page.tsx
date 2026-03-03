@@ -9,13 +9,18 @@ type Props = {
 };
 
 export default async function StreamsPage({ searchParams }: Props) {
-  const response = await getStreams(await searchParams);
+  const sp = await searchParams;
+  const response = await getStreams(sp);
 
   if (!response?.data) return null;
 
   return (
     <Suspense fallback="loading...">
-      <Client data={response.data} />
+      <Client
+        data={response.data}
+        total={response.total_count ?? 0}
+        searchParams={sp}
+      />
     </Suspense>
   );
 }

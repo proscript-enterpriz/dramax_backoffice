@@ -1010,16 +1010,19 @@ export const cloudflareVideoResponseSchema = z.object({
   name: z.string().nullable(),
   status: z.string().nullable(),
   created_on: z.iso.datetime().nullable(),
+  ready_to_stream_at: z.iso.datetime().nullable(),
   modified_on: z.iso.datetime().nullable(),
   duration: z.number().nullable(),
   size: z.number().nullable(),
   thumbnail: z.string().nullable(),
   preview: z.string().nullable(),
+  playback_hls: z.string().nullable(),
+  playback_dash: z.string().nullable(),
+  pct_complete: z.string().nullable(),
   ready_to_stream: z.boolean().nullable(),
   require_signed_urls: z.boolean().nullable(),
   input_height: z.number().int().nullable(),
   input_width: z.number().int().nullable(),
-  meta: z.record(z.string(), z.any()).nullable(),
 });
 
 export type CloudflareVideoResponseType = z.infer<

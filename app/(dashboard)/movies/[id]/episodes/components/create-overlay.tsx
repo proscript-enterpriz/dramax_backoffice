@@ -197,13 +197,13 @@ export function CreateOverlay({
             <CloudflarePreview
               cfId={field.value ?? undefined}
               onChange={(c) => {
-                field.onChange(c.uid);
-                if (c.input) {
-                  form.setValue('video_width', c.input.width);
-                  form.setValue('video_height', c.input.height);
+                field.onChange(c.stream_id);
+                if (c.input_width && c.input_height) {
+                  form.setValue('video_width', c.input_width);
+                  form.setValue('video_height', c.input_height);
                 }
-                if (form.getValues('duration') !== Math.round(c.duration))
-                  form.setValue('duration', Math.round(c.duration));
+                if (form.getValues('duration') !== Math.round(c.duration ?? 0))
+                  form.setValue('duration', Math.round(c.duration ?? 0));
               }}
             />
           )}
