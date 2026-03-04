@@ -53,7 +53,7 @@ export default function CloudflarePreview({
           ref={streamsDrawerRef}
           onSelect={(video) => {
             // set selected id so effect triggers to fetch detail + token
-            setSelectedCfId(video.stream_id);
+            setSelectedCfId(video.id);
             onChange?.(video);
           }}
           defaultQuery={initialTitle}
@@ -85,7 +85,7 @@ export default function CloudflarePreview({
         ref={streamsDrawerRef}
         onSelect={(video) => {
           // set selected id so effect triggers to fetch detail + token
-          setSelectedCfId(video.stream_id);
+          setSelectedCfId(video.id);
           onChange?.(video);
         }}
         defaultQuery={initialTitle}

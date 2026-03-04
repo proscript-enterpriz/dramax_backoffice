@@ -10,7 +10,7 @@ import StreamsDrawer, {
 } from '@/components/custom/streams-drawer';
 import { Button } from '@/components/ui/button';
 import { formatDuration, humanizeBytes } from '@/lib/utils';
-import { getStreamDetails } from '@/services/cf';
+import { getStreams } from '@/services/cf';
 import { CloudflareVideoResponseType } from '@/services/schema';
 
 function extractCloudflareStreamId(hlsUrl?: string) {
@@ -37,9 +37,9 @@ export default function CloudflareTrailer({
   useEffect(() => {
     if (streamId) {
       startLoading(() => {
-        getStreamDetails(streamId)
+        getStreams({ filters: `stream_id=${streamId}` })
           .then((c) => {
-            if (c.data) return setCloudFlareData(c.data);
+            if (c.data?.length) return setCloudFlareData(c.data[0]);
             throw Error(c.message ?? 'Failed to fetch stream details');
           })
           .catch((e) => {

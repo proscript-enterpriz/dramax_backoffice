@@ -69,8 +69,9 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
     const [videos, setVideos] = useState<CloudflareVideoResponseType[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
-    const [hasMore, setHasMore] = useState<boolean>(false);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalCount, setTotalCount] = useState<number>(0);
+    const [pageSize] = useState<number>(30);
     const [query, setQuery] = useState<string>('');
     const [filter, setFilter] = useState<'all' | 'movie' | 'trailer' | string>(
       defaultFilter,
@@ -86,20 +87,47 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
       setLoading(true);
       setError(null);
       setVideos([]);
-      setNextCursor(undefined);
-      setHasMore(false);
+      setCurrentPage(1);
+      setTotalCount(0);
 
       const searchTerm =
         typeof searchOverride === 'string' ? searchOverride : query;
 
       try {
-        const params: GetStreamsSearchParams = searchTerm
-          ? { search: searchTerm }
-          : {};
-        const res = await getStreams({ ...params } as any);
-        setVideos(res.data || []);
-        setNextCursor(res.nextCursor);
-        setHasMore(!!res.hasMore);
+        const params: GetStreamsSearchParams = {
+          page: 1,
+          page_size: pageSize,
+        };
+
+        // Build filters string based on search term and filter
+        const filterParts: string[] = [];
+
+        // Add filter based on dropdown (movie/trailer/all)
+        if (filter === 'movie') {
+          filterParts.push('require_signed_urls=true');
+        } else if (filter === 'trailer') {
+          filterParts.push('require_signed_urls=false');
+        }
+
+        // Add search term as name filter if provided
+        if (searchTerm) {
+          filterParts.push(`name=${encodeURIComponent(searchTerm)}`);
+        }
+
+        // Combine all filters with comma
+        if (filterParts.length > 0) {
+          params.filters = filterParts.join(',');
+        }
+
+        const res = await getStreams(params);
+
+        if (res?.status === 'success' && res.data) {
+          setVideos(res.data);
+          setTotalCount(res.total ?? 0);
+          setCurrentPage(res.page ?? 1);
+        } else {
+          setError(res?.message || 'Failed to fetch streams');
+        }
       } catch (err: any) {
         console.error('Failed to fetch streams', err);
         setError(String(err?.message || err));
@@ -109,16 +137,48 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
     };
 
     const loadMore = async () => {
-      if (!nextCursor) return;
+      const nextPage = currentPage + 1;
+      const totalPages = Math.ceil(totalCount / pageSize);
+
+      if (nextPage > totalPages) return;
+
       setLoading(true);
       setError(null);
+
       try {
-        const params: GetStreamsSearchParams = { before: nextCursor };
-        if (query) params.search = query;
-        const res = await getStreams(params as any);
-        setVideos((prev) => [...prev, ...(res.data || [])]);
-        setNextCursor(res.nextCursor);
-        setHasMore(!!res.hasMore);
+        const params: GetStreamsSearchParams = {
+          page: nextPage,
+          page_size: pageSize,
+        };
+
+        // Build filters string based on search term and filter
+        const filterParts: string[] = [];
+
+        // Add filter based on dropdown (movie/trailer/all)
+        if (filter === 'movie') {
+          filterParts.push('require_signed_urls=true');
+        } else if (filter === 'trailer') {
+          filterParts.push('require_signed_urls=false');
+        }
+
+        // Add search term as name filter if provided
+        if (query) {
+          filterParts.push(`name=${encodeURIComponent(query)}`);
+        }
+
+        // Combine all filters with comma
+        if (filterParts.length > 0) {
+          params.filters = filterParts.join(',');
+        }
+
+        const res = await getStreams(params);
+
+        if (res?.success && res.data) {
+          setVideos((prev) => [...prev, ...res.data]);
+          setCurrentPage(nextPage);
+        } else {
+          setError(res?.message || 'Failed to fetch more streams');
+        }
       } catch (err: any) {
         console.error('Failed to fetch more streams', err);
         setError(String(err?.message || err));
@@ -139,13 +199,14 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
       }
     }, [open]);
 
-    useDebounce(resetAndFetch, 400, query);
+    // Trigger refetch when filter changes
+    useEffect(() => {
+      if (open) {
+        resetAndFetch();
+      }
+    }, [filter]);
 
-    const filteredVideos = videos.filter((video) => {
-      if (filter === 'movie') return video.require_signed_urls;
-      if (filter === 'trailer') return !video.require_signed_urls;
-      return true;
-    });
+    useDebounce(resetAndFetch, 400, query);
 
     return (
       <Drawer
@@ -205,7 +266,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
             </div>
             <div className="min-h-0 flex-1">
               <ScrollArea className="h-full space-y-2 overflow-y-auto">
-                {loading && filteredVideos.length === 0 && (
+                {loading && videos.length === 0 && (
                   <div className="mx-auto flex w-3xl items-center justify-center p-8">
                     <Loader2 className="animate-spin" />
                   </div>
@@ -217,14 +278,14 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                   </div>
                 )}
 
-                {!loading && filteredVideos.length === 0 && !error && (
+                {!loading && videos.length === 0 && !error && (
                   <div className="text-muted-foreground mx-auto w-3xl p-4">
                     No videos found. Try adjusting your search.
                   </div>
                 )}
 
                 <div className="mx-auto w-3xl">
-                  {filteredVideos.map((video) => (
+                  {videos.map((video) => (
                     <div
                       key={video.stream_id}
                       className="border-b-border/30 flex cursor-pointer items-center gap-4 border-b py-3 hover:bg-black/90"
@@ -238,7 +299,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                         {video.thumbnail ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={video.thumbnail}
+                            src={video.thumbnail + '?fit=fill&height=80'} // Request a resized thumbnail
                             alt={video.name || video.stream_id}
                             className="h-full w-full object-cover"
                           />
@@ -298,7 +359,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
                   ))}
                 </div>
 
-                {hasMore && (
+                {currentPage * pageSize < totalCount && (
                   <div className="flex items-center justify-center py-4">
                     <Button onClick={loadMore} disabled={loading}>
                       {loading ? (
