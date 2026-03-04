@@ -5,6 +5,7 @@ export const RVK_GENRES = 'genres' as const;
 export const RVK_TAGS = 'tags' as const;
 export const RVK_BATCHES = 'batches' as const;
 export const RVK_BANNERS = 'banners' as const;
+export const RVK_HERO_BANNERS = 'hero-banners' as const;
 export const RVK_MOVIES = 'movies' as const;
 export const RVK_SEASONS = 'seasons' as const;
 export const RVK_EPISODES = 'episodes' as const;

@@ -6,8 +6,9 @@ import {
   Home,
   ImagePlusIcon,
   Layers,
-  type LucideIcon,
   Megaphone,
+  MonitorUp,
+  type LucideIcon,
   Tag,
   TvMinimalPlay,
   UsersRoundIcon,
@@ -100,6 +101,11 @@ export const systemAdminRoutes = [
     title: 'Promo banner',
     url: '/promo_banner',
     icon: Megaphone,
+  },
+  {
+    title: 'Hero banner',
+    url: '/hero_banner',
+    icon: MonitorUp,
   },
 ] as const;
 
