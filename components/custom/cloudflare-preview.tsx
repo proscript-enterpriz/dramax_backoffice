@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import dayjs from 'dayjs';
 import { Clapperboard, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import StreamsDrawer, {
   StreamsDrawerRef,
@@ -10,7 +11,7 @@ import StreamsDrawer, {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { humanizeBytes } from '@/lib/utils';
-import { getStreamDetails } from '@/services/cf';
+import { getStreams } from '@/services/cf';
 import { CloudflareVideoResponseType } from '@/services/schema';
 
 export default function CloudflarePreview({
@@ -35,13 +36,16 @@ export default function CloudflarePreview({
     const idToUse = selectedCfId || cfId;
     if (idToUse) {
       startLoading(() => {
-        getStreamDetails(idToUse)
-          .then((c) => setCloudFlareData(c.data!))
-          .catch((err) =>
-            setError(
-              (err as Error)?.message ?? 'Видео мэдээлэл авахад алдаа гарлаа',
-            ),
-          );
+        getStreams({ filters: `stream_id=${cfId}` })
+          .then((c) => {
+            if (c.data?.length) return setCloudFlareData(c.data[0]);
+            throw Error(c.message ?? 'Failed to fetch stream details');
+          })
+          .catch((e) => {
+            toast.error((e as Error).message);
+            setError((e as Error).message);
+            streamsDrawerRef.current?.close();
+          });
       });
     }
   }, [cfId, selectedCfId]);
