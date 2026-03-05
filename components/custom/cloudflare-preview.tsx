@@ -9,9 +9,9 @@ import StreamsDrawer, {
 } from '@/components/custom/streams-drawer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { fetchSignedToken, fetchStreamDetail } from '@/lib/cloudflare';
-import { StreamVideo } from '@/lib/cloudflare/type';
 import { humanizeBytes } from '@/lib/utils';
+import { getStreamDetails } from '@/services/cf';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 export default function CloudflarePreview({
   cfId,
@@ -20,10 +20,10 @@ export default function CloudflarePreview({
 }: {
   cfId?: string | null;
   initialTitle?: string;
-  onChange?: (video: StreamVideo) => void;
+  onChange?: (video: CloudflareVideoResponseType) => void;
 }) {
-  const [cloudflareData, setCloudFlareData] = useState<StreamVideo>();
-  const [cfPreview, setCfPreview] = useState<string>('');
+  const [cloudflareData, setCloudFlareData] =
+    useState<CloudflareVideoResponseType>();
   const [error, setError] = useState('');
   const [loading, startLoading] = useTransition();
   const streamsDrawerRef = useRef<StreamsDrawerRef>(null);
@@ -35,24 +35,13 @@ export default function CloudflarePreview({
     const idToUse = selectedCfId || cfId;
     if (idToUse) {
       startLoading(() => {
-        Promise.allSettled([
-          fetchStreamDetail(idToUse),
-          fetchSignedToken(idToUse),
-        ]).then((results) => {
-          const [detailRes, tokenRes] = results;
-
-          if (detailRes.status === 'fulfilled') {
-            setCloudFlareData(detailRes.value.video);
-          } else {
-            setError('Failed to fetch stream detail:' + detailRes.reason);
-          }
-
-          if (tokenRes.status === 'fulfilled') {
-            setCfPreview(tokenRes.value);
-          } else {
-            setError('Failed to fetch signed token:' + tokenRes.reason);
-          }
-        });
+        getStreamDetails(idToUse)
+          .then((c) => setCloudFlareData(c.data!))
+          .catch((err) =>
+            setError(
+              (err as Error)?.message ?? 'Видео мэдээлэл авахад алдаа гарлаа',
+            ),
+          );
       });
     }
   }, [cfId, selectedCfId]);
@@ -64,7 +53,7 @@ export default function CloudflarePreview({
           ref={streamsDrawerRef}
           onSelect={(video) => {
             // set selected id so effect triggers to fetch detail + token
-            setSelectedCfId(video.uid);
+            setSelectedCfId(video.id);
             onChange?.(video);
           }}
           defaultQuery={initialTitle}
@@ -96,16 +85,16 @@ export default function CloudflarePreview({
         ref={streamsDrawerRef}
         onSelect={(video) => {
           // set selected id so effect triggers to fetch detail + token
-          setSelectedCfId(video.uid);
+          setSelectedCfId(video.id);
           onChange?.(video);
         }}
         defaultQuery={initialTitle}
         defaultFilter="movie"
       />
       <div className="bg-background relative aspect-video overflow-hidden rounded-md">
-        {cfPreview ? (
+        {cloudflareData?.preview ? (
           <iframe
-            src={`${cloudflareData?.preview?.match(/^(https:\/\/[^/]+)/)?.[1]}/${cfPreview}/iframe?poster=${cloudflareData?.thumbnail}`}
+            src={cloudflareData?.preview?.replace('/watch', '/iframe')}
             height="720"
             width="1280"
             className="h-full w-full object-contain"
@@ -146,20 +135,24 @@ export default function CloudflarePreview({
 
           <div className="flex items-center gap-2">
             <span className="font-medium">uid:</span>
-            <span>{cloudflareData.uid}</span>
+            <span>{cloudflareData.stream_id}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="font-medium">status:</span>
-            <span>{cloudflareData.status?.state || 'unknown'}</span>
+            <span>{cloudflareData.status || 'unknown'}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="font-medium">duration:</span>
-            <span>
-              {Math.floor(cloudflareData.duration / 60)}m{' '}
-              {cloudflareData.duration % 60}s
-            </span>
+            {cloudflareData.duration ? (
+              <span>
+                {Math.floor(cloudflareData.duration / 60)}m{' '}
+                {cloudflareData.duration % 60}s
+              </span>
+            ) : (
+              <span>-</span>
+            )}
           </div>
 
           {cloudflareData.size && (
@@ -172,53 +165,46 @@ export default function CloudflarePreview({
           <div className="flex items-center gap-2">
             <span className="font-medium">created:</span>
             <span>
-              {dayjs(cloudflareData.created).format('YYYY-MM-DD HH:mm:ss')}
+              {dayjs(cloudflareData.created_on).format('YYYY-MM-DD HH:mm:ss')}
             </span>
           </div>
 
-          {cloudflareData.modified && (
+          {cloudflareData.modified_on && (
             <div className="flex items-center gap-2">
               <span className="font-medium">modified:</span>
               <span>
-                {dayjs(cloudflareData.modified).format('YYYY-MM-DD HH:mm:ss')}
+                {dayjs(cloudflareData.modified_on).format(
+                  'YYYY-MM-DD HH:mm:ss',
+                )}
               </span>
             </div>
           )}
 
-          {cloudflareData.input && (
+          {!!cloudflareData.input_width && !!cloudflareData.input_height && (
             <div className="flex items-center gap-2">
               <span className="font-medium">Orientation:</span>
               <span>
-                {cloudflareData.input.width > cloudflareData.input.height
+                {cloudflareData.input_width > cloudflareData.input_height
                   ? 'Landscape'
                   : 'Portrait'}
               </span>
             </div>
           )}
 
-          {cloudflareData.uploaded && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium">uploaded:</span>
-              <span>
-                {dayjs(cloudflareData.uploaded).format('YYYY-MM-DD HH:mm:ss')}
-              </span>
-            </div>
-          )}
-
           <div className="flex items-center gap-2">
             <span className="font-medium">ready to stream:</span>
-            {cloudflareData.readyToStream ? (
+            {cloudflareData.ready_to_stream ? (
               <Badge variant="secondary">Ready</Badge>
             ) : (
               <Badge variant="destructive" className="bg-destructive/50">
-                {cloudflareData.status?.pctComplete || 'Not ready'}
+                {cloudflareData.pct_complete || 'Not ready'}
               </Badge>
             )}
           </div>
 
           <div className="flex items-center gap-2">
             <span className="font-medium">signed urls:</span>
-            {cloudflareData.requireSignedURLs ? (
+            {cloudflareData.require_signed_urls ? (
               <Badge variant="destructive" className="bg-destructive/50">
                 Required
               </Badge>
@@ -226,27 +212,6 @@ export default function CloudflarePreview({
               <Badge variant="secondary">Not required</Badge>
             )}
           </div>
-
-          {cloudflareData.maxDurationSeconds && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium">max duration:</span>
-              <span>{cloudflareData.maxDurationSeconds}s</span>
-            </div>
-          )}
-
-          {cloudflareData.watermark && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium">watermark:</span>
-              <span>{cloudflareData.watermark.name}</span>
-            </div>
-          )}
-
-          {cloudflareData.meta && (
-            <div className="flex items-start gap-2">
-              <span className="font-medium">metadata:</span>
-              <pre>{JSON.stringify(cloudflareData.meta, null, 2)}</pre>
-            </div>
-          )}
         </div>
       )}
     </>

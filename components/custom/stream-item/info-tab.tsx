@@ -8,27 +8,29 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { updateStream } from '@/lib/cloudflare';
-import { StreamVideo } from '@/lib/cloudflare/type';
 import { cn, handleCopy, splitByVideoExt } from '@/lib/utils';
+import { updateStreamDetail } from '@/services/cf';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 export function InfoTab({
   data,
   onUpdate,
 }: {
-  data?: StreamVideo;
-  onUpdate?: (v: StreamVideo) => void;
+  data?: CloudflareVideoResponseType;
+  onUpdate?: (v: CloudflareVideoResponseType) => void;
 }) {
-  const { base, extension } = splitByVideoExt(data?.meta?.name || '');
+  const { base } = splitByVideoExt(data?.name || '');
   const [name, setName] = useState(base);
-  const [requireSigned, setRequireSigned] = useState(!!data?.requireSignedURLs);
+  const [requireSigned, setRequireSigned] = useState(
+    !!data?.require_signed_urls,
+  );
   const [updating, startUpdateTransition] = useTransition();
 
   // Sync when data changes (e.g., loaded after mount)
   useEffect(() => {
     setName(base);
-    setRequireSigned(!!data?.requireSignedURLs);
-  }, [data?.meta?.name, data?.requireSignedURLs]);
+    setRequireSigned(!!data?.require_signed_urls);
+  }, [base, data?.require_signed_urls]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -37,15 +39,12 @@ export function InfoTab({
     if (!data) return;
     startUpdateTransition(async () => {
       try {
-        const body = {
-          streamId: data.uid,
-          meta: { name: `${name}${extension ? `.${extension}` : ''}` },
-          requireSignedURLs: requireSigned,
-        };
+        const res = await updateStreamDetail(data.stream_id, {
+          require_signed_urls: requireSigned,
+          name: name,
+        });
 
-        const res = await updateStream(data.uid, body);
-
-        const updated = (res.result || res) as StreamVideo;
+        const updated = (res.data || res) as CloudflareVideoResponseType;
         onUpdate?.(updated);
         toast.success('Стрийм амжилттай шинэчлэгдлээ');
       } catch (errorUnknown: unknown) {
@@ -67,13 +66,13 @@ export function InfoTab({
       <div>
         <label className="mb-1 block text-sm font-medium">Cloudflare ID</label>
         <div className="relative">
-          <Input value={data?.uid} disabled placeholder="Cloudflare ID" />
-          {data?.uid && (
+          <Input value={data?.stream_id} disabled placeholder="Cloudflare ID" />
+          {data?.stream_id && (
             <button
               type="button"
               className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
               onClick={() =>
-                handleCopy(data.uid, () =>
+                handleCopy(data.stream_id, () =>
                   toast.success('ID амжилттай хууллаа'),
                 )
               }

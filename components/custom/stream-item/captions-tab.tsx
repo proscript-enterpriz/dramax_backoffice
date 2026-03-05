@@ -35,18 +35,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn, downloadToPreview } from '@/lib/utils';
 import {
   fetchCaptions,
-  fetchCaptionVTT,
+  fetchCaptionVtt,
   generateCaptions,
-  uploadCaptionToCloudflare,
-} from '@/lib/cloudflare';
-import { CLOUDFLARE_LANGUAGES } from '@/lib/cloudflare/languages';
+  uploadACaptionFileForAVideo,
+} from '@/services/cf';
 import {
-  StreamCaption,
-  SupportedCaptionLanguages,
-} from '@/lib/cloudflare/type';
-import { cn, downloadToPreview, objToFormData } from '@/lib/utils';
+  captionLanguageSchema,
+  CaptionResponseType,
+  StreamCaptionType,
+} from '@/services/schema';
+
+type SupportedCaptionLanguages = string;
+
+const CLOUDFLARE_LANGUAGES: {
+  code: SupportedCaptionLanguages;
+  name: string;
+  weight: number;
+}[] = captionLanguageSchema.options.map((c) => ({
+  code: c,
+  name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
+  weight: ['en', 'mn'].includes(c) ? 1 : 0,
+}));
 
 export function CaptionsTab({
   streamId,
@@ -55,16 +67,14 @@ export function CaptionsTab({
   streamId?: string;
   videoName: string;
 }) {
-  const [captions, setCaptions] = useState<StreamCaption[]>([]);
+  const [captions, setCaptions] = useState<StreamCaptionType[]>([]);
   const [loading, startLoading] = useTransition();
   const [loadingVtt, startLoadingVtt] = useTransition();
   const [generating, startGenerateLoading] = useTransition();
-  const [selectedCap, setSelectedCap] = useState<
-    SupportedCaptionLanguages | undefined
-  >();
+  const [selectedCap, setSelectedCap] = useState<string | undefined>();
   const [loadedCap, setLoadedCap] = useState<string>('');
 
-  const handleUpdateCaptions = (newCaptions: StreamCaption[]) =>
+  const handleUpdateCaptions = (newCaptions: StreamCaptionType[]) =>
     setCaptions((prev) =>
       Array.from(
         new Map([...prev, ...newCaptions].map((c) => [c.language, c])).values(),
@@ -75,7 +85,7 @@ export function CaptionsTab({
     if (streamId) {
       startLoading(() => {
         fetchCaptions(streamId)
-          .then((c) => handleUpdateCaptions(c.result || []))
+          .then((response) => handleUpdateCaptions(response?.result || []))
           .catch((err) => {
             setCaptions([]);
             const msg =
@@ -96,11 +106,13 @@ export function CaptionsTab({
     }
   }, [streamId]);
 
-  const loadCaptionVtt = (lang?: SupportedCaptionLanguages) => {
+  const loadCaptionVtt = (lang?: string) => {
     if (!lang) return;
     setSelectedCap(lang);
     startLoadingVtt(() => {
-      fetchCaptionVTT(streamId!, lang).then((vtt) => setLoadedCap(vtt));
+      fetchCaptionVtt(streamId!, lang).then((response) =>
+        setLoadedCap(response || ''),
+      );
     });
   };
 
@@ -133,7 +145,7 @@ export function CaptionsTab({
           <UploadCaptionDialog
             streamId={streamId}
             onUpload={(newCaption) => {
-              handleUpdateCaptions([newCaption]);
+              handleUpdateCaptions([newCaption as StreamCaptionType]);
               loadCaptionVtt(newCaption.language);
             }}
           >
@@ -164,8 +176,12 @@ export function CaptionsTab({
                       key={idx}
                       onSelect={() =>
                         startGenerateLoading(() => {
-                          generateCaptions(streamId, caption.code).then((c) =>
-                            handleUpdateCaptions([c.result]),
+                          generateCaptions(streamId, caption.code).then(
+                            (response) => {
+                              if (response) {
+                                handleUpdateCaptions([response]);
+                              }
+                            },
                           );
                         })
                       }
@@ -263,7 +279,7 @@ function UploadCaptionDialog({
   children,
 }: {
   streamId?: string;
-  onUpload: (caption: StreamCaption) => void;
+  onUpload: (caption: CaptionResponseType) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -287,14 +303,18 @@ function UploadCaptionDialog({
     if (!uploadFile) return toast.error('Хадмал файлаа сонгоно уу');
 
     startUploading(() => {
-      uploadCaptionToCloudflare(
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+
+      uploadACaptionFileForAVideo(
         streamId,
         uploadLang as SupportedCaptionLanguages,
-        objToFormData({ file: uploadFile }),
+        formData as any,
       )
         .then((res) => {
-          // res.result is single StreamCaption, append to list
-          onUpload(res.result);
+          if (res) {
+            onUpload(res);
+          }
           resetForm();
           setOpen(false);
           toast.success('Хадмал амжилттай байршлаа');

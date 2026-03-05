@@ -16,8 +16,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
 import { createMovieBatch } from '@/services/batches';
+
 import { MoviePickerDialog } from './movie-picker-dialog';
 
 const slugPathRegex = /^[a-z0-9-]+$/;
@@ -164,7 +164,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
                   {...field}
                   value={field.value ?? ''}
                   className="rounded-l-none"
-                  onChange={(e) => field.onChange(normalizeSlugInput(e.target.value))}
+                  onChange={
+                    (e) => field.onChange(normalizeSlugInput(e.target.value)) // !!! bichsen text iig ni shuud uurchluud baih ewgvidee
+                  }
                 />
               </div>
             </FormControl>

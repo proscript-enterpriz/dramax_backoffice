@@ -1,5 +1,49 @@
 import { z } from 'zod';
 
+// Caption language enum
+export const captionLanguageSchema = z.enum([
+  'en',
+  'zh-CN',
+  'ko',
+  'ru',
+  'zh',
+  'zh-TW',
+  'ja',
+  'es',
+  'fr',
+  'de',
+  'it',
+  'pt',
+  'pt-BR',
+  'nl',
+  'sv',
+  'no',
+  'da',
+  'fi',
+  'pl',
+  'cs',
+  'hu',
+  'ro',
+  'bg',
+  'el',
+  'tr',
+  'uk',
+  'he',
+  'ar',
+  'fa',
+  'hi',
+  'bn',
+  'pa',
+  'gu',
+  'ur',
+  'vi',
+  'id',
+  'ms',
+  'th',
+]);
+
+export type CaptionLanguageType = z.infer<typeof captionLanguageSchema>;
+
 export const bodyDashboardEmployeeLoginSchema = z.object({
   grant_type: z.string().nullish(),
   username: z.string(),
@@ -433,15 +477,6 @@ export const movieUpdateFormSchema = movieResponseSchema
 
 export type MovieUpdateFormType = z.infer<typeof movieUpdateFormSchema>;
 
-export const captionResponseSchema = z.object({
-  language: z.string(),
-  label: z.string(),
-  generated: z.boolean(),
-  status: z.enum(['ready', 'inprogress', 'error']),
-});
-
-export type CaptionResponseType = z.infer<typeof captionResponseSchema>;
-
 export const captionGenerateRequestSchema = z.object({
   language: z.string(),
 });
@@ -456,14 +491,6 @@ export const bodyDashboardUploadCaptionsSchema = z.object({
 
 export type BodyDashboardUploadCaptionsType = z.infer<
   typeof bodyDashboardUploadCaptionsSchema
->;
-
-export const captionsListResponseSchema = z.object({
-  captions: z.array(captionResponseSchema),
-});
-
-export type CaptionsListResponseType = z.infer<
-  typeof captionsListResponseSchema
 >;
 
 export const captionDeleteResponseSchema = z.object({
@@ -835,3 +862,292 @@ export const singleItemResponseSettingsModelSchema = z.object({
 export type SingleItemResponseSettingsModelType = z.infer<
   typeof singleItemResponseSettingsModelSchema
 >;
+
+export const requestUploadLinkSchema = z.object({
+  upload_length: z.string(),
+  upload_meta: z.string(),
+});
+
+export type RequestUploadLinkType = z.infer<typeof requestUploadLinkSchema>;
+
+export const requestUploadLinkResponseSchema = z.object({
+  video_id: z.string().nullish(),
+  upload_url: z.string().nullish(),
+  success: z.boolean(),
+});
+
+export type RequestUploadLinkResponseType = z.infer<
+  typeof requestUploadLinkResponseSchema
+>;
+
+export const videoCaptionResponseSchema = z.object({
+  language: captionLanguageSchema,
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
+});
+
+export type VideoCaptionResponseType = z.infer<
+  typeof videoCaptionResponseSchema
+>;
+
+const heroBannerResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  image_url: z.string(),
+  link_url: z.string().optional(),
+  is_active: z.boolean(),
+  display_order: z.number().int(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export type HeroBannerResponseType = z.infer<typeof heroBannerResponseSchema>;
+
+const createHeroBannerSchema = z.object({
+  title: z.string(),
+  image_url: z.string(),
+  link_url: z.string().optional(),
+  is_active: z.boolean().optional(),
+  display_order: z.number().int().optional(),
+});
+
+export type CreateHeroBannerType = z.infer<typeof createHeroBannerSchema>;
+
+const updateHeroBannerSchema = z.object({
+  title: z.string().optional(),
+  image_url: z.string().optional(),
+  link_url: z.string().optional(),
+  is_active: z.boolean().optional(),
+  display_order: z.number().int().optional(),
+});
+
+export type UpdateHeroBannerType = z.infer<typeof updateHeroBannerSchema>;
+
+const singleItemResponseHeroBannerResponseSchema = z.object({
+  success: z.boolean(),
+  data: heroBannerResponseSchema,
+  message: z.string().optional(),
+});
+
+export type SingleItemResponseHeroBannerResponseType = z.infer<
+  typeof singleItemResponseHeroBannerResponseSchema
+>;
+
+const baseResponseListHeroBannerResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.array(heroBannerResponseSchema),
+  message: z.string().optional(),
+  total: z.number().int().optional(),
+  page: z.number().int().optional(),
+  page_size: z.number().int().optional(),
+});
+
+export type BaseResponseListHeroBannerResponseType = z.infer<
+  typeof baseResponseListHeroBannerResponseSchema
+>;
+
+const sendToUserRequestSchema = z.object({
+  user_id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.string(), z.any()).optional(),
+});
+
+export type SendToUserRequestType = z.infer<typeof sendToUserRequestSchema>;
+
+const sendToUsersRequestSchema = z.object({
+  user_ids: z.array(z.string()),
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.string(), z.any()).optional(),
+});
+
+export type SendToUsersRequestType = z.infer<typeof sendToUsersRequestSchema>;
+
+const sendNotificationRequestSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  data: z.record(z.string(), z.any()).optional(),
+});
+
+export type SendNotificationRequestType = z.infer<
+  typeof sendNotificationRequestSchema
+>;
+
+const baseResponseDictStrAnySchema = z.object({
+  success: z.boolean(),
+  data: z.record(z.string(), z.any()),
+  message: z.string().optional(),
+});
+
+export type BaseResponseDictStrAnyType = z.infer<
+  typeof baseResponseDictStrAnySchema
+>;
+
+// Cloudflare Stream Types
+export const streamAudioSchema = z.object({
+  uid: z.string(),
+  label: z.string(),
+  default: z.boolean(),
+  status: z.enum(['queued', 'ready', 'error']),
+});
+
+export type StreamAudioType = z.infer<typeof streamAudioSchema>;
+
+export const streamCaptionSchema = z.object({
+  language: captionLanguageSchema,
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
+});
+
+export type StreamCaptionType = z.infer<typeof streamCaptionSchema>;
+
+export const cloudflareVideoResponseSchema = z.object({
+  id: z.uuidv4(),
+  stream_id: z.string(),
+  name: z.string().nullable(),
+  status: z.string().nullable(),
+  created_on: z.iso.datetime().nullable(),
+  ready_to_stream_at: z.iso.datetime().nullable(),
+  modified_on: z.iso.datetime().nullable(),
+  duration: z.number().nullable(),
+  size: z.number().nullable(),
+  thumbnail: z.string().nullable(),
+  preview: z.string().nullable(),
+  playback_hls: z.string().nullable(),
+  playback_dash: z.string().nullable(),
+  pct_complete: z.string().nullable(),
+  ready_to_stream: z.boolean().nullable(),
+  require_signed_urls: z.boolean().nullable(),
+  input_height: z.number().int().nullable(),
+  input_width: z.number().int().nullable(),
+});
+
+export type CloudflareVideoResponseType = z.infer<
+  typeof cloudflareVideoResponseSchema
+>;
+
+export const baseResponseListCloudflareVideoResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.array(cloudflareVideoResponseSchema),
+  message: z.string().optional(),
+  total: z.number().int().optional(),
+  page: z.number().int().optional(),
+  page_size: z.number().int().optional(),
+});
+
+export type BaseResponseListCloudflareVideoResponseType = z.infer<
+  typeof baseResponseListCloudflareVideoResponseSchema
+>;
+
+export const singleItemResponseCloudflareVideoResponseSchema = z.object({
+  success: z.boolean(),
+  data: cloudflareVideoResponseSchema,
+  message: z.string().optional(),
+});
+
+export type SingleItemResponseCloudflareVideoResponseType = z.infer<
+  typeof singleItemResponseCloudflareVideoResponseSchema
+>;
+
+export const cloudflareVideoUpdateSchema = z.object({
+  name: z.string().optional(),
+  require_signed_urls: z.boolean().optional(),
+  meta: z.record(z.string(), z.any()).optional(),
+});
+
+export type CloudflareVideoUpdateType = z.infer<
+  typeof cloudflareVideoUpdateSchema
+>;
+
+export const streamDetailResponseListStreamAudioSchema = z.object({
+  success: z.boolean(),
+  result: z.array(streamAudioSchema),
+  message: z.string().optional(),
+});
+
+export type StreamDetailResponseListStreamAudioType = z.infer<
+  typeof streamDetailResponseListStreamAudioSchema
+>;
+
+export const streamDetailResponseListStreamCaptionSchema = z.object({
+  success: z.boolean(),
+  result: z.array(streamCaptionSchema),
+  message: z.string().optional(),
+});
+
+export type StreamDetailResponseListStreamCaptionType = z.infer<
+  typeof streamDetailResponseListStreamCaptionSchema
+>;
+
+export const singleItemResponseStreamAudioSchema = z.object({
+  success: z.boolean(),
+  data: streamAudioSchema,
+  message: z.string().optional(),
+});
+
+export type SingleItemResponseStreamAudioType = z.infer<
+  typeof singleItemResponseStreamAudioSchema
+>;
+
+export const streamAudioUpdateSchema = z.object({
+  label: z.string().optional(),
+  default: z.boolean().optional(),
+});
+
+export type StreamAudioUpdateType = z.infer<typeof streamAudioUpdateSchema>;
+
+export const uploadTokenRequestSchema = z.object({
+  upload_length: z.string(),
+  upload_meta: z.string(),
+});
+
+export type UploadTokenRequestType = z.infer<typeof uploadTokenRequestSchema>;
+
+export const uploadUrlResponseSchema = z.object({
+  success: z.boolean(),
+  upload_url: z.string(),
+  video_id: z.string(),
+  internal_id: z.string().optional(),
+});
+
+export type UploadUrlResponseType = z.infer<typeof uploadUrlResponseSchema>;
+
+export const captionResponseSchema = z.object({
+  language: z.string(),
+  label: z.string(),
+  generated: z.boolean(),
+  status: z.enum(['ready', 'inprogress', 'error']),
+});
+
+export type CaptionResponseType = z.infer<typeof captionResponseSchema>;
+
+export const bodyDashboardUploadCaptionsToCfSchema = z.object({
+  file: z.any(),
+});
+
+export type BodyDashboardUploadCaptionsToCfType = z.infer<
+  typeof bodyDashboardUploadCaptionsToCfSchema
+>;
+
+export const bodyDashboardUploadAudioTrackSchema = z.object({
+  file: z.any(),
+  label: z.string().optional(),
+});
+
+export type BodyDashboardUploadAudioTrackType = z.infer<
+  typeof bodyDashboardUploadAudioTrackSchema
+>;
+
+export const signedUrlResponseSchema = z.object({
+  success: z.boolean(),
+  token: z.string(),
+  iframe_url: z.string(),
+  hls_url: z.string(),
+  dash_url: z.string(),
+  thumbnail_url: z.string(),
+});
+
+export type SignedUrlResponseType = z.infer<typeof signedUrlResponseSchema>;

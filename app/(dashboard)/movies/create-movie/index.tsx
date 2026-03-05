@@ -340,9 +340,7 @@ export default function CreateMovie() {
                       <div className="border-destructive/15 bg-destructive/5 mt-2 rounded-md border p-3">
                         <CloudflareTrailer
                           hlsUrl={field.value ?? undefined}
-                          onChange={(c) =>
-                            field.onChange(c.playback?.hls ?? '')
-                          }
+                          onChange={(c) => field.onChange(c.playback_hls ?? '')}
                         />
                       </div>
                       <FormMessage />
@@ -477,11 +475,11 @@ export default function CreateMovie() {
                         <CloudflarePreview
                           cfId={field.value}
                           onChange={(c) => {
-                            field.onChange(c.uid);
-                            if (c.input) {
+                            field.onChange(c.stream_id);
+                            if (c.input_width && c.input_height) {
                               form.setValue(
                                 'orientation',
-                                c.input.width >= c.input.height
+                                c.input_width >= c.input_height
                                   ? 'landscape'
                                   : 'portrait',
                               );

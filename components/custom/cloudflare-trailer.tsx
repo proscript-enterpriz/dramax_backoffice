@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 import StreamsDrawer, {
   StreamsDrawerRef,
 } from '@/components/custom/streams-drawer';
 import { Button } from '@/components/ui/button';
-import { fetchStreamDetail } from '@/lib/cloudflare';
-import { StreamVideo } from '@/lib/cloudflare/type';
 import { formatDuration, humanizeBytes } from '@/lib/utils';
+import { getStreams } from '@/services/cf';
+import { CloudflareVideoResponseType } from '@/services/schema';
 
 function extractCloudflareStreamId(hlsUrl?: string) {
   const regex =
@@ -25,17 +26,26 @@ export default function CloudflareTrailer({
   onChange,
 }: {
   hlsUrl?: string;
-  onChange?: (video: StreamVideo) => void;
+  onChange?: (video: CloudflareVideoResponseType) => void;
 }) {
   const streamId = extractCloudflareStreamId(hlsUrl);
   const streamsDrawerRef = useRef<StreamsDrawerRef>(null);
-  const [cloudflareData, setCloudFlareData] = useState<StreamVideo>();
+  const [cloudflareData, setCloudFlareData] =
+    useState<CloudflareVideoResponseType>();
   const [loading, startLoading] = useTransition();
 
   useEffect(() => {
     if (streamId) {
       startLoading(() => {
-        fetchStreamDetail(streamId).then((c) => setCloudFlareData(c.video));
+        getStreams({ filters: `stream_id=${streamId}` })
+          .then((c) => {
+            if (c.data?.length) return setCloudFlareData(c.data[0]);
+            throw Error(c.message ?? 'Failed to fetch stream details');
+          })
+          .catch((e) => {
+            toast.error((e as Error).message);
+            streamsDrawerRef.current?.close();
+          });
       });
     }
   }, [hlsUrl]);
@@ -79,7 +89,10 @@ export default function CloudflareTrailer({
             target="_blank"
             className="bg-muted relative h-20 w-36 flex-shrink-0 overflow-hidden rounded-md"
           >
-            <img src={cloudflareData?.thumbnail + '?time=5s'} alt="" />
+            <img
+              src={cloudflareData?.thumbnail + '?time=5s&height=80'}
+              alt=""
+            />
             {cloudflareData?.duration != null && (
               <span className="absolute right-0.5 bottom-0.5 rounded-sm bg-black/65 px-2 py-0.5 font-mono text-xs text-white">
                 {formatDuration(cloudflareData?.duration)}
@@ -93,12 +106,12 @@ export default function CloudflareTrailer({
               target="_blank"
               className="text-sm font-medium"
             >
-              {cloudflareData?.meta?.name || cloudflareData?.uid}
+              {cloudflareData?.name || cloudflareData?.stream_id}
             </Link>
             <p className="text-muted-foreground text-xs">
-              {cloudflareData?.uploaded
-                ? dayjs(cloudflareData?.uploaded).format('YYYY/MM/DD')
-                : dayjs(cloudflareData?.created).format('YYYY/MM/DD')}
+              {cloudflareData?.modified_on
+                ? dayjs(cloudflareData?.modified_on).format('YYYY/MM/DD')
+                : dayjs(cloudflareData?.created_on).format('YYYY/MM/DD')}
             </p>
             <div className="text-muted-foreground text-xs">
               {cloudflareData?.size ? humanizeBytes(cloudflareData?.size) : '-'}

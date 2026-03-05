@@ -12,3 +12,5 @@ export const RVK_EPISODES = 'episodes' as const;
 export const RVK_MOVIE_EPISODES = 'movie-episodes' as const;
 export const RVK_RENTALS = 'rentals' as const;
 export const RVK_SETTINGS = 'settings' as const;
+export const RVK_CF = 'cf' as const;
+export const RVK_NOTIFICATIONS = 'notifications' as const;
