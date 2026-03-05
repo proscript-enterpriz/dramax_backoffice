@@ -42,8 +42,10 @@ export default function CloudflarePreview({
             throw Error(c.message ?? 'Failed to fetch stream details');
           })
           .catch((e) => {
-            toast.error((e as Error).message);
-            setError((e as Error).message);
+            const msg =
+              (e as Error).message ?? 'Failed to fetch stream details';
+            toast.error(msg);
+            setError(msg);
             streamsDrawerRef.current?.close();
           });
       });
