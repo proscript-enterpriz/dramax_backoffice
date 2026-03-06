@@ -39,7 +39,7 @@ export function InfoTab({
     if (!data) return;
     startUpdateTransition(async () => {
       try {
-        const res = await updateStreamDetail(data.stream_id, {
+        const res = await updateStreamDetail(data.id, {
           require_signed_urls: requireSigned,
           name: name,
         });
