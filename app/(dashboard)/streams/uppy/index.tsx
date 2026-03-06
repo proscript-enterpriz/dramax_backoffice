@@ -13,6 +13,25 @@ import { revalidate } from '@/services/api/actions';
 import { requestUploadToken } from '@/services/cf';
 import { RVK_CF } from '@/services/rvk';
 
+const getVideoDuration = (file: File): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+      const duration = Math.floor(video.duration) + 60; // Add 60 seconds buffer to ensure processing time
+      resolve(duration);
+    };
+
+    video.onerror = () => {
+      reject(new Error('Failed to load video metadata'));
+    };
+
+    video.src = URL.createObjectURL(file);
+  });
+};
+
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
   const [name, setName] = useState<string | undefined>(undefined);
   const uppy = useMemo(() => {
@@ -32,20 +51,21 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     });
   }, []);
 
-  const getMetadata = (fileName: string) => {
+  const getMetadata = (fileName: string, duration?: number) => {
     const metadata = isTrailer ? '' : 'requiresignedurls ' + btoa('true');
-    return (
-      metadata +
-      `,name ${btoa(
-        String.fromCharCode(...new TextEncoder().encode(fileName)),
-      )}`
-    );
+    const nameMetadata = `,name ${btoa(
+      String.fromCharCode(...new TextEncoder().encode(fileName)),
+    )}`;
+    const durationMetadata = duration
+      ? `,maxdurationseconds ${btoa(duration.toString())}`
+      : '';
+    return metadata + nameMetadata + durationMetadata;
   };
 
   useEffect(() => {
     uppy.on('file-added', (file) => setName(file.name ?? ''));
     uppy.on('file-removed', () => setName(undefined));
-    uppy.on('upload', (_, files) => {
+    uppy.on('upload', async (_, files) => {
       setName(undefined);
 
       const [file] = files ?? [];
@@ -57,35 +77,38 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
         isPaused: true,
       });
 
-      requestUploadToken({
-        upload_length: file.size!.toString(),
-        upload_meta: getMetadata(file.name ?? ''),
-      })
-        .then((c) => {
-          if (c.success) {
-            uppy.setFileState(file.id, {
-              uploadURL: c.upload_url!,
-              tus: {
-                endpoint: c.upload_url!,
-              },
-            });
-            // Resume the upload now that we have the URL
-            uppy.retryUpload(file.id);
-          } else {
-            toast.error('Failed to get upload URL');
-          }
-        })
-        .catch((e) => {
-          // Cancel the upload if we fail to get the URL
-          uppy.cancelAll();
-          toast.error('Failed to get upload URL:', e.message);
+      try {
+        // Get video duration
+        const duration = await getVideoDuration(file.data as File);
+
+        const tokenResponse = await requestUploadToken({
+          upload_length: file.size!.toString(),
+          upload_meta: getMetadata(file.name ?? '', duration),
         });
+
+        if (tokenResponse.success) {
+          uppy.setFileState(file.id, {
+            uploadURL: tokenResponse.upload_url!,
+            tus: {
+              endpoint: tokenResponse.upload_url!,
+            },
+          });
+          // Resume the upload now that we have the URL
+          uppy.retryUpload(file.id);
+        } else {
+          toast.error('Failed to get upload URL');
+        }
+      } catch (e) {
+        // Cancel the upload if we fail to get the URL or duration
+        uppy.cancelAll();
+        toast.error('Failed to process video: ' + (e as Error).message);
+      }
     });
     uppy.on('upload-success', () => revalidate(RVK_CF));
     return () => {
       uppy.cancelAll();
     };
-  }, [uppy]);
+  }, [uppy, isTrailer]);
 
   return (
     <div className="space-y-4">
