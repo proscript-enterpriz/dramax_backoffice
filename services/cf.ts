@@ -213,7 +213,7 @@ export async function fetchCaptionVtt(
 }
 
 export async function generateCaptions(streamId: string, language: string) {
-  const res = await actions.post<StreamCaptionType>(
+  const res = await actions.post<{ result: StreamCaptionType }>(
     `/cf/streams/${streamId}/captions/${language}/generate`,
     undefined,
   );

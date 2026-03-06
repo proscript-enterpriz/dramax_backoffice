@@ -176,13 +176,17 @@ export function CaptionsTab({
                       key={idx}
                       onSelect={() =>
                         startGenerateLoading(() => {
-                          generateCaptions(streamId, caption.code).then(
-                            (response) => {
-                              if (response) {
-                                handleUpdateCaptions([response]);
+                          generateCaptions(streamId, caption.code)
+                            .then((response) => {
+                              if (response?.result) {
+                                handleUpdateCaptions([response.result]);
                               }
-                            },
-                          );
+                            })
+                            .catch((c) =>
+                              toast.error(
+                                c?.message || 'Error generating caption',
+                              ),
+                            );
                         })
                       }
                     >
