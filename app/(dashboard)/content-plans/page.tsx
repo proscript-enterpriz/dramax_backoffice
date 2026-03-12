@@ -45,7 +45,12 @@ export default async function ContentPlansPage(props: {
       </div>
       <Separator />
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
-        <DataTable columns={contentPlansColumns} data={list} rowCount={count} />
+        <DataTable
+          columns={contentPlansColumns}
+          data={list}
+          rowCount={count}
+          hidePagination
+        />
       </Suspense>
     </>
   );
