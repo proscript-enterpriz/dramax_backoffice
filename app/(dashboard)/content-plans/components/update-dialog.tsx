@@ -49,6 +49,8 @@ export function UpdateDialog({
     defaultValues: initialData,
   });
 
+  const isTiered = form.watch('type') === 'tiered';
+
   function onSubmit(values: ContentPlanUpdateType) {
     startTransition(() => {
       updateContentPlan(initialData.id, values)
@@ -95,10 +97,7 @@ export function UpdateDialog({
         render={({ field }) => (
           <FormItem className="flex flex-col gap-1">
             <FormLabel>Төрөл</FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              defaultValue={field.value ?? undefined}
-            >
+            <Select disabled defaultValue={field.value ?? undefined}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Төрөл сонгох" />
@@ -114,29 +113,30 @@ export function UpdateDialog({
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="tier_level"
-        render={({ field }) => (
-          <FormItem className="flex flex-col gap-1">
-            <FormLabel>Түвшин (Зэрэглэлтэй багцад)</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Түвшин"
-                {...field}
-                value={field.value ?? ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  field.onChange(val === '' ? null : parseInt(val));
-                }}
-              />
-            </FormControl>
-            <FormDescription>Зэрэглэлтэй багцад заавал оруулна</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      {isTiered && (
+        <FormField
+          control={form.control}
+          name="tier_level"
+          render={({ field }) => (
+            <FormItem className="flex flex-col gap-1">
+              <FormLabel>Түвшин</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Түвшин"
+                  disabled
+                  {...field}
+                  value={field.value ?? ''}
+                />
+              </FormControl>
+              <FormDescription>
+                Зэрэглэлтэй багцын түвшин (1, 2, 3...)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
 
       <FormField
         control={form.control}
