@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Edit, ListVideo, MoreHorizontal, Trash } from 'lucide-react';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
@@ -33,8 +34,9 @@ const Action = ({ row }: CellContext<ContentPlanResponseType, unknown>) => {
   const { data } = useSession();
   const canDelete = hasPermission(data, 'content-plans', 'delete');
   const canEdit = hasPermission(data, 'content-plans', 'update');
+  const canRead = hasPermission(data, 'content-plans', 'read');
 
-  if (!canEdit && !canDelete) return null;
+  if (!canEdit && !canDelete && !canRead) return null;
 
   return (
     <div className="me-2 flex justify-end gap-4">
@@ -48,6 +50,14 @@ const Action = ({ row }: CellContext<ContentPlanResponseType, unknown>) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {canRead && (
+            <DropdownMenuItem asChild>
+              <Link href={`/content-plans/${row.original.id}`}>
+                <ListVideo className="h-4 w-4" /> Кинонууд
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {canRead && (canEdit || canDelete) && <DropdownMenuSeparator />}
           {canEdit && (
             <UpdateDialog
               initialData={row.original}
