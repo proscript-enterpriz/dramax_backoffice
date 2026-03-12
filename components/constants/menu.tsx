@@ -9,6 +9,7 @@ import {
   type LucideIcon,
   Megaphone,
   MonitorUp,
+  Package,
   Tag,
   TvMinimalPlay,
   UsersRoundIcon,
@@ -69,6 +70,11 @@ export const operationsRoutes = [
 ] as const;
 
 export const organizationRoutes = [
+  {
+    title: 'Контент багцууд',
+    url: '/content-plans',
+    icon: Package,
+  },
   {
     title: 'Багцтэй хэрэглэгчид',
     url: '/subscriptions',

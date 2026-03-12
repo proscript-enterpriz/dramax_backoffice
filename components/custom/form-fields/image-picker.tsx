@@ -238,7 +238,7 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
 
   if (multiple) {
     return (
-      <div className="space-y-3 rounded-md border border-dashed border-slate-200 bg-slate-50 p-3">
+      <div className="space-y-3 rounded-md border border-dashed border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/40">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium">Зурагнууд</p>
           <Button type="button" onClick={openMediaDialog} variant="outline">
@@ -277,10 +277,10 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
   return (
     <div
       className={cn(
-        'group relative border-spacing-10 rounded-md bg-slate-50',
+        'group dark:bg-muted/10 relative border-spacing-10 rounded-md bg-slate-50',
         image
           ? 'border border-transparent'
-          : 'border border-dashed border-slate-200',
+          : 'dark:border-muted/90 border border-dashed border-slate-200',
       )}
     >
       <div style={aspectRatioStyle}>
@@ -307,7 +307,7 @@ const DefaultMediasRenderer = memo(function DefaultMediasRenderer({
           </div>
         ) : (
           <div className="absolute inset-0 flex h-full w-full flex-col items-center justify-center gap-2">
-            <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-white">
+            <div className="bg-background mb-4 flex size-12 items-center justify-center rounded-full">
               <ImagePlus size={20} className="text-foreground" />
             </div>
             <div className="flex flex-col items-center gap-2">
