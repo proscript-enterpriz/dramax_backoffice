@@ -1,7 +1,7 @@
 'use server';
 
 import * as actions from './api/actions';
-import { truncateErrorMessage } from './api/helpers';
+import { executeRevalidate, truncateErrorMessage } from './api/helpers';
 import { RVK_CONTENT_PLANS } from './rvk';
 import {
   BaseResponseContentPlanListResponseType,
@@ -58,6 +58,8 @@ export async function createContentPlan(body: ContentPlanCreateType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
+    executeRevalidate([RVK_CONTENT_PLANS, { tag: RVK_CONTENT_PLANS }]);
+
     return response;
   } catch (error) {
     console.error(error);
@@ -113,6 +115,12 @@ export async function updateContentPlan(
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
+    executeRevalidate([
+      RVK_CONTENT_PLANS,
+      { tag: RVK_CONTENT_PLANS },
+      { tag: `${RVK_CONTENT_PLANS}_plan_id_${planId}` },
+    ]);
+
     return response;
   } catch (error) {
     console.error(error);
@@ -133,6 +141,12 @@ export async function deleteContentPlan(planId: string) {
 
     const { body: response, error } = res;
     if (error) throw new Error(error);
+
+    executeRevalidate([
+      RVK_CONTENT_PLANS,
+      { tag: RVK_CONTENT_PLANS },
+      { tag: `${RVK_CONTENT_PLANS}_plan_id_${planId}` },
+    ]);
 
     return response;
   } catch (error) {
