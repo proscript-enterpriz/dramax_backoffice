@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
+  CurrencyItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -149,18 +150,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         control={form.control}
         name="monthly_price"
         render={({ field }) => (
-          <FormItem className="flex flex-col gap-1">
-            <FormLabel>Сарын үнэ</FormLabel>
-            <FormControl>
-              <Input
-                type="number"
-                placeholder="Сарын үнэ"
-                {...field}
-                onChange={(e) => field.onChange(parseFloat(e.target.value))}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+          <CurrencyItem
+            label="Сарын үнэ"
+            placeholder="Сарын үнэ оруулах"
+            field={field}
+          />
         )}
       />
 
