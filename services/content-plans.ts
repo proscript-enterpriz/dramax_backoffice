@@ -9,6 +9,7 @@ import {
   BaseResponseContentPlanListResponseType,
   BaseResponseContentPlanResponseType,
   BaseResponseListMovieListResponseType,
+  BaseResponseListRawMovieOutType,
   ContentPlanCreateType,
   ContentPlanUpdateType,
 } from './schema';
@@ -221,6 +222,7 @@ export async function assignMoviesToContentPlan(body: AssignMoviesToPlanType) {
     executeRevalidate([
       RVK_CONTENT_PLANS,
       RVK_MOVIES,
+      RVK_CONTENT_PLANS + '_available',
       { tag: RVK_CONTENT_PLANS },
       { tag: RVK_MOVIES },
       { tag: `${RVK_CONTENT_PLANS}_plan_id_${body.plan_id}` },
@@ -255,6 +257,7 @@ export async function removeMovieFromContentPlan(
     const cacheKeys: (FILMORARevalidateParams | string)[] = [
       RVK_CONTENT_PLANS,
       RVK_MOVIES,
+      RVK_CONTENT_PLANS + '_available',
       { tag: RVK_CONTENT_PLANS },
       { tag: RVK_MOVIES },
       ...body.movie_ids.map((c) => ({
@@ -278,6 +281,55 @@ export async function removeMovieFromContentPlan(
       ),
       data: null,
       total_count: null,
+    };
+  }
+}
+
+export type AvailableMoviesForContentPlanSearchParams = {
+  page?: number;
+  page_size?: number;
+  title?: string;
+  type?: string;
+  status?: string;
+  return_columns?: (
+    | keyof BaseResponseListRawMovieOutType['data'][0]
+    | string
+  )[];
+};
+
+export async function getMoviesAvailableForContentPlan(
+  searchParams?: AvailableMoviesForContentPlanSearchParams,
+) {
+  try {
+    const res = await actions.get<BaseResponseListRawMovieOutType>(
+      '/content-plans/unassigned-movies',
+      {
+        searchParams,
+        next: {
+          tags: [
+            RVK_CONTENT_PLANS + '_available',
+            RVK_CONTENT_PLANS +
+              '_available_search_' +
+              JSON.stringify(searchParams),
+          ],
+        },
+      },
+    );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ??
+          'Failed to fetch available movies for content plan',
+      ),
+      data: [],
+      total_count: 0,
     };
   }
 }

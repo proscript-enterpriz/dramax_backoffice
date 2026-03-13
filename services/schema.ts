@@ -425,6 +425,25 @@ export const movieListResponseSchema = z.object({
 
 export type MovieListResponseType = z.infer<typeof movieListResponseSchema>;
 
+export const rawMovieOutSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  description: z.string().nullish(),
+  type: z.enum(['movie', 'mini-series', 'series']),
+  status: z.enum(['pending', 'active']).nullish(),
+  year: z.int().nullish(),
+  price: z.int().nullish(),
+  is_premium: z.boolean().nullish(),
+  poster_url: z.string().nullish(),
+  load_image_url: z.string().nullish(),
+  orientation: z.string().nullish(),
+  is_adult: z.boolean().nullish(),
+  created_at: z.iso.datetime(),
+  content_plan_id: z.uuid().optional(),
+});
+
+export type RawMovieOutType = z.infer<typeof rawMovieOutSchema>;
+
 export const baseResponseUnionListMovieListResponseNoneTypeSchema = z.object({
   status: z.string(),
   message: z.string(),
@@ -1239,4 +1258,15 @@ export const baseResponseListMovieListResponseSchema = z.object({
 
 export type BaseResponseListMovieListResponseType = z.infer<
   typeof baseResponseListMovieListResponseSchema
+>;
+
+export const baseResponseListRawMovieOutSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.array(rawMovieOutSchema),
+  total_count: z.number().int(),
+});
+
+export type BaseResponseListRawMovieOutType = z.infer<
+  typeof baseResponseListRawMovieOutSchema
 >;

@@ -33,21 +33,30 @@ import {
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { imageResize } from '@/lib/utils';
-import { assignMoviesToContentPlan } from '@/services/content-plans';
-import { getMovies, MoviesFilterType } from '@/services/movies-generated';
 import {
-  ContentPlanResponseType,
-  MovieListResponseType,
-} from '@/services/schema';
+  assignMoviesToContentPlan,
+  AvailableMoviesForContentPlanSearchParams,
+  getMoviesAvailableForContentPlan,
+} from '@/services/content-plans';
+import { MoviesFilterType } from '@/services/movies-generated';
+import { ContentPlanResponseType, RawMovieOutType } from '@/services/schema';
 
 interface AssignMoviesDrawerProps {
   children: ReactNode;
   plan: ContentPlanResponseType;
 }
 
-const DEFAULT_MOVIE_FILTER = {
+const DEFAULT_MOVIE_FILTER: AvailableMoviesForContentPlanSearchParams = {
   page: 1,
   page_size: 30,
+  return_columns: [
+    'id',
+    'title',
+    'year',
+    'type',
+    'poster_url',
+    'load_image_url',
+  ],
 };
 
 export function AssignMoviesDrawer({
@@ -56,27 +65,21 @@ export function AssignMoviesDrawer({
 }: AssignMoviesDrawerProps) {
   const [open, setOpen] = useState(false);
   const [movieFilter, setMovieFilter] =
-    useState<MoviesFilterType>(DEFAULT_MOVIE_FILTER);
-  const [movies, setMovies] = useState<MovieListResponseType[]>([]);
+    useState<AvailableMoviesForContentPlanSearchParams>(DEFAULT_MOVIE_FILTER);
+  const [movies, setMovies] = useState<RawMovieOutType[]>([]);
   const [selectedMovieIds, setSelectedMovieIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const loadMovies = async (
-    filter: MoviesFilterType = DEFAULT_MOVIE_FILTER,
+    filter: AvailableMoviesForContentPlanSearchParams = DEFAULT_MOVIE_FILTER,
   ) => {
     setLoading(true);
     try {
-      const response = await getMovies(filter);
+      const response = await getMoviesAvailableForContentPlan(filter);
       const movieList = response?.data ?? [];
-      const existed = movieList
-        .filter((m) => m.content_plan_id === plan.id)
-        .map((m) => m.id);
-      const filtered = movieList.filter((m) => !existed.includes(m.id));
 
-      if (existed.length > 0) setSelectedMovieIds(existed);
-
-      setMovies(filtered);
+      setMovies(movieList);
     } catch (error) {
       toast.error('Кино ачааллахад алдаа гарлаа');
     } finally {
@@ -127,6 +130,8 @@ export function AssignMoviesDrawer({
       ...updates,
     }));
   };
+
+  console.log(movies);
 
   return (
     <Drawer
