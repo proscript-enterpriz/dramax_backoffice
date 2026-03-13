@@ -35,7 +35,7 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
     cell: ({ row }) => (
       <Link
         href={`/movies/${row.original.id}/seasons`}
-        className="hover:underline font-medium"
+        className="font-medium hover:underline"
       >
         {row.original.title}
       </Link>
@@ -75,11 +75,14 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'status',
     header: () => <h1>Төлөв</h1>,
     cell: ({ row }) => {
-      const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' }> = {
+      const statusMap: Record<
+        string,
+        { label: string; variant: 'default' | 'secondary' }
+      > = {
         active: { label: 'Идэвхтэй', variant: 'default' },
         pending: { label: 'Хүлээгдэж буй', variant: 'secondary' },
       };
-      const status = row.original.status 
+      const status = row.original.status
         ? statusMap[row.original.status] || {
             label: row.original.status,
             variant: 'secondary' as const,
@@ -116,7 +119,7 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'description',
     header: () => <h1>Тайлбар</h1>,
     cell: ({ row }) => (
-      <span className="opacity-70 max-w-xs truncate">
+      <span className="max-w-xs truncate opacity-70">
         {removeHTML(row.original.description?.slice(0, 100))}
       </span>
     ),

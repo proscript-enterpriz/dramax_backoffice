@@ -9,10 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { hasPagePermission } from '@/lib/permission';
 import { SearchParams } from '@/services/api/types';
-import {
-  getContentPlan,
-  getContentPlanMovies,
-} from '@/services/content-plans';
+import { getContentPlan, getContentPlanMovies } from '@/services/content-plans';
 
 import { contentPlanMoviesColumns } from './columns';
 
@@ -55,7 +52,11 @@ export default async function ContentPlanMoviesPage(props: {
       </div>
       <Separator />
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
-        <DataTable columns={contentPlanMoviesColumns} data={list} rowCount={count} />
+        <DataTable
+          columns={contentPlanMoviesColumns}
+          data={list}
+          rowCount={count}
+        />
       </Suspense>
     </>
   );
