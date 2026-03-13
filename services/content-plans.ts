@@ -249,7 +249,9 @@ export async function removeMovieFromContentPlan(
   body: RemoveMoviesFromPlanType,
 ) {
   try {
-    const res = await actions.patch('/movies/content-plan', body);
+    const res = await actions.patch('/movies/content-plan', {
+      movie_ids: body.movie_ids,
+    });
 
     const { body: response, error } = res;
     if (error) throw new Error(error);

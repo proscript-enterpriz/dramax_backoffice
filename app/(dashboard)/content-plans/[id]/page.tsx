@@ -52,7 +52,7 @@ export default async function ContentPlanMoviesPage(props: {
           title={`${contentPlan.name} - Кинонууд (${count})`}
           description={`Багцын төрөл: ${contentPlan.type === 'tiered' ? 'Зэрэглэлтэй' : 'Захиалгат'}`}
         />
-        {hasPermission(session, 'content-plans', 'update') && (
+        {hasPermission(session, 'content-plans.movies', 'create') && (
           <AssignMoviesDrawer plan={contentPlan}>
             <Button className="text-xs md:text-sm" variant="outline">
               <Plus className="h-4 w-4" /> Кино нэмэх

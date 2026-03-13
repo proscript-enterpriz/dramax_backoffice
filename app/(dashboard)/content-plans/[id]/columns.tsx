@@ -1,14 +1,65 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { currencyFormat } from '@interpriz/lib/utils';
-import { ColumnDef } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
+import { Trash } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
+import {
+  DeleteDialog,
+  DeleteDialogRef,
+} from '@/components/custom/delete-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { hasPermission } from '@/lib/permission';
 import { imageResize, removeHTML } from '@/lib/utils';
+import { removeMovieFromContentPlan } from '@/services/content-plans';
 import { MovieListResponseType } from '@/services/schema';
+
+const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
+  const [loading, setLoading] = useState(false);
+  const deleteDialogRef = useRef<DeleteDialogRef>(null);
+  const { data } = useSession();
+  const canDelete = hasPermission(data, 'content-plans.movies', 'delete');
+  const params = useParams();
+
+  if (!canDelete) return null;
+
+  return (
+    <DeleteDialog
+      ref={deleteDialogRef}
+      loading={loading}
+      action={() => {
+        setLoading(true);
+        removeMovieFromContentPlan({
+          plan_id: params['id'] as unknown as string,
+          movie_ids: [row.original.id],
+        })
+          .then((c) => toast.success(c?.message || 'Амжилттай устгагдлаа'))
+          .catch((c) => toast.error(c?.message || 'Алдаа гарлаа'))
+          .finally(() => {
+            deleteDialogRef.current?.close();
+            setLoading(false);
+          });
+      }}
+      description={
+        <>
+          &#34;{row.original.title}&#34; кино-г багцаас хасах гэж байна?
+          <br /> Энэ үйлдлийг буцаах боломжгүй.
+        </>
+      }
+    >
+      <Button variant="ghost" className="h-8 w-8 p-0">
+        <Trash className="h-4 w-4" />
+      </Button>
+    </DeleteDialog>
+  );
+};
 
 export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
   {
@@ -78,20 +129,19 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'status',
     header: () => <h1>Төлөв</h1>,
     cell: ({ row }) => {
-      const statusMap: Record<
-        string,
-        { label: string; variant: 'default' | 'secondary' }
-      > = {
-        active: { label: 'Идэвхтэй', variant: 'default' },
-        pending: { label: 'Хүлээгдэж буй', variant: 'secondary' },
-      };
-      const status = row.original.status
-        ? statusMap[row.original.status] || {
-            label: row.original.status,
-            variant: 'secondary' as const,
+      const status = row.original.status ?? 'pending';
+      return (
+        <Badge
+          variant="outline"
+          className={
+            status === 'active'
+              ? 'pointer-events-none border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+              : 'pointer-events-none border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300'
           }
-        : { label: '-', variant: 'secondary' as const };
-      return <Badge variant={status.variant}>{status.label}</Badge>;
+        >
+          {status === 'active' ? 'Published' : 'Draft'}
+        </Badge>
+      );
     },
     enableSorting: true,
     enableColumnFilter: true,
@@ -131,16 +181,7 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
   },
   {
     id: 'view',
-    header: () => <h1 className="text-right">Үйлдэл</h1>,
-    cell: ({ row }) => (
-      <div className="text-right">
-        <Link href={`/movies/${row.original.id}/seasons`}>
-          <Button variant="ghost" size="sm">
-            Дэлгэрэнгүй
-          </Button>
-        </Link>
-      </div>
-    ),
+    cell: Action,
     enableHiding: false,
   },
 ];

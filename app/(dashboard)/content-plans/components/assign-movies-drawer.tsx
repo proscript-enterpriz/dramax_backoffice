@@ -131,8 +131,6 @@ export function AssignMoviesDrawer({
     }));
   };
 
-  console.log(movies);
-
   return (
     <Drawer
       open={open}
