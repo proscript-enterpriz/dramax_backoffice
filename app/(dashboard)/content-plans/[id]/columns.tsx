@@ -85,7 +85,7 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <h1>Нэр</h1>,
+    header: () => <h1 className="min-w-24">Нэр</h1>,
     cell: ({ row }) => (
       <Link
         href={`/movies/${row.original.id}/seasons`}
