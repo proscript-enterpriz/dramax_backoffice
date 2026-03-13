@@ -35,28 +35,31 @@ export async function createMovieAction(body: MovieCreateType) {
   return response;
 }
 
-export async function getMovies(
-  searchParams: {
-    page?: number;
-    page_size?: number;
-    title?: string;
-    type?: string;
-    movie_status?: 'pending' | 'active';
-    year?: number;
-    category_id?: number;
-    genre_id?: number;
-    tag_id?: number;
-    is_premium?: boolean;
-    is_adult?: boolean;
-  } = {},
-) {
+export type MoviesFilterType = {
+  page?: number;
+  page_size?: number;
+  title?: string;
+  type?: string;
+  movie_status?: 'pending' | 'active';
+  year?: number;
+  category_id?: number;
+  genre_id?: number;
+  tag_id?: number;
+  is_premium?: boolean;
+  is_adult?: boolean;
+};
+
+export async function getMovies(searchParams: MoviesFilterType = {}) {
   const res =
     await actions.get<BaseResponseUnionListMovieListResponseNoneTypeType>(
       `/movies`,
       {
         searchParams,
         next: {
-          tags: [RVK_MOVIES],
+          tags: [
+            RVK_MOVIES,
+            `${RVK_MOVIES}_filters_${JSON.stringify(searchParams)}`,
+          ],
         },
       },
     );

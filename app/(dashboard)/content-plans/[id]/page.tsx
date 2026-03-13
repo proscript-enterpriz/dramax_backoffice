@@ -1,16 +1,19 @@
 import { Suspense } from 'react';
+import { Plus } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import { Heading } from '@/components/custom/heading';
 import { ReplaceBreadcrumdItem } from '@/components/custom/replace-breadcrumd-item';
+import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { hasPagePermission } from '@/lib/permission';
+import { hasPagePermission, hasPermission } from '@/lib/permission';
 import { SearchParams } from '@/services/api/types';
 import { getContentPlan, getContentPlanMovies } from '@/services/content-plans';
 
+import { AssignMoviesDrawer } from '../components';
 import { contentPlanMoviesColumns } from './columns';
 
 export default async function ContentPlanMoviesPage(props: {
@@ -49,6 +52,13 @@ export default async function ContentPlanMoviesPage(props: {
           title={`${contentPlan.name} - Кинонууд (${count})`}
           description={`Багцын төрөл: ${contentPlan.type === 'tiered' ? 'Зэрэглэлтэй' : 'Захиалгат'}`}
         />
+        {hasPermission(session, 'content-plans', 'update') && (
+          <AssignMoviesDrawer plan={contentPlan}>
+            <Button className="text-xs md:text-sm" variant="outline">
+              <Plus className="h-4 w-4" /> Кино нэмэх
+            </Button>
+          </AssignMoviesDrawer>
+        )}
       </div>
       <Separator />
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>

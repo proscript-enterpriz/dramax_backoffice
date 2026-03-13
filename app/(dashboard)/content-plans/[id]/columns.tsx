@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { removeHTML } from '@/lib/utils';
+import { imageResize, removeHTML } from '@/lib/utils';
 import { MovieListResponseType } from '@/services/schema';
 
 export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
@@ -18,7 +18,10 @@ export const contentPlanMoviesColumns: ColumnDef<MovieListResponseType>[] = [
     cell: ({ row }) => (
       <div className="relative h-24 w-16 overflow-hidden rounded-md">
         <Image
-          src={row.original.poster_url || '/placeholder.png'}
+          src={imageResize(
+            row.original.poster_url ?? row.original.load_image_url ?? '',
+            'tiny',
+          )}
           alt={row.original.title}
           fill
           className="object-cover"
