@@ -35,7 +35,7 @@ export default async function ContentPlansPage(props: {
     <>
       <div className="flex items-start justify-between">
         <Heading title={`Контент багцууд (${count})`} />
-        {hasPermission(session, 'content-plans', 'create') && (
+        {hasPermission(session, 'content-plans', 'update') && (
           <CreateDialog>
             <Button className="text-xs md:text-sm" variant="outline">
               <Plus className="h-4 w-4" /> Шинэ багц
