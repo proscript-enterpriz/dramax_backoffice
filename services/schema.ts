@@ -354,6 +354,7 @@ export const movieResponseSchema = z.object({
   categories: z.array(categoryResponseSchema).nullish(),
   genres: z.array(genreResponseSchema).nullish(),
   tags: z.array(appModelsSchemasMoviesTagResponseSchema).nullish(),
+  content_plan_id: z.uuid().optional(),
 });
 
 export type MovieResponseType = z.infer<typeof movieResponseSchema>;
@@ -419,6 +420,7 @@ export const movieListResponseSchema = z.object({
   genres: z.array(genreResponseSchema).nullish(),
   tags: z.array(appModelsSchemasMoviesTagResponseSchema).nullish(),
   favorite: z.boolean().nullish(),
+  content_plan_id: z.uuid().optional(),
 });
 
 export type MovieListResponseType = z.infer<typeof movieListResponseSchema>;

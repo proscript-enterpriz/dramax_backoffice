@@ -1,8 +1,10 @@
 'use server';
 
+import { FILMORARevalidateParams } from '@/services/api/types';
+
 import * as actions from './api/actions';
 import { executeRevalidate, truncateErrorMessage } from './api/helpers';
-import { RVK_CONTENT_PLANS } from './rvk';
+import { RVK_CONTENT_PLANS, RVK_MOVIES } from './rvk';
 import {
   BaseResponseContentPlanListResponseType,
   BaseResponseContentPlanResponseType,
@@ -195,6 +197,87 @@ export async function getContentPlanMovies(
       ),
       data: [],
       total_count: 0,
+    };
+  }
+}
+
+export type AssignMoviesToPlanType = {
+  movie_ids: string[];
+  plan_id: string;
+};
+
+export type RemoveMoviesFromPlanType = {
+  movie_ids: string[];
+  plan_id?: string;
+};
+
+export async function assignMoviesToContentPlan(body: AssignMoviesToPlanType) {
+  try {
+    const res = await actions.patch('/movies/content-plan', body);
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    executeRevalidate([
+      RVK_CONTENT_PLANS,
+      RVK_MOVIES,
+      { tag: RVK_CONTENT_PLANS },
+      { tag: RVK_MOVIES },
+      { tag: `${RVK_CONTENT_PLANS}_plan_id_${body.plan_id}` },
+      ...body.movie_ids.map((c) => ({
+        tag: `${RVK_MOVIES}_movie_id_${c}`,
+      })),
+    ]);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to assign movies to content plan',
+      ),
+      data: null,
+      total_count: null,
+    };
+  }
+}
+
+export async function removeMovieFromContentPlan(
+  body: RemoveMoviesFromPlanType,
+) {
+  try {
+    const res = await actions.patch('/movies/content-plan', body);
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    const cacheKeys: (FILMORARevalidateParams | string)[] = [
+      RVK_CONTENT_PLANS,
+      RVK_MOVIES,
+      { tag: RVK_CONTENT_PLANS },
+      { tag: RVK_MOVIES },
+      ...body.movie_ids.map((c) => ({
+        tag: `${RVK_MOVIES}_movie_id_${c}`,
+      })),
+    ];
+
+    if (body.plan_id) {
+      cacheKeys.push({ tag: `${RVK_CONTENT_PLANS}_plan_id_${body.plan_id}` });
+    }
+
+    executeRevalidate(cacheKeys);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to remove movie from content plan',
+      ),
+      data: null,
+      total_count: null,
     };
   }
 }
