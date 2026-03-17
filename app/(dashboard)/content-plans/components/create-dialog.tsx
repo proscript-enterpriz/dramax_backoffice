@@ -48,6 +48,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
       monthly_price: 0,
       description: null,
       is_active: true,
+      is_recommended: false,
     },
   });
 
@@ -139,7 +140,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
                   }}
                 />
               </FormControl>
-              <FormDescription>Зэрэглэлтэй багцын түвшин (1, 2, 3...)</FormDescription>
+              <FormDescription>
+                Зэрэглэлтэй багцын түвшин (1, 2, 3...)
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -174,6 +177,30 @@ export function CreateDialog({ children }: { children: ReactNode }) {
             <FormControl>
               <Switch
                 checked={field.value || false}
+                onCheckedChange={(checked) => field.onChange(checked)}
+                aria-readonly
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="is_recommended"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="flex flex-col gap-1">
+              <FormLabel className="text-md font-semibold">
+                Санал болгох?
+              </FormLabel>
+              <FormDescription className="text-muted-foreground">
+                Багц дундаас санал болгох эсэх
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value ?? false}
                 onCheckedChange={(checked) => field.onChange(checked)}
                 aria-readonly
               />

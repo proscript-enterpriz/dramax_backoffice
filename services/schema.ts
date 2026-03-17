@@ -1185,11 +1185,12 @@ export const contentPlanResponseSchema = z.object({
   image_url: z.string().nullish(),
   monthly_price: z.number().positive(),
   description: z.string().nullish(),
-  is_active: z.boolean(),
-  id: z.string(),
-  created_at: z.string(),
-  updated_at: z.string(),
-  movie_count: z.number().int().nullish(),
+  is_active: z.boolean().default(true),
+  is_recommended: z.boolean().default(false),
+  id: z.uuid(),
+  created_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
+  movie_count: z.number().int().default(0),
 });
 
 export type ContentPlanResponseType = z.infer<typeof contentPlanResponseSchema>;
@@ -1211,6 +1212,7 @@ export const contentPlanCreateSchema = z.object({
   monthly_price: z.number().positive(),
   description: z.string().nullish(),
   is_active: z.boolean().optional(),
+  is_recommended: z.boolean(),
 });
 
 export type ContentPlanCreateType = z.infer<typeof contentPlanCreateSchema>;
@@ -1223,6 +1225,7 @@ export const contentPlanUpdateSchema = z.object({
   monthly_price: z.number().positive().optional(),
   description: z.string().nullish(),
   is_active: z.boolean().optional(),
+  is_recommended: z.boolean(),
 });
 
 export type ContentPlanUpdateType = z.infer<typeof contentPlanUpdateSchema>;

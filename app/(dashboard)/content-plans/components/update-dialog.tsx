@@ -166,7 +166,31 @@ export function UpdateDialog({
             </div>
             <FormControl>
               <Switch
-                checked={field.value || false}
+                checked={field.value ?? false}
+                onCheckedChange={(checked) => field.onChange(checked)}
+                aria-readonly
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="is_recommended"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="flex flex-col gap-1">
+              <FormLabel className="text-md font-semibold">
+                Санал болгох?
+              </FormLabel>
+              <FormDescription className="text-muted-foreground">
+                Багц дундаас санал болгох эсэх
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value ?? false}
                 onCheckedChange={(checked) => field.onChange(checked)}
                 aria-readonly
               />
