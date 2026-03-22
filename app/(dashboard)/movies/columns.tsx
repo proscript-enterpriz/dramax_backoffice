@@ -1,9 +1,18 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { currencyFormat } from '@interpriz/lib/utils';
+import { currencyFormat, removeHTML } from '@interpriz/lib/utils';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Edit, GitBranch, MoreHorizontal, Trash } from 'lucide-react';
+import { partition } from 'lodash';
+import {
+  Check,
+  ChevronDown,
+  Edit,
+  GitBranch,
+  Loader2,
+  MoreHorizontal,
+  Trash,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -24,15 +33,32 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPagePermission, hasPermission } from '@/lib/permission';
+import { cn, imageResize } from '@/lib/utils';
+import {
+  assignMoviesToContentPlan,
+  removeMovieFromContentPlan,
+} from '@/services/content-plans';
 import { deleteMovie, getMovie } from '@/services/movies-generated';
-import { MovieListResponseType } from '@/services/schema';
+import {
+  ContentPlanResponseType,
+  MovieListResponseType,
+} from '@/services/schema';
 
 import UpdateMovie from './update-movie';
 
-const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
+type ModifiedMovieType = MovieListResponseType & {
+  plan?: string;
+  canChangePlan: boolean;
+  canRemovePlan: boolean;
+  plans?: ContentPlanResponseType[];
+};
+
+const Action = ({ row }: CellContext<ModifiedMovieType, unknown>) => {
   const [loading, setLoading] = useState(false);
   const deleteDialogRef = useRef<DeleteDialogRef>(null);
   const { data } = useSession();
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+
   const canDelete = hasPermission(data, 'movies', 'delete');
   const canEdit = hasPermission(data, 'movies', 'update');
   const canAccessSeasons =
@@ -40,9 +66,10 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
   const canAccessMiniSeries =
     hasPagePermission(data, 'movies.movie-episodes') &&
     row.original.type === 'mini-series';
-  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
 
-  if (!canEdit && !canDelete && !canAccessSeasons && !canAccessMiniSeries) {
+  if (
+    [canEdit, canDelete, canAccessSeasons, canAccessMiniSeries].every((p) => !p)
+  ) {
     return null;
   }
 
@@ -128,33 +155,171 @@ const Action = ({ row }: CellContext<MovieListResponseType, unknown>) => {
   );
 };
 
-export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
-  {
-    id: 'poster_url',
-    accessorKey: 'poster_url',
-    header: () => <h1>Зураг</h1>,
-    cell: ({ row }) =>
-      row.original.poster_url ? (
-        <Image
-          src={row.original.poster_url}
-          alt=""
-          width={64}
-          height={64}
-          unoptimized
-          className="h-16 w-16 rounded-md object-cover"
-        />
-      ) : (
-        '-'
-      ),
-    enableSorting: false,
-    enableColumnFilter: true,
-  },
+export const PlanAction = ({
+  row,
+}: CellContext<ModifiedMovieType, unknown>) => {
+  const [open, setOpen] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const deleteDialogRef = useRef<DeleteDialogRef>(null);
+  const currentPlan = row.original.content_plan_id;
+
+  const [customPlans, tieredPlans] = partition(
+    row.original.plans ?? [],
+    (c) => c.type === 'custom',
+  );
+
+  const handleChange = async (planId: string | null) => {
+    setLoadingPlan(planId);
+
+    try {
+      const res =
+        planId !== 'remove'
+          ? await assignMoviesToContentPlan({
+              plan_id: planId!,
+              movie_ids: [row.original.id],
+            })
+          : await removeMovieFromContentPlan({ movie_ids: [row.original.id] });
+      if (res.status === 'error') throw new Error(res.message);
+
+      toast.success('Амжилттай хадгалагдлаа');
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLoadingPlan(null);
+      setOpen(false);
+    }
+  };
+
+  return row.original.canChangePlan ? (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            'h-6 space-x-1 pr-2 text-xs',
+            !row.original.plan && 'text-muted-foreground',
+          )}
+        >
+          {row.original.plan || 'Select Plan'}
+          {loadingPlan ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <ChevronDown className="h-3 w-3" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="start" className="w-48">
+        {!!customPlans?.length && (
+          <>
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
+              Захиалгат
+            </DropdownMenuLabel>
+            {customPlans.map((plan) => (
+              <DropdownMenuItem
+                key={plan.id}
+                disabled={loadingPlan !== null}
+                onClick={() => handleChange(plan.id)}
+                className="relative space-x-2"
+              >
+                <span className="flex-1">{plan.name}</span>
+                {loadingPlan === plan.id ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : currentPlan === plan.id ? (
+                  <Check className="h-3 w-3" />
+                ) : null}
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
+
+        {!!tieredPlans?.length && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
+              Зэрэглэлтэй
+            </DropdownMenuLabel>
+            {tieredPlans
+              .sort((a, b) => a.tier_level! - b.tier_level!)
+              .map((plan) => (
+                <DropdownMenuItem
+                  key={plan.id}
+                  disabled={loadingPlan !== null}
+                  onClick={() => handleChange(plan.id)}
+                >
+                  <span className="flex-1">{plan.name}</span>
+                  {loadingPlan === plan.id ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : currentPlan === plan.id ? (
+                    <Check className="h-3 w-3" />
+                  ) : null}
+                </DropdownMenuItem>
+              ))}
+          </>
+        )}
+        {!!currentPlan && row.original.canRemovePlan && (
+          <>
+            <DropdownMenuSeparator />
+            <DeleteDialog
+              ref={deleteDialogRef}
+              loading={loadingPlan === 'remove'}
+              action={() => handleChange('remove')}
+              description={
+                <>
+                  Та <b className="text-foreground/80">{row.original.title}</b>{' '}
+                  кино - г{' '}
+                  <b className="text-foreground/80">{row.original.plan}</b>{' '}
+                  багцаас гаргахдаа итгэлтэй байна уу?
+                </>
+              }
+            >
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                disabled={loadingPlan === 'remove'}
+                className="text-destructive"
+              >
+                <span className="flex-1">Багцаас гаргах</span>
+                {loadingPlan === 'remove' ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : null}
+              </DropdownMenuItem>
+            </DeleteDialog>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    row.original.plan || '-'
+  );
+};
+
+export const moviesColumns: ColumnDef<ModifiedMovieType>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <h1>Киноны нэр</h1>,
+    header: () => <h1>Кино</h1>,
     cell: ({ row }) => (
-      <h1 className="line-clamp-1 font-semibold">{row.original.title}</h1>
+      <div className="flex items-center gap-3">
+        {row.original.poster_url ? (
+          <Image
+            src={imageResize(row.original.poster_url, 'tiny')}
+            alt=""
+            width={36}
+            height={36}
+            unoptimized
+            className="size-9 rounded-md object-cover"
+          />
+        ) : (
+          <div className="bg-foreground/10 size-9 rounded-md" />
+        )}
+        <div className="min-w-0 flex-1">
+          <h1 className="line-clamp-1 font-semibold">{row.original.title}</h1>
+          <p className="text-muted-foreground max-w-80 truncate text-xs">
+            {removeHTML(row.original.description ?? '').slice(0, 150)}
+          </p>
+        </div>
+      </div>
     ),
     enableSorting: true,
     enableColumnFilter: true,
@@ -195,6 +360,14 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     enableColumnFilter: true,
   },
   {
+    id: 'plan',
+    accessorKey: 'plan',
+    header: () => 'Багц',
+    cell: PlanAction,
+    enableSorting: false,
+    enableColumnFilter: false,
+  },
+  {
     id: 'price',
     accessorKey: 'price',
     header: () => <h1>Үнийн дүн</h1>,
@@ -207,7 +380,7 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
     accessorKey: 'is_premium',
     header: () => <h1>Premium</h1>,
 
-    cell: ({ row }) => (row.original.is_premium ? 'Түрээсийн кино' : 'Багц'),
+    cell: ({ row }) => (row.original.is_premium ? 'Түрээс' : 'Багц'),
     enableSorting: false,
     enableColumnFilter: true,
   },
@@ -241,7 +414,7 @@ export const moviesColumns: ColumnDef<MovieListResponseType>[] = [
   {
     id: 'year',
     accessorKey: 'year',
-    header: () => <h1>Кино гарсан огноо</h1>,
+    header: () => <h1>Гарсан огноо</h1>,
     cell: ({ row }) => row.original.year,
     enableSorting: true,
     enableColumnFilter: true,

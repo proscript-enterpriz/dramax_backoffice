@@ -10,8 +10,10 @@ import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { SearchParams } from '@/lib/fetch/types';
 import { hasPermission } from '@/lib/permission';
 import { qsToObj } from '@/lib/utils';
+import { listContentPlans } from '@/services/content-plans';
 // import { getMovies } from '@/services/movies/service';
 import { getMovies } from '@/services/movies-generated';
+import { ContentPlanResponseType } from '@/services/schema';
 
 import { moviesColumns } from './columns';
 import CreateMovie from './create-movie';
@@ -50,6 +52,20 @@ export default async function MoviesPage(props: {
   };
 
   const { data, total_count } = await getMovies(transformedParams);
+  let plans: Record<string, ContentPlanResponseType>;
+  try {
+    const response = await listContentPlans(searchParams);
+    plans = (response?.data?.items || []).reduce(
+      (acc, cur) => ({
+        ...acc,
+        [cur.id]: cur,
+      }),
+      {} as Record<string, ContentPlanResponseType>,
+    );
+  } catch (e) {
+    console.error(e);
+    /*ignore*/
+  }
 
   return (
     <>
@@ -63,7 +79,21 @@ export default async function MoviesPage(props: {
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
         <DataTable
           columns={moviesColumns}
-          data={data ?? []}
+          data={(data ?? []).map((c) => ({
+            ...c,
+            plan: plans[c.content_plan_id ?? '']?.name,
+            canChangePlan: hasPermission(
+              session,
+              'content-plans.movies',
+              'update',
+            ),
+            canRemovePlan: hasPermission(
+              session,
+              'content-plans.movies',
+              'delete',
+            ),
+            plans: Object.values(plans ?? {}) ?? [],
+          }))}
           rowCount={total_count ?? data?.length}
           disableUrlUpdates={true}
         >

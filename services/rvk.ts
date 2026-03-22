@@ -14,3 +14,4 @@ export const RVK_RENTALS = 'rentals' as const;
 export const RVK_SETTINGS = 'settings' as const;
 export const RVK_CF = 'cf' as const;
 export const RVK_NOTIFICATIONS = 'notifications' as const;
+export const RVK_CONTENT_PLANS = 'content-plans' as const;

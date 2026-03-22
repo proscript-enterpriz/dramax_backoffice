@@ -354,6 +354,7 @@ export const movieResponseSchema = z.object({
   categories: z.array(categoryResponseSchema).nullish(),
   genres: z.array(genreResponseSchema).nullish(),
   tags: z.array(appModelsSchemasMoviesTagResponseSchema).nullish(),
+  content_plan_id: z.uuid().optional(),
 });
 
 export type MovieResponseType = z.infer<typeof movieResponseSchema>;
@@ -419,9 +420,29 @@ export const movieListResponseSchema = z.object({
   genres: z.array(genreResponseSchema).nullish(),
   tags: z.array(appModelsSchemasMoviesTagResponseSchema).nullish(),
   favorite: z.boolean().nullish(),
+  content_plan_id: z.uuid().optional(),
 });
 
 export type MovieListResponseType = z.infer<typeof movieListResponseSchema>;
+
+export const rawMovieOutSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  description: z.string().nullish(),
+  type: z.enum(['movie', 'mini-series', 'series']),
+  status: z.enum(['pending', 'active']).nullish(),
+  year: z.int().nullish(),
+  price: z.int().nullish(),
+  is_premium: z.boolean().nullish(),
+  poster_url: z.string().nullish(),
+  load_image_url: z.string().nullish(),
+  orientation: z.string().nullish(),
+  is_adult: z.boolean().nullish(),
+  created_at: z.iso.datetime(),
+  content_plan_id: z.uuid().optional(),
+});
+
+export type RawMovieOutType = z.infer<typeof rawMovieOutSchema>;
 
 export const baseResponseUnionListMovieListResponseNoneTypeSchema = z.object({
   status: z.string(),
@@ -1151,3 +1172,104 @@ export const signedUrlResponseSchema = z.object({
 });
 
 export type SignedUrlResponseType = z.infer<typeof signedUrlResponseSchema>;
+
+// Content Plans schemas
+export const contentPlanTypeSchema = z.enum(['tiered', 'custom']);
+
+export type ContentPlanTypeType = z.infer<typeof contentPlanTypeSchema>;
+
+export const contentPlanResponseSchema = z.object({
+  name: z.string().min(1).max(200),
+  type: contentPlanTypeSchema,
+  tier_level: z.number().int().min(1).nullish(),
+  image_url: z.string().nullish(),
+  monthly_price: z.number().positive(),
+  description: z.string().nullish(),
+  is_active: z.boolean().default(true),
+  is_recommended: z.boolean().default(false),
+  id: z.uuid(),
+  created_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
+  movie_count: z.number().int().default(0),
+});
+
+export type ContentPlanResponseType = z.infer<typeof contentPlanResponseSchema>;
+
+export const contentPlanListResponseSchema = z.object({
+  items: z.array(contentPlanResponseSchema),
+  total: z.number().int(),
+});
+
+export type ContentPlanListResponseType = z.infer<
+  typeof contentPlanListResponseSchema
+>;
+
+export const contentPlanCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  type: contentPlanTypeSchema,
+  tier_level: z.number().int().min(1).nullish(),
+  image_url: z.string().nullish(),
+  monthly_price: z.number().positive(),
+  description: z.string().nullish(),
+  is_active: z.boolean().optional(),
+  is_recommended: z.boolean(),
+});
+
+export type ContentPlanCreateType = z.infer<typeof contentPlanCreateSchema>;
+
+export const contentPlanUpdateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  type: contentPlanTypeSchema.optional(),
+  tier_level: z.number().int().min(1).nullish(),
+  image_url: z.string().nullish(),
+  monthly_price: z.number().positive().optional(),
+  description: z.string().nullish(),
+  is_active: z.boolean().optional(),
+  is_recommended: z.boolean(),
+});
+
+export type ContentPlanUpdateType = z.infer<typeof contentPlanUpdateSchema>;
+
+export const baseResponseContentPlanResponseSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: contentPlanResponseSchema.nullish(),
+  total_count: z.number().int().nullish(),
+});
+
+export type BaseResponseContentPlanResponseType = z.infer<
+  typeof baseResponseContentPlanResponseSchema
+>;
+
+export const baseResponseContentPlanListResponseSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: contentPlanListResponseSchema.nullish(),
+  total_count: z.number().int().nullish(),
+});
+
+export type BaseResponseContentPlanListResponseType = z.infer<
+  typeof baseResponseContentPlanListResponseSchema
+>;
+
+export const baseResponseListMovieListResponseSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.array(movieListResponseSchema).nullish(),
+  total_count: z.number().int().nullish(),
+});
+
+export type BaseResponseListMovieListResponseType = z.infer<
+  typeof baseResponseListMovieListResponseSchema
+>;
+
+export const baseResponseListRawMovieOutSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: z.array(rawMovieOutSchema),
+  total_count: z.number().int(),
+});
+
+export type BaseResponseListRawMovieOutType = z.infer<
+  typeof baseResponseListRawMovieOutSchema
+>;
