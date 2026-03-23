@@ -118,7 +118,7 @@ export default function CreateMovie() {
   });
 
   const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
-  const isPremium = !!form.watch('is_premium');
+  // const isPremium = !!form.watch('is_premium');
   const currentYear = new Date().getFullYear();
   const parseYearInput = (value: string): number | undefined => {
     if (value === '') return undefined;
@@ -134,7 +134,7 @@ export default function CreateMovie() {
       description: d.description,
       type: d.type,
       year: Number(d.year ?? currentYear),
-      price: d.is_premium ? Number(d.price) : undefined,
+      price: Number(d.price),
       trailer_url: d.trailer_url,
       poster_url: d.poster_url || '',
       load_image_url: d.load_image_url || '',
@@ -398,47 +398,45 @@ export default function CreateMovie() {
                     )}
                   />
 
+                  {/*<FormField*/}
+                  {/*  control={form.control}*/}
+                  {/*  name="is_premium"*/}
+                  {/*  render={({ field }) => (*/}
+                  {/*    <FormItem className="bg-background border-destructive/15 flex flex-row items-center justify-between rounded-lg border p-4">*/}
+                  {/*      <div className="flex flex-col gap-1">*/}
+                  {/*        <FormLabel className="text-md font-semibold">*/}
+                  {/*          Түрээсийн кино эсэх*/}
+                  {/*        </FormLabel>*/}
+                  {/*        <FormDescription className="text-muted-foreground">*/}
+                  {/*          Багцад үл хамаарсан зөвхөн түрээслэн үзэх боломжтой*/}
+                  {/*          кино*/}
+                  {/*        </FormDescription>*/}
+                  {/*      </div>*/}
+                  {/*      <FormControl>*/}
+                  {/*        <Switch*/}
+                  {/*          checked={!!field.value}*/}
+                  {/*          onCheckedChange={(checked) =>*/}
+                  {/*            field.onChange(checked)*/}
+                  {/*          }*/}
+                  {/*          aria-readonly*/}
+                  {/*        />*/}
+                  {/*      </FormControl>*/}
+                  {/*    </FormItem>*/}
+                  {/*  )}*/}
+                  {/*/>*/}
+
                   <FormField
                     control={form.control}
-                    name="is_premium"
+                    name="price"
                     render={({ field }) => (
-                      <FormItem className="bg-background border-destructive/15 flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="flex flex-col gap-1">
-                          <FormLabel className="text-md font-semibold">
-                            Түрээсийн кино эсэх
-                          </FormLabel>
-                          <FormDescription className="text-muted-foreground">
-                            Багцад үл хамаарсан зөвхөн түрээслэн үзэх боломжтой
-                            кино
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={!!field.value}
-                            onCheckedChange={(checked) =>
-                              field.onChange(checked)
-                            }
-                            aria-readonly
-                          />
-                        </FormControl>
-                      </FormItem>
+                      <CurrencyItem
+                        label="Түрээсийн үнэ"
+                        placeholder="Enter Price"
+                        field={field}
+                        inputClassName="bg-background border-destructive/15"
+                      />
                     )}
                   />
-
-                  {isPremium && (
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <CurrencyItem
-                          label="Түрээсийн үнэ"
-                          placeholder="Enter Price"
-                          field={field}
-                          inputClassName="bg-background border-destructive/15"
-                        />
-                      )}
-                    />
-                  )}
 
                   <FormField
                     control={form.control}

@@ -595,6 +595,7 @@ export const episodeSchema = z.object({
   duration: z.union([z.int(), z.number()]).nullish(),
   thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
+  is_locked: z.boolean().optional(),
 });
 
 export type EpisodeType = z.infer<typeof episodeSchema>;
@@ -643,6 +644,7 @@ export const updateEpisodeSchema = z.object({
   thumbnail: z.string().nullish(),
   duration: z.int().nullish(),
   cloudflare_video_id: z.string().max(500).nullish(),
+  is_locked: z.boolean().optional(),
 });
 
 export type UpdateEpisodeType = z.infer<typeof updateEpisodeSchema>;
@@ -665,6 +667,7 @@ export const movieEpisodeSchema = z.object({
   duration: z.union([z.int(), z.number()]).nullish(),
   thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
+  is_locked: z.boolean().optional(),
 });
 
 export type MovieEpisodeType = z.infer<typeof movieEpisodeSchema>;
@@ -724,6 +727,7 @@ export const updateMovieEpisodeSchema = z.object({
   video_height: z.number().int().optional(),
   duration: z.number().int().optional(),
   cloudflare_video_id: z.string().max(500).optional(),
+  is_locked: z.boolean().optional(),
 });
 
 export type UpdateMovieEpisodeType = z.infer<typeof updateMovieEpisodeSchema>;
