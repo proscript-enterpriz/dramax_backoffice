@@ -14,12 +14,14 @@ import {
 import { UploadPosterComponent } from '@/components/partials/upload-movie-poster';
 import {
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { pickChangedValues, removeHTML } from '@/lib/utils';
 import { updateEpisode } from '@/services/episodes';
 import {
@@ -184,6 +186,31 @@ export function UpdateDialog({
               />
             </FormControl>
             <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="is_locked"
+        render={({ field }) => (
+          <FormItem className="bg-background border-destructive/15 flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="flex flex-col gap-1">
+              <FormLabel className="text-md font-semibold">
+                Худалдан авалт шаардах
+              </FormLabel>
+              <FormDescription className="text-muted-foreground">
+                Хэрвээ тухайн ангийг худалдан авалт шаардахгүйгээр үзэх бол
+                &#34;Идэвхгүй&#34; болгоорой. Идэвхтэй болгох нь тухайн ангийг
+                үзэхэд худалдан авалт шаардана гэсэн үг юм.
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch
+                onCheckedChange={(checked) => field.onChange(checked)}
+                aria-readonly
+              />
+            </FormControl>
           </FormItem>
         )}
       />
