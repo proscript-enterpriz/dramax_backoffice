@@ -21,35 +21,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { removeHTML } from '@/lib/utils';
 import { createEpisode } from '@/services/create_episode';
 import { createEpisodeSchema, CreateEpisodeType } from '@/services/schema';
 
 const createEpisodeFormSchema = createEpisodeSchema.superRefine(
   (values, ctx) => {
-    if (!values.thumbnail?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['thumbnail'],
-        message: 'Постер зураг заавал оруулна уу!',
-      });
-    }
-
-    if (!removeHTML(values.description ?? '').trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['description'],
-        message: 'Тайлбар заавал оруулна уу!',
-      });
-    }
-
-    if (!values.cloudflare_video_id?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['cloudflare_video_id'],
-        message: 'Streaming URL заавал оруулна уу!',
-      });
-    }
+    // if (!values.cloudflare_video_id?.trim()) {
+    //   ctx.addIssue({
+    //     code: 'custom',
+    //     path: ['cloudflare_video_id'],
+    //     message: 'Streaming URL заавал оруулна уу!',
+    //   });
+    // }
   },
 );
 
@@ -125,7 +108,11 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <FormItem>
             <FormLabel>Title</FormLabel>
             <FormControl>
-              <Input placeholder="Episode title" {...field} />
+              <Input
+                placeholder="Episode title"
+                {...field}
+                value={field.value ?? undefined}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -114,9 +114,13 @@ export function CreateOverlay({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Гарчиг *</FormLabel>
+              <FormLabel>Гарчиг</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Ангийн гарчиг оруулна уу" />
+                <Input
+                  {...field}
+                  value={field.value ?? undefined}
+                  placeholder="Ангийн гарчиг оруулна уу"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
