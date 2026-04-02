@@ -144,7 +144,7 @@ export default function UpdateMovie({
       tag_ids: initialData?.tags?.map((tag) => Number(tag.id)) || [],
       movie_id: initialData?.movie_id || '',
       cloudflare_video_id: initialData?.cloudflare_video_id,
-      created_at: '2025-09-24T05:20:30.123Z',
+      created_at: initialData?.created_at ?? '2025-09-24T05:20:30.123Z',
     },
   });
 
@@ -381,7 +381,9 @@ export default function UpdateMovie({
                           {...field}
                           value={field.value || ''}
                           className="shadow-none"
-                          onChange={(e) => field.onChange(e.target.value)}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       </FormControl>
                     </FormItem>

@@ -94,7 +94,7 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
               <FormControl>
                 <Input
                   {...field}
-                  value={field.value ?? ''}
+                  value={field.value ?? undefined}
                   placeholder="Ангийн гарчиг"
                 />
               </FormControl>

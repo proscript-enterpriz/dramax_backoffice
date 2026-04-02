@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { pickChangedValues, removeHTML } from '@/lib/utils';
+import { pickChangedValues } from '@/lib/utils';
 import { updateEpisode } from '@/services/episodes';
 import {
   EpisodeType,
@@ -32,30 +32,6 @@ import {
 
 const updateEpisodeFormSchema = updateEpisodeSchema.superRefine(
   (values, ctx) => {
-    if (!values.title?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['title'],
-        message: 'Анги нэр заавал оруулна уу!',
-      });
-    }
-
-    if (!removeHTML(values.description ?? '').trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['description'],
-        message: 'Тайлбар заавал оруулна уу!',
-      });
-    }
-
-    if (!values.thumbnail?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['thumbnail'],
-        message: 'Постер зураг заавал оруулна уу!',
-      });
-    }
-
     if (!values.cloudflare_video_id?.trim()) {
       ctx.addIssue({
         code: 'custom',
@@ -129,7 +105,7 @@ export function UpdateDialog({
             <FormControl>
               <Input
                 {...field}
-                value={field.value ?? ''}
+                value={field.value ?? undefined}
                 placeholder="Ангийн нэр оруулна уу?"
               />
             </FormControl>

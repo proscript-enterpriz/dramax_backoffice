@@ -374,7 +374,7 @@ export const movieCreateSchema = z.object({
   title: z.string().min(1, 'Киноны нэр оруулна уу').max(500),
   description: z.string().min(1, 'Дэлгэрэнгүй тайлбар оруулна уу').max(5000),
   type: z.enum(['movie', 'mini-series', 'series']),
-  year: z.int().min(1900).max(2030),
+  year: z.int().min(1900).max(2030).nullish(),
   price: z.int().min(1, 'Үнийн дүн оруулна уу').nullish(),
   is_premium: z.boolean().nullish(),
   is_adult: z.boolean().nullish(),
@@ -487,14 +487,9 @@ export const movieUpdateSchema = z.object({
 
 export type MovieUpdateType = z.infer<typeof movieUpdateSchema>;
 
-export const movieUpdateFormSchema = movieResponseSchema
-  .extend({
-    tag_ids: z.array(z.int()).nullish(),
-  })
-  .refine((data) => !data.is_premium || !!data.price, {
-    message: 'Price is required when premium is enabled',
-    path: ['price'],
-  });
+export const movieUpdateFormSchema = movieResponseSchema.extend({
+  tag_ids: z.array(z.int()).nullish(),
+});
 
 export type MovieUpdateFormType = z.infer<typeof movieUpdateFormSchema>;
 
@@ -620,7 +615,7 @@ export type SingleItemResponseEpisodeType = z.infer<
 >;
 
 export const createEpisodeSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().min(1).max(200).nullish(),
   episode_number: z.int(),
   video_width: z.int().optional(),
   video_height: z.int().optional(),
@@ -694,12 +689,16 @@ export type SingleItemResponseMovieEpisodeType = z.infer<
 >;
 
 export const createMovieEpisodeSchema = z.object({
-  // REQUIRED fields
-  title: z.string().min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!').max(200),
+  title: z
+    .string()
+    .min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!')
+    .max(200)
+    .nullish(),
   description: z
     .string()
     .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
-    .max(500),
+    .max(500)
+    .nullish(),
   thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
   // OPTIONAL fields
   episode_number: z.int(),
@@ -713,15 +712,17 @@ export const createMovieEpisodeSchema = z.object({
 export type CreateMovieEpisodeType = z.infer<typeof createMovieEpisodeSchema>;
 
 export const updateMovieEpisodeSchema = z.object({
-  // REQUIRED
-  title: z.string().min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!').max(200),
+  title: z
+    .string()
+    .min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!')
+    .max(200)
+    .nullish(),
   description: z
     .string()
     .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
-    .max(500),
+    .max(500)
+    .nullish(),
   thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
-
-  // OPTIONAL
   episode_number: z.number().int().optional(),
   video_width: z.number().int().optional(),
   video_height: z.number().int().optional(),
