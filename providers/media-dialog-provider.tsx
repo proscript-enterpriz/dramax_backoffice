@@ -16,7 +16,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFileUploader } from '@/hooks/use-file-upload';
-import { humanizeBytes, imageResize } from '@/lib/utils';
+import { cn, humanizeBytes, imageResize } from '@/lib/utils';
 import { deleteImage, getUploadedImages } from '@/services/images';
 import type { ImageInfoType } from '@/services/schema';
 
@@ -181,9 +181,15 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
 
           <div className="flex min-h-0 flex-1 flex-col gap-4">
             {/* Upload Area */}
-            <label className="border-muted-foreground/25 hover:border-primary block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors">
+            <label
+              className={cn(
+                'border-muted-foreground/25 hover:border-primary block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors',
+                { 'flex-1': typeof options.onSelect === 'undefined' },
+              )}
+            >
               <input
                 type="file"
+                multiple={options.multiple}
                 accept={fileUploader.accept}
                 onChange={handleFileChange}
                 className="hidden"
@@ -194,7 +200,7 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                   <p>Байршуулж байна...</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex h-full flex-col items-center justify-center gap-2">
                   <Upload className="text-muted-foreground h-8 w-8" />
                   <p className="text-muted-foreground text-sm">
                     Энд дарж зураг сонгон байршуулна уу
@@ -260,79 +266,80 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                         </div>
                       );
                     })}
-                  {media.map((item) => {
-                    const isSelected = selectedMedia.some(
-                      (m) => m.id === item.id,
-                    );
-                    const mime = (item.content_type || 'image')
-                      .replace('image/', '')
-                      .toUpperCase();
-                    const size = humanizeBytes(item.file_size ?? 0);
+                  {typeof options.onSelect !== 'undefined' &&
+                    media.map((item) => {
+                      const isSelected = selectedMedia.some(
+                        (m) => m.id === item.id,
+                      );
+                      const mime = (item.content_type || 'image')
+                        .replace('image/', '')
+                        .toUpperCase();
+                      const size = humanizeBytes(item.file_size ?? 0);
 
-                    return (
-                      <div key={item.id} className="space-y-2">
-                        <div
-                          onClick={() => handleSelect(item)}
-                          className={`group relative cursor-pointer overflow-hidden rounded-lg transition-all ${
-                            isSelected
-                              ? 'border-primary ring-primary ring-2'
-                              : 'hover:border-primary border-transparent'
-                          }`}
-                          style={{
-                            backgroundImage: `url(${imageResize(item.image_url, 'blur')})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                          }}
-                        >
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="icon"
-                            className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteMedia(item);
+                      return (
+                        <div key={item.id} className="space-y-2">
+                          <div
+                            onClick={() => handleSelect(item)}
+                            className={`group relative cursor-pointer overflow-hidden rounded-lg transition-all ${
+                              isSelected
+                                ? 'border-primary ring-primary ring-2'
+                                : 'hover:border-primary border-transparent'
+                            }`}
+                            style={{
+                              backgroundImage: `url(${imageResize(item.image_url, 'blur')})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              backgroundRepeat: 'no-repeat',
                             }}
-                            disabled={deletingImageId === item.id}
                           >
-                            {deletingImageId === item.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <X className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <div className="relative aspect-square">
-                            <Image
-                              src={imageResize(item.image_url, 'small')}
-                              alt={item.file_name}
-                              fill
-                              sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                              className="object-cover"
-                            />
-                            {isSelected && (
-                              <div className="bg-primary/20 absolute inset-0 flex items-center justify-center">
-                                <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
-                                  <Check className="h-4 w-4" />
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="icon"
+                              className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteMedia(item);
+                              }}
+                              disabled={deletingImageId === item.id}
+                            >
+                              {deletingImageId === item.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <X className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <div className="relative aspect-square">
+                              <Image
+                                src={imageResize(item.image_url, 'small')}
+                                alt={item.file_name}
+                                fill
+                                sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                                className="object-cover"
+                              />
+                              {isSelected && (
+                                <div className="bg-primary/20 absolute inset-0 flex items-center justify-center">
+                                  <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
+                                    <Check className="h-4 w-4" />
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
+                          </div>
+                          <div className="space-y-1 px-0.5">
+                            <p
+                              className="truncate text-xs font-medium"
+                              title={item.file_name}
+                            >
+                              {item.file_name}
+                            </p>
+                            <p className="text-muted-foreground text-[11px]">
+                              {mime} - {size}
+                            </p>
                           </div>
                         </div>
-                        <div className="space-y-1 px-0.5">
-                          <p
-                            className="truncate text-xs font-medium"
-                            title={item.file_name}
-                          >
-                            {item.file_name}
-                          </p>
-                          <p className="text-muted-foreground text-[11px]">
-                            {mime} - {size}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               )}
             </ScrollArea>
@@ -352,13 +359,15 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                 >
                   Болих
                 </Button>
-                <Button
-                  onClick={handleConfirm}
-                  disabled={selectedMedia.length === 0}
-                  className="w-full sm:w-auto"
-                >
-                  Сонгох
-                </Button>
+                {typeof options.onSelect !== 'undefined' && (
+                  <Button
+                    onClick={handleConfirm}
+                    disabled={selectedMedia.length === 0}
+                    className="w-full sm:w-auto"
+                  >
+                    Сонгох
+                  </Button>
+                )}
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { SearchParams } from '@/services/api/types';
 import { getUploadedImages } from '@/services/images';
 
 import { imagesColumns } from './columns';
+import { ImportMediaDialog } from './import-dialog';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,7 @@ export default async function ImagesPage(props: {
     <>
       <div className="flex items-start justify-between">
         <Heading title={`Зурагууд (${count})`} />
+        <ImportMediaDialog />
       </div>
       <Separator />
       <Suspense fallback={<TableSkeleton rows={5} columns={7} />}>
