@@ -32,13 +32,13 @@ import {
 
 const updateEpisodeFormSchema = updateEpisodeSchema.superRefine(
   (values, ctx) => {
-    if (!values.cloudflare_video_id?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['cloudflare_video_id'],
-        message: 'Streaming URL заавал оруулна уу!',
-      });
-    }
+    // if (!values.cloudflare_video_id?.trim()) {
+    //   ctx.addIssue({
+    //     code: 'custom',
+    //     path: ['cloudflare_video_id'],
+    //     message: 'Streaming URL заавал оруулна уу!',
+    //   });
+    // }
   },
 );
 

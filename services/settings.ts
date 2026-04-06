@@ -12,30 +12,52 @@ import {
 // Auto-generated service for settings
 
 export async function getSettings() {
-  const res = await actions.get<SingleItemResponseSettingsModelType>(
-    `/settings/`,
-    {
-      next: {
-        tags: [RVK_SETTINGS],
+  try {
+    const res = await actions.get<SingleItemResponseSettingsModelType>(
+      `/settings/`,
+      {
+        next: {
+          tags: [RVK_SETTINGS],
+        },
       },
-    },
-  );
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while fetching settings.',
+    };
+  }
 }
 
 export async function updateSettings(body: SettingsModelType) {
-  const res = await actions.patch<SingleItemResponseSettingsModelType>(
-    `/settings/`,
-    body,
-  );
+  try {
+    const res = await actions.patch<SingleItemResponseSettingsModelType>(
+      `/settings/`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  executeRevalidate([RVK_SETTINGS, { tag: RVK_SETTINGS }]);
-  return response;
+    executeRevalidate([RVK_SETTINGS, { tag: RVK_SETTINGS }]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while updating settings.',
+    };
+  }
 }

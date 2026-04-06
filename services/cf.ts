@@ -96,39 +96,62 @@ export async function getStreamDetails(internalId: string) {
 }
 
 export async function syncStreamDetails(internalId: string) {
-  const res = await actions.put<SingleItemResponseCloudflareVideoResponseType>(
-    `/cf/streams/${internalId}/sync`,
-    undefined, // this shit required
-  );
+  try {
+    const res =
+      await actions.put<SingleItemResponseCloudflareVideoResponseType>(
+        `/cf/streams/${internalId}/sync`,
+        undefined, // this shit required
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  // Revalidate: Stream list + specific stream detail
-  await actions.revalidate(RVK_CF);
-  await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
+    // Revalidate: Stream list + specific stream detail
+    await actions.revalidate(RVK_CF);
+    await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while syncing stream details.',
+    };
+  }
 }
 
 export async function updateStreamDetail(
   internalId: string,
   body: CloudflareVideoUpdateType,
 ) {
-  const res =
-    await actions.patch<SingleItemResponseCloudflareVideoResponseType>(
-      `/cf/streams/${internalId}`,
-      body,
-    );
+  try {
+    const res =
+      await actions.patch<SingleItemResponseCloudflareVideoResponseType>(
+        `/cf/streams/${internalId}`,
+        body,
+      );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  // Revalidate: Stream list + specific stream detail
-  await actions.revalidate(RVK_CF);
-  await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
+    // Revalidate: Stream list + specific stream detail
+    await actions.revalidate(RVK_CF);
+    await actions.revalidate(`${RVK_CF}_stream_id_${internalId}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while updating stream details.',
+    };
+  }
 }
 
 export async function audioList(streamId: string) {
@@ -213,17 +236,28 @@ export async function fetchCaptionVtt(
 }
 
 export async function generateCaptions(streamId: string, language: string) {
-  const res = await actions.post<{ result: StreamCaptionType }>(
-    `/cf/streams/${streamId}/captions/${language}/generate`,
-    undefined,
-  );
+  try {
+    const res = await actions.post<{ result: StreamCaptionType }>(
+      `/cf/streams/${streamId}/captions/${language}/generate`,
+      undefined,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  await actions.revalidate(`${RVK_CF}_${streamId}_language_${language}`);
+    await actions.revalidate(`${RVK_CF}_${streamId}_language_${language}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      result: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while generating captions.',
+    };
+  }
 }
 
 export async function updateAudioTrack(
@@ -231,43 +265,82 @@ export async function updateAudioTrack(
   trackId: string,
   body: StreamAudioUpdateType,
 ) {
-  const res = await actions.patch<SingleItemResponseStreamAudioType>(
-    `/cf/streams/${streamId}/audio/${trackId}`,
-    body,
-  );
+  try {
+    const res = await actions.patch<SingleItemResponseStreamAudioType>(
+      `/cf/streams/${streamId}/audio/${trackId}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+    await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while updating audio track.',
+    };
+  }
 }
 
 export async function generateSignedToken(streamId: string) {
-  const res = await actions.get<SignedUrlResponseType>(
-    `/cf/gen/signed_token/${streamId}`,
-    {
-      cache: 'no-store',
-    },
-  );
+  try {
+    const res = await actions.get<SignedUrlResponseType>(
+      `/cf/gen/signed_token/${streamId}`,
+      {
+        cache: 'no-store',
+      },
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      token: null,
+      iframe_url: null,
+      hls_url: null,
+      dash_url: null,
+      thumbnail_url: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while generating signed token.',
+    };
+  }
 }
 
 export async function requestUploadToken(body: UploadTokenRequestType) {
-  const res = await actions.post<UploadUrlResponseType>(
-    `/cf/upload/token`,
-    body,
-  );
+  try {
+    const res = await actions.post<UploadUrlResponseType>(
+      `/cf/upload/token`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      upload_url: null,
+      video_id: null,
+      internal_id: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while requesting upload token.',
+    };
+  }
 }
 
 export async function uploadACaptionFileForAVideo(
@@ -275,33 +348,58 @@ export async function uploadACaptionFileForAVideo(
   language: string,
   body: BodyDashboardUploadCaptionsToCfType,
 ) {
-  const res = await actions.put<CaptionResponseType>(
-    `/cf/upload/captions/${streamId}/${language}`,
-    body,
-  );
+  try {
+    const res = await actions.put<CaptionResponseType>(
+      `/cf/upload/captions/${streamId}/${language}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
-  await actions.revalidate(`${RVK_CF}_language_${language}`);
+    await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+    await actions.revalidate(`${RVK_CF}_language_${language}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      language: language,
+      label: null,
+      generated: false,
+      status: 'error',
+      message:
+        (error as Error).message ??
+        'An error occurred while uploading caption file.',
+    };
+  }
 }
 
 export async function uploadAudioTrack(
   streamId: string,
   body: BodyDashboardUploadAudioTrackType,
 ) {
-  const res = await actions.put<{ data: { result: StreamAudioType } }>(
-    `/cf/upload/audio/${streamId}`,
-    body,
-  );
+  try {
+    const res = await actions.put<{ data: { result: StreamAudioType } }>(
+      `/cf/upload/audio/${streamId}`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+    await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while uploading audio track.',
+    };
+  }
 }

@@ -86,7 +86,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
           upload_meta: getMetadata(file.name ?? '', duration),
         });
 
-        if (tokenResponse.success) {
+        if (tokenResponse.success && tokenResponse?.upload_url) {
           uppy.setFileState(file.id, {
             uploadURL: tokenResponse.upload_url!,
             tus: {
@@ -96,7 +96,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
           // Resume the upload now that we have the URL
           uppy.retryUpload(file.id);
         } else {
-          toast.error('Failed to get upload URL');
+          toast.error(tokenResponse.message ?? 'Failed to get upload URL');
         }
       } catch (e) {
         // Cancel the upload if we fail to get the URL or duration

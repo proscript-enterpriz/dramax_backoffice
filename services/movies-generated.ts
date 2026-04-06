@@ -14,25 +14,36 @@ import {
 // Auto-generated service for movies
 
 export async function createMovieAction(body: MovieCreateType) {
-  const res = await actions.post<BaseResponseUnionMovieResponseNoneTypeType>(
-    `/movies`,
-    body,
-  );
+  try {
+    const res = await actions.post<BaseResponseUnionMovieResponseNoneTypeType>(
+      `/movies`,
+      body,
+    );
 
-  const { body: response, error } = res;
+    const { body: response, error } = res;
 
-  if (error) throw new Error(error);
-  executeRevalidate([
-    RVK_MOVIES,
-    RVK_CATEGORIES,
-    RVK_GENRES,
-    RVK_TAGS,
-    { tag: RVK_MOVIES },
-    { tag: RVK_CATEGORIES },
-    { tag: RVK_GENRES },
-    { tag: RVK_TAGS },
-  ]);
-  return response;
+    if (error) throw new Error(error);
+    executeRevalidate([
+      RVK_MOVIES,
+      RVK_CATEGORIES,
+      RVK_GENRES,
+      RVK_TAGS,
+      { tag: RVK_MOVIES },
+      { tag: RVK_CATEGORIES },
+      { tag: RVK_GENRES },
+      { tag: RVK_TAGS },
+    ]);
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to create movie',
+      ),
+      data: null,
+    };
+  }
 }
 
 export type MoviesFilterType = {
@@ -50,40 +61,62 @@ export type MoviesFilterType = {
 };
 
 export async function getMovies(searchParams: MoviesFilterType = {}) {
-  const res =
-    await actions.get<BaseResponseUnionListMovieListResponseNoneTypeType>(
-      `/movies`,
+  try {
+    const res =
+      await actions.get<BaseResponseUnionListMovieListResponseNoneTypeType>(
+        `/movies`,
+        {
+          searchParams,
+          next: {
+            tags: [
+              RVK_MOVIES,
+              `${RVK_MOVIES}_filters_${JSON.stringify(searchParams)}`,
+            ],
+          },
+        },
+      );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to fetch movies',
+      ),
+      data: [],
+    };
+  }
+}
+
+export async function getMovie(movieId: string) {
+  try {
+    const res = await actions.get<BaseResponseUnionMovieResponseNoneTypeType>(
+      `/movies/${movieId}`,
       {
-        searchParams,
         next: {
-          tags: [
-            RVK_MOVIES,
-            `${RVK_MOVIES}_filters_${JSON.stringify(searchParams)}`,
-          ],
+          tags: [RVK_MOVIES],
         },
       },
     );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
-}
-
-export async function getMovie(movieId: string) {
-  const res = await actions.get<BaseResponseUnionMovieResponseNoneTypeType>(
-    `/movies/${movieId}`,
-    {
-      next: {
-        tags: [RVK_MOVIES],
-      },
-    },
-  );
-
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
-
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to fetch movie',
+      ),
+      data: null,
+    };
+  }
 }
 
 export async function updateMovie(movieId: string, body: MovieUpdateType) {
