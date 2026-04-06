@@ -183,6 +183,7 @@ export function UpdateDialog({
             </div>
             <FormControl>
               <Switch
+                checked={field.value ?? false}
                 onCheckedChange={(checked) => field.onChange(checked)}
                 aria-readonly
               />
