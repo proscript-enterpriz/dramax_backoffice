@@ -11,37 +11,70 @@ import {
 // Auto-generated service for notifications
 
 export async function sendNotificationToUser(body: SendToUserRequestType) {
-  const res = await actions.post<BaseResponseDictStrAnyType>(
-    `/notifications/send-to-user`,
-    body,
-  );
+  try {
+    const res = await actions.post<BaseResponseDictStrAnyType>(
+      `/notifications/send-to-user`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while sending notification to user.',
+    };
+  }
 }
 
 export async function sendNotificationToUsers(body: SendToUsersRequestType) {
-  const res = await actions.post<BaseResponseDictStrAnyType>(
-    `/notifications/send-to-users`,
-    body,
-  );
+  try {
+    const res = await actions.post<BaseResponseDictStrAnyType>(
+      `/notifications/send-to-users`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while sending notification to users.',
+    };
+  }
 }
 
 export async function broadcastNotification(body: SendNotificationRequestType) {
-  const res = await actions.post<BaseResponseDictStrAnyType>(
-    `/notifications/broadcast`,
-    body,
-  );
+  try {
+    const res = await actions.post<BaseResponseDictStrAnyType>(
+      `/notifications/broadcast`,
+      body,
+    );
 
-  const { body: response, error } = res;
-  if (error) throw new Error(error);
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while broadcasting notification.',
+    };
+  }
 }
