@@ -34,6 +34,7 @@ const sanitizeFileName = (file: File): File => {
 
   const normalizedBase = rawBase
     .normalize('NFKD')
+    // eslint-disable-next-line no-control-regex
     .replace(/[^\x00-\x7F]/g, '')
     .toLowerCase()
     .replace(/[_\s]+/g, '-')
@@ -43,6 +44,7 @@ const sanitizeFileName = (file: File): File => {
 
   const normalizedExt = rawExt
     .normalize('NFKD')
+    // eslint-disable-next-line no-control-regex
     .replace(/[^\x00-\x7F]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
