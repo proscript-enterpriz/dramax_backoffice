@@ -63,9 +63,9 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
   };
 
   useEffect(() => {
-    uppy.on('file-added', (file) => setName(file.name ?? ''));
-    uppy.on('file-removed', () => setName(undefined));
-    uppy.on('upload', async (_, files) => {
+    const handleFileAdded = (file: any) => setName(file.name ?? '');
+    const handleFileRemoved = () => setName(undefined);
+    const handleUpload = async (_: any, files: any) => {
       setName(undefined);
 
       const [file] = files ?? [];
@@ -103,9 +103,19 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
         uppy.cancelAll();
         toast.error('Failed to process video: ' + (e as Error).message);
       }
-    });
-    uppy.on('upload-success', () => revalidate(RVK_CF));
+    };
+    const handleUploadSuccess = () => revalidate(RVK_CF);
+
+    uppy.on('file-added', handleFileAdded);
+    uppy.on('file-removed', handleFileRemoved);
+    uppy.on('upload', handleUpload);
+    uppy.on('upload-success', handleUploadSuccess);
+
     return () => {
+      uppy.off('file-added', handleFileAdded);
+      uppy.off('file-removed', handleFileRemoved);
+      uppy.off('upload', handleUpload);
+      uppy.off('upload-success', handleUploadSuccess);
       uppy.cancelAll();
     };
   }, [uppy, isTrailer]);
