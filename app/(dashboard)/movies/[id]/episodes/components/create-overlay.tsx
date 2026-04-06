@@ -20,7 +20,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { removeHTML } from '@/lib/utils';
 import { createMovieEpisode } from '@/services/movie-episodes';
 import {
   createMovieEpisodeSchema,
@@ -35,21 +34,21 @@ interface CreateOverlayProps {
 
 const createEpisodeFormSchema = createMovieEpisodeSchema.superRefine(
   (values, ctx) => {
-    if (!removeHTML(values.description ?? '').trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['description'],
-        message: 'Тайлбар хэсэг заавал бөглөх шаардлагатай!',
-      });
-    }
-
-    if (!values.cloudflare_video_id?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['cloudflare_video_id'],
-        message: 'Streaming URL заавал оруулна уу!',
-      });
-    }
+    // if (!removeHTML(values.description ?? '').trim()) {
+    //   ctx.addIssue({
+    //     code: 'custom',
+    //     path: ['description'],
+    //     message: 'Тайлбар хэсэг заавал бөглөх шаардлагатай!',
+    //   });
+    // }
+    //
+    // if (!values.cloudflare_video_id?.trim()) {
+    //   ctx.addIssue({
+    //     code: 'custom',
+    //     path: ['cloudflare_video_id'],
+    //     message: 'Streaming URL заавал оруулна уу!',
+    //   });
+    // }
   },
 );
 
