@@ -261,9 +261,10 @@ function UploadAudioDialog({
         }) as unknown as BodyDashboardUploadAudioTrackType,
       )
         .then((res) => {
-          if (res?.data?.result) {
-            onUpload(res.data.result);
-          }
+          if (!res?.success)
+            throw new Error(res?.message ?? 'Failed to upload');
+
+          if (res?.data?.result) onUpload(res.data.result);
           resetForm();
           setOpen(false);
           toast.success('Audio амжилттай байршлаа');
@@ -399,7 +400,12 @@ function EditDialog({
             onClick={() => {
               setLoading(true);
               updateAudioTrack(streamId, track!.uid, { label })
-                .then(() => toast.success('Audio track updated'))
+                .then((res) => {
+                  if (!res.success)
+                    throw new Error(res.message ?? 'Failed to update');
+
+                  toast.success('Audio track updated');
+                })
                 .catch(() => toast.error('Failed to update track'))
                 .finally(() => setLoading(false));
             }}

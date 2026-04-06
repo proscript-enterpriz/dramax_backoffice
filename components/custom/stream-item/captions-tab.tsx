@@ -316,9 +316,9 @@ function UploadCaptionDialog({
         formData as any,
       )
         .then((res) => {
-          if (res) {
-            onUpload(res);
-          }
+          if (res.status === 'error')
+            throw new Error(res.message ?? 'Failed to upload caption');
+          onUpload(res as CaptionResponseType);
           resetForm();
           setOpen(false);
           toast.success('Хадмал амжилттай байршлаа');

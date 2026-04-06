@@ -31,7 +31,11 @@ export function PreviewPlayerDialog({
     if (isOpen && video) {
       startLoading(() => {
         generateSignedToken(video.stream_id)
-          .then((token) => setCfPreview(token.iframe_url))
+          .then((token) => {
+            if (!token.success)
+              throw new Error(token.message ?? 'Failed to start stream');
+            setCfPreview(token.iframe_url!);
+          })
           .catch((error) => {
             console.error('Failed to fetch signed token:', error);
           });

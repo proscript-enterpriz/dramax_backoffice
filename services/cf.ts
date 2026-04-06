@@ -306,7 +306,11 @@ export async function generateSignedToken(streamId: string) {
     console.error(error);
     return {
       success: false,
-      data: null,
+      token: null,
+      iframe_url: null,
+      hls_url: null,
+      dash_url: null,
+      thumbnail_url: null,
       message:
         (error as Error).message ??
         'An error occurred while generating signed token.',
@@ -329,7 +333,9 @@ export async function requestUploadToken(body: UploadTokenRequestType) {
     console.error(error);
     return {
       success: false,
-      data: null,
+      upload_url: null,
+      video_id: null,
+      internal_id: null,
       message:
         (error as Error).message ??
         'An error occurred while requesting upload token.',
@@ -359,7 +365,10 @@ export async function uploadACaptionFileForAVideo(
     console.error(error);
     return {
       success: false,
-      data: null,
+      language: language,
+      label: null,
+      generated: false,
+      status: 'error',
       message:
         (error as Error).message ??
         'An error occurred while uploading caption file.',
