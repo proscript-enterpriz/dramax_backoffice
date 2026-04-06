@@ -90,7 +90,7 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
       setOptions(dialogOptions || {});
       setIsOpen(true);
       setSelectedMedia([]);
-      loadMedia();
+      if (dialogOptions?.onSelect) loadMedia();
     },
     [loadMedia],
   );
@@ -184,7 +184,10 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
             <label
               className={cn(
                 'border-muted-foreground/25 hover:border-primary block cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors',
-                { 'flex-1': typeof options.onSelect === 'undefined' },
+                {
+                  'max-h-[320px] flex-1':
+                    typeof options.onSelect === 'undefined',
+                },
               )}
             >
               <input
