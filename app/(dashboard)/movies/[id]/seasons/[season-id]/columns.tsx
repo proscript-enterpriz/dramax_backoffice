@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { formatDuration } from '@interpriz/lib/utils';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
@@ -22,9 +22,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import { hasPermission } from '@/lib/permission';
-import { removeHTML } from '@/lib/utils';
-import { deleteEpisode } from '@/services/episodes';
+import { imageResize, removeHTML } from '@/lib/utils';
+import { deleteEpisode, updateEpisode } from '@/services/episodes';
 import { EpisodeType } from '@/services/schema';
 
 import { UpdateDialog } from './components/update-dialog';
@@ -88,6 +89,45 @@ const Action = ({ row }: CellContext<EpisodeType, unknown>) => {
   );
 };
 
+function ToggleLock({ row }: { row: { original: EpisodeType } }) {
+  const { data } = useSession();
+  const [isPending, startTransition] = useTransition();
+
+  const canEdit = hasPermission(data, 'movies.episodes', 'update');
+
+  return (
+    <Switch
+      checked={row.original.is_locked}
+      disabled={isPending || !canEdit}
+      className="mx-auto"
+      onCheckedChange={(checked) => {
+        if (!canEdit) return;
+
+        startTransition(async () => {
+          try {
+            const result = await updateEpisode(
+              row.original.episode_id,
+              row.original.season_id,
+              { is_locked: checked },
+            );
+            if (result.status === 'error') {
+              toast.error(result.message);
+              return;
+            }
+            toast.success('Анги амжилттай засагдлаа');
+          } catch (error) {
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : 'Анги засахад алдаа гарлаа',
+            );
+          }
+        });
+      }}
+    />
+  );
+}
+
 export const episodesColumns: ColumnDef<EpisodeType>[] = [
   {
     id: 'Зураг',
@@ -96,7 +136,7 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     cell: ({ row }) =>
       row.original.thumbnail ? (
         <Image
-          src={row.original.thumbnail}
+          src={imageResize(row.original.thumbnail, 'tiny')}
           alt=""
           width={64}
           height={64}
@@ -122,24 +162,6 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'id',
-    accessorKey: 'episode_id',
-    header: ({ column }) => <TableHeaderWrapper column={column} />,
-    cell: ({ row }) => row.original.episode_id,
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
-  {
-    id: 'cloudflare_video_id',
-    accessorKey: 'cloudflare_video_id',
-    header: ({ column }) => (
-      <TableHeaderWrapper column={column} label="Cloudflare Id" />
-    ),
-    cell: ({ row }) => row.original.cloudflare_video_id ?? '-',
-    enableSorting: false,
-    enableColumnFilter: true,
-  },
-  {
     id: 'Ангийн дугаар',
     accessorKey: 'episode_number',
     header: ({ column }) => <TableHeaderWrapper column={column} />,
@@ -158,6 +180,22 @@ export const episodesColumns: ColumnDef<EpisodeType>[] = [
     ),
     enableSorting: false,
     enableColumnFilter: false,
+  },
+  {
+    accessorKey: 'is_locked',
+    header: 'Түгжигдсэн',
+    size: 80,
+    cell: ToggleLock,
+  },
+  {
+    id: 'cloudflare_video_id',
+    accessorKey: 'cloudflare_video_id',
+    header: ({ column }) => (
+      <TableHeaderWrapper column={column} label="Cloudflare Id" />
+    ),
+    cell: ({ row }) => row.original.cloudflare_video_id ?? '-',
+    enableSorting: false,
+    enableColumnFilter: true,
   },
   {
     id: 'Хугацаа',

@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPagePermission, hasPermission } from '@/lib/permission';
-import { removeHTML } from '@/lib/utils';
+import { imageResize, removeHTML } from '@/lib/utils';
 import { SeasonType } from '@/services/schema';
 import { deleteSeriesSeason } from '@/services/season';
 
@@ -119,7 +119,7 @@ export const seasonsColumns: ColumnDef<SeasonType>[] = [
     cell: ({ row }) =>
       row.original.cover_image_url ? (
         <Image
-          src={row.original.cover_image_url}
+          src={imageResize(row.original.cover_image_url, 'tiny')}
           alt=""
           width={64}
           height={64}

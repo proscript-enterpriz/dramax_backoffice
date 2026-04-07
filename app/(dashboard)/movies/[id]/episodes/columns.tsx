@@ -20,9 +20,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import { hasPermission } from '@/lib/permission';
-import { removeHTML } from '@/lib/utils';
-import { deleteMovieEpisode } from '@/services/movie-episodes';
+import { imageResize, removeHTML } from '@/lib/utils';
+import {
+  deleteMovieEpisode,
+  updateMovieEpisode,
+} from '@/services/movie-episodes';
 import { MovieEpisodeType } from '@/services/schema';
 
 import { UpdateOverlay } from './components';
@@ -95,6 +99,45 @@ function CellAction({ row }: { row: { original: MovieEpisodeType } }) {
   );
 }
 
+function ToggleLock({ row }: { row: { original: MovieEpisodeType } }) {
+  const { data } = useSession();
+  const [isPending, startTransition] = useTransition();
+
+  const canEdit = hasPermission(data, 'movies.movie-episodes', 'update');
+
+  return (
+    <Switch
+      checked={row.original.is_locked}
+      disabled={isPending || !canEdit}
+      className="mx-auto"
+      onCheckedChange={(checked) => {
+        if (!canEdit) return;
+
+        startTransition(async () => {
+          try {
+            const result = await updateMovieEpisode(
+              row.original.episode_id,
+              row.original.movie_id,
+              { is_locked: checked, thumbnail: row.original.thumbnail ?? '' },
+            );
+            if (result.status === 'error') {
+              toast.error(result.message);
+              return;
+            }
+            toast.success('Анги амжилттай засагдлаа');
+          } catch (error) {
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : 'Анги засахад алдаа гарлаа',
+            );
+          }
+        });
+      }}
+    />
+  );
+}
+
 export const columns: ColumnDef<MovieEpisodeType>[] = [
   {
     accessorKey: 'thumbnail',
@@ -104,7 +147,7 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
       <div className={`${CELL_BASE} ${CELL_PAD_SM} justify-center`}>
         {row.original.thumbnail ? (
           <Image
-            src={row.original.thumbnail}
+            src={imageResize(row.original.thumbnail, 'tiny')}
             alt=""
             width={64}
             height={64}
@@ -140,6 +183,12 @@ export const columns: ColumnDef<MovieEpisodeType>[] = [
         <Badge variant="outline">#{row.original.episode_number}</Badge>
       </div>
     ),
+  },
+  {
+    accessorKey: 'is_locked',
+    header: 'Түгжигдсэн',
+    size: 80,
+    cell: ToggleLock,
   },
   {
     accessorKey: 'description',

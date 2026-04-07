@@ -42,6 +42,8 @@ export default async function Page({
 
   const canCreate = hasPermission(session, 'movies.movie-episodes', 'create');
   if (!movie || movie.type !== 'mini-series') return notFound();
+
+  console.log({ data });
   return (
     <>
       <ReplaceBreadcrumdItem

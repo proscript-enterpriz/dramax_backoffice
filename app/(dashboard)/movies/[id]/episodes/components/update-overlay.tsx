@@ -47,7 +47,7 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
       thumbnail: item.thumbnail ?? '',
       duration: item.duration ?? 0,
       cloudflare_video_id: item.cloudflare_video_id ?? '',
-      is_locked: item.is_locked ?? true,
+      is_locked: item.is_locked ?? false,
     },
   });
 
@@ -189,6 +189,7 @@ export function UpdateOverlay({ children, item }: UpdateOverlayProps) {
             </div>
             <FormControl>
               <Switch
+                checked={field.value ?? false}
                 onCheckedChange={(checked) => field.onChange(checked)}
                 aria-readonly
               />
