@@ -13,14 +13,16 @@ import { revalidate } from '@/services/api/actions';
 import { requestUploadToken } from '@/services/cf';
 import { RVK_CF } from '@/services/rvk';
 
-const getVideoDuration = (file: File): Promise<number> => {
+const getVideoDuration = (file: File): Promise<number | undefined> => {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
     video.preload = 'metadata';
 
     video.onloadedmetadata = () => {
       window.URL.revokeObjectURL(video.src);
-      const duration = Math.floor(video.duration) + 60; // Add 60 seconds buffer to ensure processing time
+      const duration = video.duration
+        ? Math.floor(video.duration) + 60
+        : undefined; // Add 60 seconds buffer to ensure processing time
       resolve(duration);
     };
 

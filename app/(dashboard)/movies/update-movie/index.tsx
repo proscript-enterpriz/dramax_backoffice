@@ -11,6 +11,7 @@ import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
 import {
   CurrencyItem,
+  DatePickerItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -368,27 +369,32 @@ export default function UpdateMovie({
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Кино гарсан он</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Кино гарсан он"
-                          {...field}
-                          value={field.value || ''}
-                          className="shadow-none"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="start_date"
+                    render={({ field }) => (
+                      <DatePickerItem
+                        field={field}
+                        label="Эхлэх огноо"
+                        disableBy="past"
+                        className="flex flex-col gap-1"
+                      />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="end_date"
+                    render={({ field }) => (
+                      <DatePickerItem
+                        field={field}
+                        label="Хаагдах огноо"
+                        disableBy="past"
+                        className="flex flex-col gap-1"
+                      />
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}

@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
-  DatePickerItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -107,18 +106,6 @@ export function UpdateDialog({
             </FormControl>
             <FormMessage />
           </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="release_date"
-        render={({ field }) => (
-          <DatePickerItem
-            field={field}
-            label="Release date (optional)"
-            disableBy="future"
-          />
         )}
       />
 
