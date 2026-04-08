@@ -351,6 +351,8 @@ export const movieResponseSchema = z.object({
   orientation: z.string().nullish(),
   movie_id: z.uuid(),
   created_at: z.iso.datetime(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
   categories: z.array(categoryResponseSchema).nullish(),
   genres: z.array(genreResponseSchema).nullish(),
   tags: z.array(appModelsSchemasMoviesTagResponseSchema).nullish(),
@@ -591,6 +593,8 @@ export const episodeSchema = z.object({
   thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
   is_locked: z.boolean().optional(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type EpisodeType = z.infer<typeof episodeSchema>;
@@ -615,7 +619,7 @@ export type SingleItemResponseEpisodeType = z.infer<
 >;
 
 export const createEpisodeSchema = z.object({
-  title: z.string().min(1).max(200).nullish(),
+  title: z.string().max(200).nullish(),
   episode_number: z.int(),
   video_width: z.int().optional(),
   video_height: z.int().optional(),
@@ -625,12 +629,14 @@ export const createEpisodeSchema = z.object({
   thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
   duration: z.int().nullish(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type CreateEpisodeType = z.infer<typeof createEpisodeSchema>;
 
 export const updateEpisodeSchema = z.object({
-  title: z.string().min(1).max(200).nullish(),
+  title: z.string().max(200).nullish(),
   episode_number: z.int().nullish(),
   description: z.string().max(500).nullish(),
   playback_url: z.string().nullish(),
@@ -640,6 +646,8 @@ export const updateEpisodeSchema = z.object({
   duration: z.int().nullish(),
   cloudflare_video_id: z.string().max(500).nullish(),
   is_locked: z.boolean().optional(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type UpdateEpisodeType = z.infer<typeof updateEpisodeSchema>;
@@ -654,7 +662,7 @@ export const baseResponseEpisodeSchema = z.object({
 export type BaseResponseEpisodeType = z.infer<typeof baseResponseEpisodeSchema>;
 
 export const movieEpisodeSchema = z.object({
-  title: z.string().min(1).max(200),
+  title: z.string().max(200),
   episode_number: z.int(),
   description: z.string().max(500).nullish(),
   episode_id: z.uuid(),
@@ -663,6 +671,8 @@ export const movieEpisodeSchema = z.object({
   thumbnail: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
   is_locked: z.boolean().optional(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type MovieEpisodeType = z.infer<typeof movieEpisodeSchema>;
@@ -689,16 +699,8 @@ export type SingleItemResponseMovieEpisodeType = z.infer<
 >;
 
 export const createMovieEpisodeSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!')
-    .max(200)
-    .nullish(),
-  description: z
-    .string()
-    .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
-    .max(500)
-    .nullish(),
+  title: z.string().max(200).nullish(),
+  description: z.string().max(500).nullish(),
   thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
   // OPTIONAL fields
   episode_number: z.int(),
@@ -707,21 +709,15 @@ export const createMovieEpisodeSchema = z.object({
   movie_id: z.uuid(),
   cloudflare_video_id: z.string().nullish(),
   duration: z.int().nullish(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type CreateMovieEpisodeType = z.infer<typeof createMovieEpisodeSchema>;
 
 export const updateMovieEpisodeSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Гарчиг хэсэг заавал бөглөх шаардлагатай!')
-    .max(200)
-    .nullish(),
-  description: z
-    .string()
-    .min(1, 'Тайлбар хэсэг заавал бөглөх шаардлагатай!')
-    .max(500)
-    .nullish(),
+  title: z.string().max(200).nullish(),
+  description: z.string().max(500).nullish(),
   thumbnail: z.string().min(1, 'Зураг заавал оруулна уу!!'),
   episode_number: z.number().int().optional(),
   video_width: z.number().int().optional(),
@@ -729,6 +725,8 @@ export const updateMovieEpisodeSchema = z.object({
   duration: z.number().int().optional(),
   cloudflare_video_id: z.string().max(500).optional(),
   is_locked: z.boolean().optional(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type UpdateMovieEpisodeType = z.infer<typeof updateMovieEpisodeSchema>;
