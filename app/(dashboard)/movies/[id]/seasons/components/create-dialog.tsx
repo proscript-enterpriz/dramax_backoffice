@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
-  DatePickerItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -101,19 +100,6 @@ export function CreateDialog({ children }: { children: ReactNode }) {
             </FormControl>
             <FormMessage />
           </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="release_date"
-        render={({ field }) => (
-          <DatePickerItem
-            field={field}
-            label="Үргэлжлүүлэх огноо"
-            disableBy="future"
-            className="flex flex-col gap-1"
-          />
         )}
       />
 

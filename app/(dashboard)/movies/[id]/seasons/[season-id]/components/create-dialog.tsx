@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
 import {
+  DatePickerItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -146,6 +147,33 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <HtmlTipTapItem field={field} label="Description" />
         )}
       />
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="start_date"
+          render={({ field }) => (
+            <DatePickerItem
+              field={field}
+              label="Эхлэх огноо"
+              disableBy="past"
+              className="flex flex-col gap-1"
+            />
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="end_date"
+          render={({ field }) => (
+            <DatePickerItem
+              field={field}
+              label="Хаагдах огноо"
+              disableBy="past"
+              className="flex flex-col gap-1"
+            />
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}

@@ -390,6 +390,8 @@ export const movieCreateSchema = z.object({
   category_ids: z.array(z.int()).nullish(),
   genre_ids: z.array(z.int()).nullish(),
   tag_ids: z.array(z.int()).nullish(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type MovieCreateType = z.infer<typeof movieCreateSchema>;
@@ -485,6 +487,8 @@ export const movieUpdateSchema = z.object({
   tag_ids: z.array(z.int()).nullish(),
   load_image_url: z.string().nullish(),
   cloudflare_video_id: z.string().nullish(),
+  start_date: z.iso.datetime().optional(),
+  end_date: z.iso.datetime().optional(),
 });
 
 export type MovieUpdateType = z.infer<typeof movieUpdateSchema>;

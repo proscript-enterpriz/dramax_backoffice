@@ -10,6 +10,7 @@ import CloudflarePreview from '@/components/custom/cloudflare-preview';
 import CloudflareTrailer from '@/components/custom/cloudflare-trailer';
 import {
   CurrencyItem,
+  DatePickerItem,
   HtmlTipTapItem,
   MediaPickerItem,
 } from '@/components/custom/form-fields';
@@ -45,7 +46,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
 import { getCategories } from '@/services/categories';
 import { getGenres } from '@/services/genres';
 import { createMovieAction } from '@/services/movies-generated';
@@ -307,30 +307,32 @@ export default function CreateMovie() {
                     }}
                   />
                 </div>
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem className={cn('flex flex-col gap-1')}>
-                      <FormLabel>Кино гарсан он</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={1900}
-                          max={currentYear}
-                          step={1}
-                          placeholder="Он оруулах"
-                          value={field.value ?? ''}
-                          onChange={(e) =>
-                            field.onChange(parseYearInput(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="start_date"
+                    render={({ field }) => (
+                      <DatePickerItem
+                        field={field}
+                        label="Эхлэх огноо"
+                        disableBy="past"
+                        className="flex flex-col gap-1"
+                      />
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="end_date"
+                    render={({ field }) => (
+                      <DatePickerItem
+                        field={field}
+                        label="Хаагдах огноо"
+                        disableBy="past"
+                        className="flex flex-col gap-1"
+                      />
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="trailer_url"
