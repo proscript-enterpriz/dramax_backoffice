@@ -137,7 +137,7 @@ export function useFileUploader(options: UseFileUploaderOptions) {
           urls.push(img);
           uploads.push(res!.data!);
         } else {
-          fail(res?.error || res?.message || 'Файл оруулахад алдаа гарлаа.');
+          fail(res?.message || 'Файл оруулахад алдаа гарлаа.');
         }
       }
 

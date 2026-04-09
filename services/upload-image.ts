@@ -1,6 +1,6 @@
 'use server';
 // ignore-generate
-import { stringifyError, validateSchema } from '@/lib/utils';
+import { validateSchema } from '@/lib/utils';
 import { executeRevalidate, fileSchema } from '@/services/api/helpers';
 import { RVK_IMAGES } from '@/services/rvk';
 
@@ -25,6 +25,11 @@ export async function uploadImage(body: FormData) {
     return response;
   } catch (error: any) {
     console.error(String(error));
-    stringifyError(error);
+
+    return {
+      status: 'error',
+      data: null,
+      message: error.message,
+    };
   }
 }
