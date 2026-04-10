@@ -64,6 +64,10 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     return metadata + nameMetadata + durationMetadata;
   };
 
+  const getFileName = (file: File) => {
+    return name ?? file.name ?? '';
+  };
+
   useEffect(() => {
     const handleFileAdded = (file: any) => setName(file.name ?? '');
     const handleFileRemoved = () => setName(undefined);
@@ -85,7 +89,7 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
 
         const tokenResponse = await requestUploadToken({
           upload_length: file.size!.toString(),
-          upload_meta: getMetadata(file.name ?? '', duration),
+          upload_meta: getMetadata(getFileName(file), duration),
         });
 
         if (tokenResponse.success && tokenResponse?.upload_url) {
