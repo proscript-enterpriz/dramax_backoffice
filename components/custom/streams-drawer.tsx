@@ -173,7 +173,7 @@ const StreamsDrawer = forwardRef<StreamsDrawerRef, StreamsDrawerProps>(
 
         const res = await getStreams(params);
 
-        if (res?.success && res.data) {
+        if (res?.status === 'success' && res.data) {
           setVideos((prev) => [...prev, ...res.data]);
           setCurrentPage(nextPage);
         } else {
