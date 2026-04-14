@@ -64,11 +64,11 @@ export function UploadPosterComponent({
 
         {hasPoster && (
           <Image
-            src={posterSrc}
+            src={imageResize(posterSrc, 'tiny')}
             alt="poster"
             fill
             loading="eager"
-            unoptimized={poster.startsWith('blob:')}
+            unoptimized
             className="rounded-xl object-cover"
           />
         )}
