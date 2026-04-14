@@ -54,11 +54,14 @@ const CLOUDFLARE_LANGUAGES: {
   code: SupportedCaptionLanguages;
   name: string;
   weight: number;
-}[] = captionLanguageSchema.options.map((c) => ({
-  code: c,
-  name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
-  weight: ['en', 'mn'].includes(c) ? 1 : 0,
-}));
+}[] = [
+  { code: 'mn', name: 'Монгол', weight: 1 },
+  ...captionLanguageSchema.options.map((c) => ({
+    code: c,
+    name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
+    weight: ['en', 'mn'].includes(c) ? 1 : 0,
+  })),
+];
 
 export function CaptionsTab({
   streamId,
@@ -359,10 +362,7 @@ function UploadCaptionDialog({
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
-                {[
-                  { code: 'mn', name: 'Mongolia' },
-                  ...CLOUDFLARE_LANGUAGES,
-                ].map((c) => (
+                {CLOUDFLARE_LANGUAGES.map((c) => (
                   <SelectItem key={c.code} value={c.code}>
                     {c.name}
                   </SelectItem>

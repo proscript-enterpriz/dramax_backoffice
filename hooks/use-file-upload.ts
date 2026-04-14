@@ -6,7 +6,7 @@ import { objToFormData } from '@interpriz/lib/utils';
 import { extractActionError, humanizeBytes } from '@/lib/utils';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from '@/services/api/helpers';
 import { ImageInfoType } from '@/services/schema';
-import { uploadImage } from '@/services/upload-image';
+import { uploadImage, UploadImageResponse } from '@/services/upload-image';
 
 export type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -62,7 +62,7 @@ export function useFileUploader(options: UseFileUploaderOptions) {
   const [status, setStatus] = useState<UploadStatus>('idle');
   const [previews, setPreviews] = useState<string[]>([]);
   const [metadata, setMetadata] = useState<
-    Array<{ name: string; size: number; type: string }>
+    Array<{ name: string; size: number; type: string; error?: string }>
   >([]);
   const [uploadedUrls, setUploadedUrls] = useState<string[]>(
     options.initialUrls || [],
@@ -115,6 +115,8 @@ export function useFileUploader(options: UseFileUploaderOptions) {
     setPreviews(filePreviews);
     setMetadata(fileMetadata);
 
+    const errors: Record<number, string> = {};
+
     try {
       setError(undefined);
       setStatus('uploading');
@@ -126,30 +128,41 @@ export function useFileUploader(options: UseFileUploaderOptions) {
         uploadImage(objToFormData({ file })),
       );
 
-      const results = await Promise.all(promises);
+      const results = await Promise.allSettled(promises);
 
       for (let i = 0; i < results.length; i++) {
-        const res = results[i];
+        const res = (results[i] as PromiseFulfilledResult<UploadImageResponse>)
+          ?.value;
+
         const img = res?.data?.image_url;
         if (img) {
           URL.revokeObjectURL(filePreviews[i]);
           filePreviews[i] = img;
           urls.push(img);
-          uploads.push(res!.data!);
-        } else {
-          fail(res?.message || 'Файл оруулахад алдаа гарлаа.');
+          uploads.push(res.data!);
         }
+
+        // Амжилтгүй тохиолдолд бүрт алдааг тэмдэглэх, давталт дотор throw бүү хий
+        errors[i] = res?.message ?? 'Файл оруулахад алдаа гарлаа.';
+      }
+
+      if (Object.keys(errors).length) {
+        setMetadata((prev) =>
+          prev.map((meta, idx) => ({
+            ...meta,
+            error: errors[idx],
+          })),
+        );
+      } else {
+        setMetadata([]);
+        setStatus('success');
+        options?.onUploadComplete?.(urls, [...urls].fill('image/webp'));
       }
 
       setUploadedUrls(urls);
       setError(undefined);
-      setMetadata([]);
       setPreviews(filePreviews);
-      setStatus('success');
-      options?.onUploadComplete?.(
-        urls,
-        urls.map(() => 'image/webp'),
-      );
+
       return uploads;
     } catch (err: any) {
       const { message } = extractActionError(err);

@@ -52,7 +52,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            <Toaster position="top-right" duration={2000} />
+            <Toaster position="top-center" duration={2000} />
           </ThemeProvider>
         </SessionProvider>
       </body>

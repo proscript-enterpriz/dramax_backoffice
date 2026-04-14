@@ -63,6 +63,7 @@ export async function createMovieEpisode(body: CreateMovieEpisodeType) {
     );
 
     const { body: response, error } = res;
+
     if (error) throw new Error(error);
 
     executeRevalidate([
