@@ -9,14 +9,14 @@ import { BaseResponseDictType, ImageInfoType } from './schema';
 
 // Auto-generated service for upload-image
 
+export type UploadImageResponse = Omit<BaseResponseDictType, 'data'> & {
+  data?: ImageInfoType;
+};
+
 export async function uploadImage(body: FormData) {
   try {
     validateSchema(fileSchema, body);
-    const res = await actions.post<
-      Omit<BaseResponseDictType, 'data'> & {
-        data?: ImageInfoType;
-      }
-    >(`/upload-image`, body);
+    const res = await actions.post<UploadImageResponse>(`/upload-image`, body);
 
     const { body: response, error } = res;
     if (error) throw new Error(error);

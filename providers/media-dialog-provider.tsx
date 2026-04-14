@@ -262,9 +262,18 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                             >
                               {name}
                             </p>
-                            <p className="text-muted-foreground text-[11px]">
-                              {mime} - {size}
-                            </p>
+                            {meta.error ? (
+                              <p
+                                className="text-destructive truncate text-xs font-medium"
+                                title={`Error: ${meta.error}`}
+                              >
+                                {meta.error}
+                              </p>
+                            ) : (
+                              <p className="text-muted-foreground text-[11px]">
+                                {mime} - {size}
+                              </p>
+                            )}
                           </div>
                         </div>
                       );

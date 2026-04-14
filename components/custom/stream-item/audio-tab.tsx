@@ -51,13 +51,42 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { audioList, updateAudioTrack, uploadAudioTrack } from '@/services/cf';
 import {
   BodyDashboardUploadAudioTrackType,
+  captionLanguageSchema,
   StreamAudioType,
 } from '@/services/schema';
+
+const CLOUDFLARE_LANGUAGES: {
+  code: string;
+  name: string;
+  weight: number;
+}[] = [
+  { code: 'mn', name: 'Монгол', weight: 1 },
+  ...captionLanguageSchema.options.map((c) => ({
+    code: c,
+    name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
+    weight: ['en', 'mn'].includes(c) ? 1 : 0,
+  })),
+];
+
+const CF_LANG_OBJ = CLOUDFLARE_LANGUAGES.reduce(
+  (acc, curr) => {
+    acc[curr.code] = curr.name;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
 
 export default function AudioTab({ streamId }: { streamId: string }) {
   const [tracks, setTracks] = useState<StreamAudioType[]>([]);
@@ -233,13 +262,13 @@ function UploadAudioDialog({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const [label, setLabel] = useState<string>('');
+  const [label, setLabel] = useState<string>('mn');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, startUploading] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
-    setLabel('');
+    setLabel('mn');
     setUploadFile(null);
     if (inputRef.current) inputRef.current.value = '';
   };
@@ -256,7 +285,7 @@ function UploadAudioDialog({
       uploadAudioTrack(
         streamId,
         objToFormData({
-          label,
+          label: CF_LANG_OBJ[label] ?? 'Unknown',
           file: uploadFile,
         }) as unknown as BodyDashboardUploadAudioTrackType,
       )
@@ -299,12 +328,19 @@ function UploadAudioDialog({
 
         <form onSubmit={handleUploadSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Label</label>
-            <Input
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              autoComplete="off"
-            />
+            <label className="mb-1 block text-sm font-medium">Language</label>
+            <Select value={label} onValueChange={(v) => setLabel(v)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                {CLOUDFLARE_LANGUAGES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
