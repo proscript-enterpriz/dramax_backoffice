@@ -11,6 +11,7 @@ import {
   SignedUrlResponseType,
   SingleItemResponseCloudflareVideoResponseType,
   SingleItemResponseStreamAudioType,
+  SingleItemResponseType,
   StreamAudioType,
   StreamAudioUpdateType,
   StreamCaptionType,
@@ -369,6 +370,34 @@ export async function uploadACaptionFileForAVideo(
       label: null,
       generated: false,
       status: 'error',
+      message:
+        (error as Error).message ??
+        'An error occurred while uploading caption file.',
+    };
+  }
+}
+
+export async function deleteCaptionFromVideo(
+  streamId: string,
+  language: string,
+) {
+  try {
+    const res = await actions.destroy<SingleItemResponseType>(
+      `/cf/upload/captions/${streamId}/${language}`,
+    );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+    await actions.revalidate(`${RVK_CF}_language_${language}`);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      data: false,
       message:
         (error as Error).message ??
         'An error occurred while uploading caption file.',
