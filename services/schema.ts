@@ -165,7 +165,14 @@ export const imageListResponseSchema = z.object({
   status: z.string(),
   message: z.string(),
   data: z.array(imageInfoSchema),
-  pagination: z.record(z.string(), z.any()),
+  pagination: z.object({
+    page: z.number(),
+    page_size: z.number(),
+    total: z.number(),
+    total_pages: z.number(),
+    has_next: z.boolean(),
+    has_prev: z.boolean(),
+  }),
 });
 
 export type ImageListResponseType = z.infer<typeof imageListResponseSchema>;

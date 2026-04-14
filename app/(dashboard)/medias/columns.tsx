@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 // import { Checkbox } from '@/components/ui/checkbox';
 import { hasPermission } from '@/lib/permission';
-import { cn, humanizeBytes } from '@/lib/utils';
+import { cn, humanizeBytes, imageResize } from '@/lib/utils';
 import { deleteImage } from '@/services/images';
 import { ImageInfoType } from '@/services/schema';
 
@@ -97,7 +97,7 @@ export const imagesColumns: ColumnDef<ImageInfoType>[] = [
     cell: ({ row }) =>
       row.original.image_url ? (
         <Image
-          src={row.original.image_url}
+          src={imageResize(row.original.image_url, 'tiny')}
           alt=""
           width={64}
           height={64}

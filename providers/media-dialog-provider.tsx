@@ -1,10 +1,18 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
+import { debounce } from 'lodash';
 import { Check, Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 
+import InfiniteScroll from '@/components/custom/infinity-scroll';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,12 +21,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFileUploader } from '@/hooks/use-file-upload';
-import { cn, humanizeBytes, imageResize } from '@/lib/utils';
-import { deleteImage, getUploadedImages } from '@/services/images';
-import type { ImageInfoType } from '@/services/schema';
+import { cn, humanizeBytes, imageResize, splitByImageExt } from '@/lib/utils';
+import {
+  deleteImage,
+  getUploadedImages,
+  GetUploadedImagesSearchParams,
+} from '@/services/images';
+import { ImageInfoType, ImageListResponseType } from '@/services/schema';
 
 interface MediaDialogContextType {
   openDialog: (options?: MediaDialogOptions) => void;
@@ -55,6 +68,17 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedMedia, setSelectedMedia] = useState<ImageInfoType[]>([]);
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [pagination, setPagination] = useState<
+    ImageListResponseType['pagination']
+  >({
+    total: 0,
+    total_pages: 1,
+    page: 1,
+    page_size: 50,
+    has_next: false,
+    has_prev: false,
+  });
 
   const fileUploader = useFileUploader({
     onUploadComplete: () => {
@@ -66,17 +90,18 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   });
 
-  const loadMedia = useCallback(async () => {
+  const loadMedia = useCallback(async (sp?: GetUploadedImagesSearchParams) => {
     setIsLoading(true);
     try {
       const response = await getUploadedImages({
-        page: 1,
-        page_size: 100,
+        page_size: 50,
+        ...sp,
       });
 
       if (response.status === 'error') throw new Error(response.message);
 
-      setMedia(response.data ?? []);
+      setPagination(response.pagination!);
+      setMedia((prev) => Array.from([...prev, ...(response.data ?? [])]));
     } catch (error) {
       toast.error('Медиа ачаалахад алдаа гарлаа');
       console.error('Error loading media:', error);
@@ -167,6 +192,15 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
     [deletingImageId, loadMedia],
   );
 
+  const debouncedSearch = useMemo(() => {
+    return debounce((val) => {
+      setMedia([]);
+      loadMedia({
+        search: val,
+      });
+    }, 500);
+  }, []);
+
   return (
     <MediaDialogContext.Provider value={{ openDialog, closeDialog }}>
       {children}
@@ -212,148 +246,175 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
               )}
             </label>
 
+            <Input
+              placeholder="Зургийн нэр оруулна уу"
+              className="w-full"
+              onChange={(e) => debouncedSearch(e.target.value)}
+            />
+
             {/* Media Grid */}
             <ScrollArea className="min-h-0 flex-1 overflow-hidden rounded-md">
-              {isLoading ? (
-                <div className="grid grid-cols-3 gap-4 overflow-hidden p-1 md:grid-cols-4 lg:grid-cols-5">
-                  {Array.from({ length: 15 }).map((_, idx) => (
+              <div className="grid grid-cols-3 gap-4 p-1 md:grid-cols-4 lg:grid-cols-5">
+                {fileUploader.previews
+                  .filter((c) => !media.find((cc) => cc.image_url === c))
+                  .map((item, idx) => {
+                    const meta = fileUploader.metadata[idx];
+                    const { base: name } = splitByImageExt(
+                      meta?.name ?? `Түр зураг ${idx + 1}`,
+                    );
+                    const mime = meta?.type
+                      ? meta.type.replace('image/', '').toUpperCase()
+                      : 'IMAGE';
+                    const size = humanizeBytes(meta?.size ?? 0);
+
+                    return (
+                      <div key={idx} className="space-y-2">
+                        <div
+                          className={`relative overflow-hidden rounded-lg transition-all ${
+                            item.startsWith('blob:')
+                              ? 'opacity-70'
+                              : 'opacity-100'
+                          }`}
+                        >
+                          <div className="relative aspect-square">
+                            <Image
+                              src={item}
+                              alt={`Upload Preview ${idx + 1}`}
+                              fill
+                              unoptimized={item.startsWith('blob:')}
+                              sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                              className="rounded-[inherit] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1 px-0.5">
+                          <p
+                            className="truncate text-xs font-medium"
+                            title={name}
+                          >
+                            {name}
+                          </p>
+                          {meta.error ? (
+                            <p
+                              className="text-destructive truncate text-xs font-medium"
+                              title={`Error: ${meta.error}`}
+                            >
+                              {meta.error}
+                            </p>
+                          ) : (
+                            <p className="text-muted-foreground text-[11px]">
+                              {mime} - {size}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                {typeof options.onSelect !== 'undefined' &&
+                  media.map((item) => {
+                    const isSelected = selectedMedia.some(
+                      (m) => m.id === item.id,
+                    );
+                    const mime = (item.content_type || 'image')
+                      .replace('image/', '')
+                      .toUpperCase();
+
+                    const { base: file_name } = splitByImageExt(item.file_name);
+
+                    const size = item.file_size ?? 0;
+                    const sizeIsFine = size > 200000;
+                    const niggaDi = size > 1000000;
+
+                    return (
+                      <div key={item.id} className="space-y-2">
+                        <div
+                          onClick={() => handleSelect(item)}
+                          className={`group relative cursor-pointer overflow-hidden rounded-lg transition-all ${
+                            isSelected
+                              ? 'border-primary ring-primary ring-2'
+                              : 'hover:border-primary border-transparent'
+                          }`}
+                          style={{
+                            backgroundImage: `url(${imageResize(item.image_url, 'blur')})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }}
+                        >
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon"
+                            className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteMedia(item);
+                            }}
+                            disabled={deletingImageId === item.id}
+                          >
+                            {deletingImageId === item.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <div className="relative aspect-square">
+                            <Image
+                              src={imageResize(item.image_url, 'tiny')}
+                              alt={file_name}
+                              fill
+                              unoptimized
+                              sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                              className="object-cover"
+                            />
+                            {isSelected && (
+                              <div className="bg-primary/20 absolute inset-0 flex items-center justify-center">
+                                <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
+                                  <Check className="h-4 w-4" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-1 px-0.5">
+                          <p
+                            className="truncate text-xs font-medium"
+                            title={file_name}
+                          >
+                            {file_name}
+                          </p>
+                          <p className="text-muted-foreground text-[11px]">
+                            {mime} -{' '}
+                            <span
+                              className={cn({
+                                'text-orange-300': sizeIsFine,
+                                'text-destructive': niggaDi,
+                              })}
+                            >
+                              {humanizeBytes(size)}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                {isLoading &&
+                  Array.from({ length: 15 }).map((_, idx) => (
                     <Skeleton
                       key={idx}
                       className="aspect-square w-full rounded-lg"
                     />
                   ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-4 p-1 md:grid-cols-4 lg:grid-cols-5">
-                  {fileUploader.previews
-                    .filter((c) => !media.find((cc) => cc.image_url === c))
-                    .map((item, idx) => {
-                      const meta = fileUploader.metadata[idx];
-                      const name = meta?.name ?? `Түр зураг ${idx + 1}`;
-                      const mime = meta?.type
-                        ? meta.type.replace('image/', '').toUpperCase()
-                        : 'IMAGE';
-                      const size = humanizeBytes(meta?.size ?? 0);
-
-                      return (
-                        <div key={idx} className="space-y-2">
-                          <div
-                            className={`relative overflow-hidden rounded-lg transition-all ${
-                              item.startsWith('blob:')
-                                ? 'opacity-70'
-                                : 'opacity-100'
-                            }`}
-                          >
-                            <div className="relative aspect-square">
-                              <Image
-                                src={item}
-                                alt={`Upload Preview ${idx + 1}`}
-                                fill
-                                unoptimized={item.startsWith('blob:')}
-                                sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                                className="rounded-[inherit] object-cover"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-1 px-0.5">
-                            <p
-                              className="truncate text-xs font-medium"
-                              title={name}
-                            >
-                              {name}
-                            </p>
-                            {meta.error ? (
-                              <p
-                                className="text-destructive truncate text-xs font-medium"
-                                title={`Error: ${meta.error}`}
-                              >
-                                {meta.error}
-                              </p>
-                            ) : (
-                              <p className="text-muted-foreground text-[11px]">
-                                {mime} - {size}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  {typeof options.onSelect !== 'undefined' &&
-                    media.map((item) => {
-                      const isSelected = selectedMedia.some(
-                        (m) => m.id === item.id,
-                      );
-                      const mime = (item.content_type || 'image')
-                        .replace('image/', '')
-                        .toUpperCase();
-                      const size = humanizeBytes(item.file_size ?? 0);
-
-                      return (
-                        <div key={item.id} className="space-y-2">
-                          <div
-                            onClick={() => handleSelect(item)}
-                            className={`group relative cursor-pointer overflow-hidden rounded-lg transition-all ${
-                              isSelected
-                                ? 'border-primary ring-primary ring-2'
-                                : 'hover:border-primary border-transparent'
-                            }`}
-                            style={{
-                              backgroundImage: `url(${imageResize(item.image_url, 'blur')})`,
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                              backgroundRepeat: 'no-repeat',
-                            }}
-                          >
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              size="icon"
-                              className="absolute top-2 right-2 z-20 h-7 w-7 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteMedia(item);
-                              }}
-                              disabled={deletingImageId === item.id}
-                            >
-                              {deletingImageId === item.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <X className="h-4 w-4" />
-                              )}
-                            </Button>
-                            <div className="relative aspect-square">
-                              <Image
-                                src={imageResize(item.image_url, 'small')}
-                                alt={item.file_name}
-                                fill
-                                sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                                className="object-cover"
-                              />
-                              {isSelected && (
-                                <div className="bg-primary/20 absolute inset-0 flex items-center justify-center">
-                                  <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
-                                    <Check className="h-4 w-4" />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="space-y-1 px-0.5">
-                            <p
-                              className="truncate text-xs font-medium"
-                              title={item.file_name}
-                            >
-                              {item.file_name}
-                            </p>
-                            <p className="text-muted-foreground text-[11px]">
-                              {mime} - {size}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+                <InfiniteScroll
+                  hasMore={pagination.has_next}
+                  isLoading={isLoading}
+                  next={() => loadMedia({ page: pagination.page + 1 })}
+                >
+                  {pagination.has_next && (
+                    <Skeleton className="aspect-square w-full rounded-lg" />
+                  )}
+                </InfiniteScroll>
+              </div>
             </ScrollArea>
 
             {/* Footer Actions */}

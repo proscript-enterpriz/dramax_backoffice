@@ -15,6 +15,7 @@ export type GetUploadedImagesSearchParams = {
   page?: number;
   page_size?: number;
   content_type?: string;
+  search?: string;
 };
 
 export async function getUploadedImages(
@@ -45,6 +46,10 @@ export async function getUploadedImages(
       pagination: {
         total: 0,
         total_pages: 1,
+        page: searchParams?.page ?? 1,
+        page_size: searchParams?.page_size ?? 50,
+        has_next: false,
+        has_prev: false,
       },
     };
   }

@@ -376,15 +376,6 @@ export const moviesColumns: ColumnDef<ModifiedMovieType>[] = [
     enableColumnFilter: true,
   },
   {
-    id: 'is_premium',
-    accessorKey: 'is_premium',
-    header: () => <h1>Premium</h1>,
-
-    cell: ({ row }) => (row.original.is_premium ? 'Түрээс' : 'Багц'),
-    enableSorting: false,
-    enableColumnFilter: true,
-  },
-  {
     id: 'orientation',
     accessorKey: 'orientation',
     header: () => <h1>Бичлэгийн чиглэл</h1>,
@@ -411,15 +402,6 @@ export const moviesColumns: ColumnDef<ModifiedMovieType>[] = [
     enableSorting: false,
     enableColumnFilter: true,
   },
-  {
-    id: 'year',
-    accessorKey: 'year',
-    header: () => <h1>Гарсан огноо</h1>,
-    cell: ({ row }) => row.original.year,
-    enableSorting: true,
-    enableColumnFilter: true,
-  },
-
   {
     id: 'actions',
     cell: Action,
