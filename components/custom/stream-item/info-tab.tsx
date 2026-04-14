@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState, useTransition } from 'react';
 import { Copy, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,8 @@ export function InfoTab({
     !!data?.require_signed_urls,
   );
   const [updating, startUpdateTransition] = useTransition();
+  const session = useSession();
+  const user = session?.data?.user;
 
   // Sync when data changes (e.g., loaded after mount)
   useEffect(() => {
@@ -63,25 +66,33 @@ export function InfoTab({
         />
       </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium">Cloudflare ID</label>
-        <div className="relative">
-          <Input value={data?.stream_id} disabled placeholder="Cloudflare ID" />
-          {data?.stream_id && (
-            <button
-              type="button"
-              className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
-              onClick={() =>
-                handleCopy(data.stream_id, () =>
-                  toast.success('ID амжилттай хууллаа'),
-                )
-              }
-            >
-              <Copy size={16} />
-            </button>
-          )}
+      {['super_admin', 'admin'].includes(user?.role ?? '') && (
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Cloudflare ID
+          </label>
+          <div className="relative">
+            <Input
+              value={data?.stream_id}
+              disabled
+              placeholder="Cloudflare ID"
+            />
+            {data?.stream_id && (
+              <button
+                type="button"
+                className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+                onClick={() =>
+                  handleCopy(data.stream_id, () =>
+                    toast.success('ID амжилттай хууллаа'),
+                  )
+                }
+              >
+                <Copy size={16} />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="border-destructive/30 bg-destructive/5 flex items-center justify-between rounded-md border p-2">
         <div>
@@ -104,6 +115,7 @@ export function InfoTab({
             {requireSigned ? 'Кино' : 'Трейлер'}
           </Badge>
           <Switch
+            disabled={!user?.role || user?.role === 'content_owner'}
             checked={requireSigned}
             onCheckedChange={(v) => setRequireSigned(Boolean(v))}
             className="data-[state=checked]:bg-destructive/30"
