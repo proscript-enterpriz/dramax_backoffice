@@ -2,6 +2,7 @@
 
 import { FormEvent, ReactNode, useRef, useState, useTransition } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { hasPagePermission } from '@/lib/permission';
 import { CLOUDFLARE_LANGUAGES } from '@/lib/utils';
 import { uploadACaptionFileForAVideo } from '@/services/cf';
 import { CaptionResponseType } from '@/services/schema';
@@ -39,6 +41,9 @@ export default function UploadCaptionDialog({
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, startUploading] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const session = useSession();
+
+  const canUpload = hasPagePermission(session.data, 'streams.upload');
 
   const resetForm = () => {
     setUploadLang('mn');
@@ -76,6 +81,9 @@ export default function UploadCaptionDialog({
         });
     });
   };
+
+  if (!canUpload) return null;
+
   return (
     <Dialog
       open={open}
