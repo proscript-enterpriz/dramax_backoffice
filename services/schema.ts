@@ -469,6 +469,14 @@ export type SingleItemResponseMovieResponseType = z.infer<
   typeof singleItemResponseMovieResponseSchema
 >;
 
+export const singleItemResponseSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: movieResponseSchema.nullish(),
+});
+
+export type SingleItemResponseType = z.infer<typeof singleItemResponseSchema>;
+
 export const movieUpdateSchema = z.object({
   title: z.string().min(1).max(500).nullish(),
   description: z.string().max(5000).nullish(),

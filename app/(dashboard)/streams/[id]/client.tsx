@@ -36,8 +36,6 @@ export function StreamDetailClient({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  console.log(video);
-
   return (
     <div className="max-w-[1440px] space-y-6">
       {/* Header */}

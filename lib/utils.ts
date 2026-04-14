@@ -7,6 +7,8 @@ import transform from 'lodash/transform';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 
+import { captionLanguageSchema } from '@/services/schema';
+
 export * from '@interpriz/lib/utils';
 
 export function cn(...inputs: ClassValue[]) {
@@ -206,3 +208,16 @@ export const maskFieldValue = (
     fieldValue.slice(-lastChars)
   );
 };
+
+export const CLOUDFLARE_LANGUAGES: {
+  code: string;
+  name: string;
+  weight: number;
+}[] = [
+  { code: 'mn', name: 'Монгол', weight: 1 },
+  ...captionLanguageSchema.options.map((c) => ({
+    code: c,
+    name: new Intl.DisplayNames(['en'], { type: 'language' }).of(c) || c,
+    weight: ['en', 'mn'].includes(c) ? 1 : 0,
+  })),
+];
