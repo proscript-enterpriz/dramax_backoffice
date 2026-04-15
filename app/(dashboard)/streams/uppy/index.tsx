@@ -12,9 +12,7 @@ import { MovieNameSelector } from '@/app/(dashboard)/streams/uppy/movie-name-sel
 import { Input } from '@/components/ui/input';
 import { revalidate } from '@/services/api/actions';
 import { requestUploadToken } from '@/services/cf';
-import { getMovies, MoviesFilterType } from '@/services/movies-generated';
 import { RVK_CF } from '@/services/rvk';
-import { MovieListResponseType } from '@/services/schema';
 
 const getVideoDuration = (file: File): Promise<number | undefined> => {
   return new Promise((resolve, reject) => {
@@ -38,7 +36,6 @@ const getVideoDuration = (file: File): Promise<number | undefined> => {
 };
 
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
-  const [movies, setMovies] = useState<MovieListResponseType[]>([]);
   const [name, setName] = useState<string | undefined>(undefined);
   const uppy = useMemo(() => {
     return new Uppy({
@@ -68,21 +65,14 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     return metadata + nameMetadata + durationMetadata;
   };
 
-  const getFileName = (file: File) => {
-    return name ?? file.name ?? '';
-  };
-
-  const getMovieNames = async (sp?: MoviesFilterType) => {
-    const { data } = await getMovies({ ...sp, return_columns: ['title'] });
-    setMovies(data ?? []);
+  const getFileName = (file: File & { meta?: { name: string } }) => {
+    return file.meta?.name ?? file.name ?? '';
   };
 
   useEffect(() => {
     const handleFileAdded = (file: any) => setName(file.name ?? '');
     const handleFileRemoved = () => setName(undefined);
     const handleUpload = async (_: any, files: any) => {
-      setName(undefined);
-
       const [file] = files ?? [];
 
       if (file?.uploadURL) return;
@@ -123,7 +113,10 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
         toast.error('Failed to process video: ' + (e as Error).message);
       }
     };
-    const handleUploadSuccess = () => revalidate(RVK_CF);
+    const handleUploadSuccess = () => {
+      revalidate(RVK_CF);
+      setName(undefined);
+    };
 
     uppy.on('file-added', handleFileAdded);
     uppy.on('file-removed', handleFileRemoved);
@@ -139,15 +132,16 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     };
   }, [uppy, isTrailer]);
 
-  useEffect(() => {
-    getMovieNames();
-  }, []);
-
   return (
     <div className="space-y-4">
       {typeof name === 'string' && (
         <div className="flex items-center gap-4">
-          <MovieNameSelector onSelect={setName} />
+          <MovieNameSelector
+            onSelect={(c) => {
+              setName(c);
+              uppy.setMeta({ name: c });
+            }}
+          />
           <Input
             value={name}
             onChange={(e) => {
