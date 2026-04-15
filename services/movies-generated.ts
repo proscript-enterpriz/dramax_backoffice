@@ -58,6 +58,7 @@ export type MoviesFilterType = {
   tag_id?: number;
   is_premium?: boolean;
   is_adult?: boolean;
+  return_columns?: (keyof BaseResponseUnionListMovieListResponseNoneTypeType['data']['0'])[];
 };
 
 export async function getMovies(searchParams: MoviesFilterType = {}) {

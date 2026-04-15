@@ -120,12 +120,6 @@ export default function CreateMovie() {
   const isSeriesMovie = ['series', 'mini-series'].includes(form.watch('type'));
   // const isPremium = !!form.watch('is_premium');
   const currentYear = new Date().getFullYear();
-  const parseYearInput = (value: string): number | undefined => {
-    if (value === '') return undefined;
-    const numericValue = Number(value);
-    if (!Number.isInteger(numericValue)) return undefined;
-    return numericValue;
-  };
 
   async function onSubmitMovie(d: MovieCreateType) {
     setIsLoading(true);
