@@ -1,9 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import * as React from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import { Eye, MoreHorizontal, RefreshCw } from 'lucide-react';
+import {
+  Eye,
+  Loader2,
+  MoreHorizontal,
+  Music2,
+  RefreshCw,
+  Star,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -11,6 +19,12 @@ import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandDialog,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,11 +35,112 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { hasPermission } from '@/lib/permission';
 import { humanizeBytes } from '@/lib/utils';
-import { syncStreamDetails } from '@/services/cf';
-import { CloudflareVideoResponseType } from '@/services/schema';
+import { audioList, syncStreamDetails, updateAudioTrack } from '@/services/cf';
+import {
+  CloudflareVideoResponseType,
+  StreamAudioType,
+} from '@/services/schema';
+
+function SetToDefaultButton({
+  trackId,
+  streamId,
+  onComplete,
+}: {
+  trackId: string;
+  streamId: string;
+  onComplete: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <Button
+      size="sm"
+      onClick={() => {
+        setLoading(true);
+        updateAudioTrack(streamId, trackId, { default: true })
+          .then(() => toast.success('Audio track set as default'))
+          .catch(() => toast.error('Failed to set default track'))
+          .finally(() => {
+            setLoading(false);
+            onComplete();
+          });
+      }}
+      className="gap-2"
+      disabled={loading}
+    >
+      {loading ? <Loader2 className="h-4 w-4" /> : <Star className="h-4 w-4" />}
+      Default болгох
+    </Button>
+  );
+}
+
+const AudioModal = ({
+  open,
+  setOpen,
+  streamId,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  streamId: string;
+}) => {
+  const [tracks, setTracks] = useState<StreamAudioType[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setLoading(true);
+      audioList(streamId)
+        .then((response) => {
+          setTracks(response?.result ?? []);
+        })
+        .catch((e) => console.error(e))
+        .finally(() => setLoading(false));
+    }
+  }, [streamId, open]);
+
+  return (
+    <CommandDialog open={open} onOpenChange={setOpen}>
+      <Command>
+        {loading ? (
+          <div className="text-muted-foreground p-4 text-sm">
+            Loading audio tracks...
+          </div>
+        ) : (
+          tracks.length === 0 && (
+            <div className="text-muted-foreground p-4 text-sm">
+              No audio tracks found.
+            </div>
+          )
+        )}
+        <CommandList>
+          {tracks.map((c, idx) => (
+            <CommandItem
+              key={idx}
+              onSelect={() => {
+                setOpen(false);
+              }}
+            >
+              <span>
+                {c.label} {c.default && '(default)'}
+              </span>
+              {!c.default && (
+                <SetToDefaultButton
+                  trackId={c.uid}
+                  streamId={streamId}
+                  onComplete={() => setOpen(false)}
+                />
+              )}
+            </CommandItem>
+          ))}
+        </CommandList>
+      </Command>
+    </CommandDialog>
+  );
+};
 
 const Action = ({ row }: CellContext<CloudflareVideoResponseType, unknown>) => {
   const [loading, setLoading] = useState(false);
+  const [openAudioModal, setAudioModal] = useState(false);
   const { data } = useSession();
   const canSync = hasPermission(data, 'streams', 'update');
 
@@ -42,31 +157,46 @@ const Action = ({ row }: CellContext<CloudflareVideoResponseType, unknown>) => {
   };
 
   return (
-    <div className="me-2 flex justify-end gap-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href={`/streams/${row.original.id}`}>
-              <Eye className="h-4 w-4" /> View Details
-            </Link>
-          </DropdownMenuItem>
-          {canSync && (
-            <DropdownMenuItem onClick={handleSync} disabled={loading}>
-              <RefreshCw className="h-4 w-4" />{' '}
-              {loading ? 'Syncing...' : 'Sync from CF'}
+    <>
+      <div className="me-2 flex justify-end gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href={`/streams/${row.original.id}`}>
+                <Eye className="h-4 w-4" /> View Details
+              </Link>
             </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+            {canSync && (
+              <>
+                <DropdownMenuItem onClick={handleSync} disabled={loading}>
+                  <RefreshCw className="h-4 w-4" />{' '}
+                  {loading ? 'Syncing...' : 'Sync from CF'}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setAudioModal(true)}
+                  disabled={loading}
+                >
+                  <Music2 className="h-4 w-4" /> Set default audio
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <AudioModal
+        open={openAudioModal}
+        setOpen={setAudioModal}
+        streamId={row.original.stream_id}
+      />
+    </>
   );
 };
 

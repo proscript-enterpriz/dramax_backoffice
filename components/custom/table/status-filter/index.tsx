@@ -40,7 +40,8 @@ const StatusFilter = ({
         .join(',');
     }
 
-    router.replace(`?${objToQs(paramsObj)}`);
+    // need to reset page
+    router.replace(`?${objToQs({ page: 1, ...paramsObj })}`);
   };
 
   const currentValue = (result(queryParams, name) as string) || 'all';

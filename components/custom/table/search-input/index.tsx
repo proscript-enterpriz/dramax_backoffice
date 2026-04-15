@@ -1,11 +1,12 @@
 // components/table/SearchInput.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { debounce } from 'lodash';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Input } from '@/components/ui/input';
+import { qsToObj } from '@/lib/utils';
 
 interface SearchInputProps {
   filterField: string; // e.g., "discount_name", "product_name"
@@ -21,17 +22,9 @@ export function SearchInput({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const paramsObj = qsToObj(searchParams.toString());
 
-  const [value, setValue] = useState('');
-
-  // Read from search params on load
-  useEffect(() => {
-    const param = searchParams.get(paramKey);
-    const match = param?.match(new RegExp(`${filterField}=(.*)`));
-    if (match?.[1]) {
-      setValue(decodeURIComponent(match[1]));
-    }
-  }, [searchParams, paramKey, filterField]);
+  const [value, setValue] = useState(paramsObj.filters?.title ?? '');
 
   // Debounced update
   const updateParams = debounce((val: string) => {
@@ -42,12 +35,13 @@ export function SearchInput({
 
     if (val) {
       newParams.set(paramKey, `${filterField}=${val}`);
+      newParams.set('page', '1');
     }
 
     router.push(`${pathname}?${newParams.toString()}`);
   }, 1000);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setValue(val);
     updateParams(val);

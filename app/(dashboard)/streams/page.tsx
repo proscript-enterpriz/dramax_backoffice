@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
+import { objToQs } from '@interpriz/lib';
 
 import { auth } from '@/auth';
+import { SearchInput } from '@/components/custom/table/search-input';
 import StatusFilter from '@/components/custom/table/status-filter';
 import { DataTable } from '@/components/ui/data-table';
 import { Separator } from '@/components/ui/separator';
@@ -27,8 +29,8 @@ export default async function StreamsPage(props: {
   const transformedParams = {
     page: Number(searchParams?.page) || 1,
     page_size: Number(searchParams?.page_size) || 30,
-    ...(searchParams?.filters?.require_signed_urls && {
-      filters: `require_signed_urls=${searchParams.filters.require_signed_urls}`,
+    ...(searchParams?.filters && {
+      filters: objToQs(searchParams.filters),
     }),
   };
 
@@ -56,6 +58,7 @@ export default async function StreamsPage(props: {
                 { value: 'false', label: 'Trailer' },
               ]}
             />
+            <SearchInput placeholder="Нэрээн хайх" filterField="name" />
           </div>
         </DataTable>
       </Suspense>
