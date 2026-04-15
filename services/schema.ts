@@ -399,6 +399,7 @@ export const movieCreateSchema = z.object({
   tag_ids: z.array(z.int()).nullish(),
   start_date: z.iso.datetime().optional(),
   end_date: z.iso.datetime().optional(),
+  content_plan_id: z.uuid().optional(),
 });
 
 export type MovieCreateType = z.infer<typeof movieCreateSchema>;
@@ -458,7 +459,7 @@ export type RawMovieOutType = z.infer<typeof rawMovieOutSchema>;
 export const baseResponseUnionListMovieListResponseNoneTypeSchema = z.object({
   status: z.string(),
   message: z.string(),
-  data: z.array(movieListResponseSchema).nullish(),
+  data: z.array(movieListResponseSchema),
   total_count: z.int().nullish(),
 });
 

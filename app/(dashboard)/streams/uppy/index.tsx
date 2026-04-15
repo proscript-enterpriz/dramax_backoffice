@@ -8,10 +8,13 @@ import { toast } from 'sonner';
 import '@uppy/core/css/style.min.css';
 import '@uppy/dashboard/css/style.min.css';
 
+import { MovieNameSelector } from '@/app/(dashboard)/streams/uppy/movie-name-selector';
 import { Input } from '@/components/ui/input';
 import { revalidate } from '@/services/api/actions';
 import { requestUploadToken } from '@/services/cf';
+import { getMovies, MoviesFilterType } from '@/services/movies-generated';
 import { RVK_CF } from '@/services/rvk';
+import { MovieListResponseType } from '@/services/schema';
 
 const getVideoDuration = (file: File): Promise<number | undefined> => {
   return new Promise((resolve, reject) => {
@@ -35,6 +38,7 @@ const getVideoDuration = (file: File): Promise<number | undefined> => {
 };
 
 export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
+  const [movies, setMovies] = useState<MovieListResponseType[]>([]);
   const [name, setName] = useState<string | undefined>(undefined);
   const uppy = useMemo(() => {
     return new Uppy({
@@ -68,6 +72,11 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     return name ?? file.name ?? '';
   };
 
+  const getMovieNames = async (sp?: MoviesFilterType) => {
+    const { data } = await getMovies({ ...sp, return_columns: ['title'] });
+    setMovies(data ?? []);
+  };
+
   useEffect(() => {
     const handleFileAdded = (file: any) => setName(file.name ?? '');
     const handleFileRemoved = () => setName(undefined);
@@ -98,6 +107,10 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
             tus: {
               endpoint: tokenResponse.upload_url!,
             },
+            name: getFileName(file),
+            meta: {
+              name: getFileName(file),
+            },
           });
           // Resume the upload now that we have the URL
           uppy.retryUpload(file.id);
@@ -126,17 +139,24 @@ export function UppyUpload({ isTrailer }: { isTrailer: boolean }) {
     };
   }, [uppy, isTrailer]);
 
+  useEffect(() => {
+    getMovieNames();
+  }, []);
+
   return (
     <div className="space-y-4">
       {typeof name === 'string' && (
-        <Input
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            uppy.setMeta({ name: e.target.value });
-          }}
-          placeholder="Файлын нэр: хайлт хийхэд ашиглагдана"
-        />
+        <div className="flex items-center gap-4">
+          <MovieNameSelector onSelect={setName} />
+          <Input
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              uppy.setMeta({ name: e.target.value });
+            }}
+            placeholder="Файлын нэр: хайлт хийхэд ашиглагдана"
+          />
+        </div>
       )}
       <Dashboard
         theme="dark"
