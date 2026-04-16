@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandDialog,
+  CommandEmpty,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
@@ -68,7 +69,11 @@ function SetToDefaultButton({
       className="gap-2"
       disabled={loading}
     >
-      {loading ? <Loader2 className="h-4 w-4" /> : <Star className="h-4 w-4" />}
+      {loading ? (
+        <Loader2 className="h-4! w-4!" />
+      ) : (
+        <Star className="h-4! w-4!" />
+      )}
       Default болгох
     </Button>
   );
@@ -100,6 +105,7 @@ const AudioModal = ({
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
+      <h3 className="p-4">Default аудио сонгох</h3>
       <Command>
         {loading ? (
           <div className="text-muted-foreground p-4 text-sm">
@@ -107,9 +113,7 @@ const AudioModal = ({
           </div>
         ) : (
           tracks.length === 0 && (
-            <div className="text-muted-foreground p-4 text-sm">
-              No audio tracks found.
-            </div>
+            <CommandEmpty>No audio tracks found.</CommandEmpty>
           )
         )}
         <CommandList>
@@ -119,6 +123,7 @@ const AudioModal = ({
               onSelect={() => {
                 setOpen(false);
               }}
+              className="flex items-center justify-between gap-4"
             >
               <span>
                 {c.label} {c.default && '(default)'}
