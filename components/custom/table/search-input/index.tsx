@@ -24,7 +24,9 @@ export function SearchInput({
   const pathname = usePathname();
   const paramsObj = qsToObj(searchParams.toString());
 
-  const [value, setValue] = useState(paramsObj.filters?.title ?? '');
+  const [value, setValue] = useState(
+    (paramsObj.filters || {})[filterField] ?? '',
+  );
 
   // Debounced update
   const updateParams = debounce((val: string) => {

@@ -225,8 +225,7 @@ export function DataTable<TData, TValue>({
       </div>
       {!hidePagination && (
         <div className="flex w-full flex-col-reverse items-center justify-between gap-2 md:flex-row">
-          {!infinite && <DataTablePagination table={table} />}
-          {infinite && (
+          {infinite ? (
             <DataTableInfinte
               onChange={(p) => setPageNumber(p)}
               pageNumber={pageNumber ?? 0}
@@ -234,6 +233,8 @@ export function DataTable<TData, TValue>({
               setDisabled={setDisabled}
               isPending={isPending}
             />
+          ) : (
+            <DataTablePagination table={table} />
           )}
         </div>
       )}
