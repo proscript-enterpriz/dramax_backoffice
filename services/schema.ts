@@ -1067,6 +1067,7 @@ export const cloudflareVideoResponseSchema = z.object({
   require_signed_urls: z.boolean().nullable(),
   input_height: z.number().int().nullable(),
   input_width: z.number().int().nullable(),
+  cursor: z.string().nullable(),
 });
 
 export type CloudflareVideoResponseType = z.infer<

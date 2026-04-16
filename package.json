@@ -37,6 +37,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/postcss": "^4.1.13",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.23",
     "@tiptap/core": "^3.4.3",
     "@tiptap/extension-bubble-menu": "^3.4.3",
     "@tiptap/extension-code-block-lowlight": "^3.4.3",
