@@ -25,7 +25,10 @@ export default async function ContentPlansPage(props: {
 }) {
   const session = await auth();
   const searchParams = await props.searchParams;
-  const response = await listContentPlans(searchParams);
+  const response = await listContentPlans({
+    include_inactive: true,
+    ...searchParams,
+  });
   const data = response?.data;
   const list = data?.items || [];
 
