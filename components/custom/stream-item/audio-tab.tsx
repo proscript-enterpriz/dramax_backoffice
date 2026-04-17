@@ -53,9 +53,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { revalidate } from '@/services/api/actions';
 import { audioList, updateAudioTrack } from '@/services/cf';
-import { RVK_CF } from '@/services/rvk';
 import { captionLanguageSchema, StreamAudioType } from '@/services/schema';
 
 const CLOUDFLARE_LANGUAGES: {
@@ -301,8 +299,6 @@ function UploadAudioDialog({
         success: boolean;
         message?: string;
       } = await res.json();
-
-      await revalidate(`${RVK_CF}_stream_id_${streamId}`);
 
       if (!response?.success)
         throw new Error(response?.message ?? 'Failed to upload');
