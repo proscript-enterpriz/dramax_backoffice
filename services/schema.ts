@@ -347,7 +347,7 @@ export const movieResponseSchema = z.object({
   type: z.enum(['movie', 'mini-series', 'series']),
   status: z.enum(['pending', 'active']).nullish(),
   year: z.int().min(1900).max(2030).nullish(),
-  price: z.int().min(0).nullish(),
+  price: z.int().min(100),
   is_premium: z.boolean().nullish(),
   is_adult: z.boolean().nullish(),
   poster_url: z.string().nullish(),
@@ -384,7 +384,7 @@ export const movieCreateSchema = z.object({
   description: z.string().min(1, 'Дэлгэрэнгүй тайлбар оруулна уу').max(5000),
   type: z.enum(['movie', 'mini-series', 'series']),
   year: z.int().min(1900).max(2030).nullish(),
-  price: z.int().min(1, 'Үнийн дүн оруулна уу').nullish(),
+  price: z.int().min(100, 'Үнийн дүн оруулна уу'),
   is_premium: z.boolean().nullish(),
   is_adult: z.boolean().nullish(),
   poster_url: z.string().min(1, 'Постер зураг оруулна уу'),
@@ -404,13 +404,7 @@ export const movieCreateSchema = z.object({
 
 export type MovieCreateType = z.infer<typeof movieCreateSchema>;
 
-export const movieCreateFormSchema = movieCreateSchema.refine(
-  (data) => !data.is_premium || !!data.price,
-  {
-    message: 'Price is required when premium is enabled',
-    path: ['price'],
-  },
-);
+export const movieCreateFormSchema = movieCreateSchema;
 
 export type MovieCreateFormType = z.infer<typeof movieCreateFormSchema>;
 
