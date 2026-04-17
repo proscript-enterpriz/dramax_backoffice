@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, ReactNode, useEffect, useRef, useState } from 'react';
-import { objToFormData } from '@interpriz/lib/utils';
 import {
   Loader2,
   MoreVertical,
@@ -57,11 +56,7 @@ import { cn } from '@/lib/utils';
 import { revalidate } from '@/services/api/actions';
 import { audioList, updateAudioTrack } from '@/services/cf';
 import { RVK_CF } from '@/services/rvk';
-import {
-  BodyDashboardUploadAudioTrackType,
-  captionLanguageSchema,
-  StreamAudioType,
-} from '@/services/schema';
+import { captionLanguageSchema, StreamAudioType } from '@/services/schema';
 
 const CLOUDFLARE_LANGUAGES: {
   code: string;
@@ -248,46 +243,6 @@ export function AudioTabSkeleton() {
   );
 }
 
-async function uploadAudioClient(
-  streamId: string,
-  body: BodyDashboardUploadAudioTrackType,
-  token: string,
-): Promise<any> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_FILMORA_DOMAIN!}/cf/upload/audio/${streamId}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: body as any,
-        priority: 'high' as any,
-      },
-    );
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || 'Upload failed');
-    }
-
-    const response: { data: { result: StreamAudioType } } = await res.json();
-
-    await revalidate(`${RVK_CF}_stream_id_${streamId}`);
-
-    return response;
-  } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      data: null,
-      message:
-        (error as Error).message ??
-        'An error occurred while uploading audio track.',
-    };
-  }
-}
-
 function UploadAudioDialog({
   streamId,
   onUpload,
@@ -319,39 +274,53 @@ function UploadAudioDialog({
     if (!uploadFile) return toast.error('Audio сонгоно уу');
     setUploading(true);
     const token = (session?.data?.user as any)?.access_token;
-    const fd = objToFormData({
-      label: CF_LANG_OBJ[label] ?? 'Unknown',
-      file: uploadFile,
-    });
+    const fd = new FormData();
+    fd.append('file', uploadFile);
+    fd.append('label', CF_LANG_OBJ[label] ?? 'Unknown');
 
-    uploadAudioClient(
-      streamId,
-      fd as unknown as BodyDashboardUploadAudioTrackType,
-      token,
-    )
-      // uploadAudioTrack(
-      //   streamId,
-      //   objToFormData({
-      //     label: CF_LANG_OBJ[label] ?? 'Unknown',
-      //     file: uploadFile,
-      //   }) as unknown as BodyDashboardUploadAudioTrackType,
-      // )
-      .then((res) => {
-        if (!res?.success) throw new Error(res?.message ?? 'Failed to upload');
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_FILMORA_DOMAIN!}/cf/upload/audio/${streamId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: fd,
+          priority: 'high' as any,
+        },
+      );
 
-        if (res?.data?.result) onUpload(res.data.result);
-        resetForm();
-        setOpen(false);
-        toast.success('Audio амжилттай байршлаа');
-      })
-      .catch((err) => {
-        const msg =
-          typeof err === 'object' && err !== null && 'message' in err
-            ? (err as { message?: unknown }).message
-            : String(err);
-        toast.error(msg as string);
-      })
-      .finally(() => setUploading(false));
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Upload failed');
+      }
+
+      const response: {
+        data: { result: StreamAudioType };
+        success: boolean;
+        message?: string;
+      } = await res.json();
+
+      await revalidate(`${RVK_CF}_stream_id_${streamId}`);
+
+      if (!response?.success)
+        throw new Error(response?.message ?? 'Failed to upload');
+
+      if (response?.data?.result) onUpload(response.data.result);
+      resetForm();
+      setOpen(false);
+      toast.success('Audio амжилттай байршлаа');
+    } catch (err) {
+      console.error(err);
+      const msg =
+        typeof err === 'object' && err !== null && 'message' in err
+          ? (err as { message?: unknown }).message
+          : String(err);
+      toast.error(msg as string);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
