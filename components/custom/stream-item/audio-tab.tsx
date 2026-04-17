@@ -62,7 +62,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { revalidate } from '@/services/api/actions';
-import { audioList, updateAudioTrack, uploadAudioTrack } from '@/services/cf';
+import { audioList, updateAudioTrack } from '@/services/cf';
 import { RVK_CF } from '@/services/rvk';
 import {
   BodyDashboardUploadAudioTrackType,
@@ -325,22 +325,21 @@ function UploadAudioDialog({
     if (!uploadFile) return toast.error('Audio сонгоно уу');
 
     startUploading(() => {
-      // uploadAudioClient(
-      //   streamId,
-      //   objToFormData({
-      //     label: CF_LANG_OBJ[label] ?? 'Unknown',
-      //     file: uploadFile,
-      //   }) as unknown as BodyDashboardUploadAudioTrackType,
-      //   (session?.data?.user as any)?.access_token,
-      // )
-      uploadAudioTrack(
+      uploadAudioClient(
         streamId,
         objToFormData({
           label: CF_LANG_OBJ[label] ?? 'Unknown',
           file: uploadFile,
         }) as unknown as BodyDashboardUploadAudioTrackType,
-        // (session?.data?.user as any)?.access_token,
+        (session?.data?.user as any)?.access_token,
       )
+        // uploadAudioTrack(
+        //   streamId,
+        //   objToFormData({
+        //     label: CF_LANG_OBJ[label] ?? 'Unknown',
+        //     file: uploadFile,
+        //   }) as unknown as BodyDashboardUploadAudioTrackType,
+        // )
         .then((res) => {
           if (!res?.success)
             throw new Error(res?.message ?? 'Failed to upload');
