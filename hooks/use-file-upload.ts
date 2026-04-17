@@ -143,7 +143,8 @@ export function useFileUploader(options: UseFileUploaderOptions) {
         }
 
         // Амжилтгүй тохиолдолд бүрт алдааг тэмдэглэх, давталт дотор throw бүү хий
-        errors[i] = res?.message ?? 'Файл оруулахад алдаа гарлаа.';
+        if (res?.status === 'error')
+          errors[i] = res?.message ?? 'Файл оруулахад алдаа гарлаа.';
       }
 
       if (Object.keys(errors).length) {
