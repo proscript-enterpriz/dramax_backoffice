@@ -262,6 +262,7 @@ async function uploadAudioClient(
           Authorization: `Bearer ${token}`,
         },
         body: body as any,
+        priority: 'high' as any,
       },
     );
 
