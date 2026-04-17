@@ -18,6 +18,7 @@ import {
   // Trash2,
   Upload,
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
 // import {
@@ -60,7 +61,9 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { audioList, updateAudioTrack, uploadAudioTrack } from '@/services/cf';
+import { revalidate } from '@/services/api/actions';
+import { audioList, updateAudioTrack } from '@/services/cf';
+import { RVK_CF } from '@/services/rvk';
 import {
   BodyDashboardUploadAudioTrackType,
   captionLanguageSchema,
@@ -252,6 +255,45 @@ export function AudioTabSkeleton() {
   );
 }
 
+async function uploadAudioClient(
+  streamId: string,
+  body: BodyDashboardUploadAudioTrackType,
+  token: string,
+): Promise<any> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_FILMORA_DOMAIN!}/cf/upload/audio/${streamId}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: body as any,
+      },
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Upload failed');
+    }
+
+    const response: { data: { result: StreamAudioType } } = await res.json();
+
+    await revalidate(`${RVK_CF}_stream_id_${streamId}`);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      data: null,
+      message:
+        (error as Error).message ??
+        'An error occurred while uploading audio track.',
+    };
+  }
+}
+
 function UploadAudioDialog({
   streamId,
   onUpload,
@@ -266,6 +308,7 @@ function UploadAudioDialog({
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, startUploading] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const session = useSession();
 
   const resetForm = () => {
     setLabel('mn');
@@ -282,12 +325,13 @@ function UploadAudioDialog({
     if (!uploadFile) return toast.error('Audio сонгоно уу');
 
     startUploading(() => {
-      uploadAudioTrack(
+      uploadAudioClient(
         streamId,
         objToFormData({
           label: CF_LANG_OBJ[label] ?? 'Unknown',
           file: uploadFile,
         }) as unknown as BodyDashboardUploadAudioTrackType,
+        (session?.data?.user as any)?.access_token,
       )
         .then((res) => {
           if (!res?.success)
