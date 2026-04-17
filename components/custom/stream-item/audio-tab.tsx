@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  FormEvent,
-  ReactNode,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
+import { FormEvent, ReactNode, useEffect, useRef, useState } from 'react';
 import { objToFormData } from '@interpriz/lib/utils';
 import {
   Loader2,
@@ -306,7 +299,7 @@ function UploadAudioDialog({
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState<string>('mn');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploading, startUploading] = useTransition();
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const session = useSession();
 
@@ -323,40 +316,39 @@ function UploadAudioDialog({
     if (!streamId) return;
     if (!label) return toast.error('Audio нэр оруулна уу');
     if (!uploadFile) return toast.error('Audio сонгоно уу');
+    setUploading(true);
 
-    startUploading(() => {
-      uploadAudioClient(
-        streamId,
-        objToFormData({
-          label: CF_LANG_OBJ[label] ?? 'Unknown',
-          file: uploadFile,
-        }) as unknown as BodyDashboardUploadAudioTrackType,
-        (session?.data?.user as any)?.access_token,
-      )
-        // uploadAudioTrack(
-        //   streamId,
-        //   objToFormData({
-        //     label: CF_LANG_OBJ[label] ?? 'Unknown',
-        //     file: uploadFile,
-        //   }) as unknown as BodyDashboardUploadAudioTrackType,
-        // )
-        .then((res) => {
-          if (!res?.success)
-            throw new Error(res?.message ?? 'Failed to upload');
+    uploadAudioClient(
+      streamId,
+      objToFormData({
+        label: CF_LANG_OBJ[label] ?? 'Unknown',
+        file: uploadFile,
+      }) as unknown as BodyDashboardUploadAudioTrackType,
+      (session?.data?.user as any)?.access_token,
+    )
+      // uploadAudioTrack(
+      //   streamId,
+      //   objToFormData({
+      //     label: CF_LANG_OBJ[label] ?? 'Unknown',
+      //     file: uploadFile,
+      //   }) as unknown as BodyDashboardUploadAudioTrackType,
+      // )
+      .then((res) => {
+        if (!res?.success) throw new Error(res?.message ?? 'Failed to upload');
 
-          if (res?.data?.result) onUpload(res.data.result);
-          resetForm();
-          setOpen(false);
-          toast.success('Audio амжилттай байршлаа');
-        })
-        .catch((err) => {
-          const msg =
-            typeof err === 'object' && err !== null && 'message' in err
-              ? (err as { message?: unknown }).message
-              : String(err);
-          toast.error(msg as string);
-        });
-    });
+        if (res?.data?.result) onUpload(res.data.result);
+        resetForm();
+        setOpen(false);
+        toast.success('Audio амжилттай байршлаа');
+      })
+      .catch((err) => {
+        const msg =
+          typeof err === 'object' && err !== null && 'message' in err
+            ? (err as { message?: unknown }).message
+            : String(err);
+        toast.error(msg as string);
+      })
+      .finally(() => setUploading(false));
   };
   return (
     <Dialog
