@@ -317,14 +317,16 @@ function UploadAudioDialog({
     if (!label) return toast.error('Audio нэр оруулна уу');
     if (!uploadFile) return toast.error('Audio сонгоно уу');
     setUploading(true);
+    const token = (session?.data?.user as any)?.access_token;
+    const fd = objToFormData({
+      label: CF_LANG_OBJ[label] ?? 'Unknown',
+      file: uploadFile,
+    });
 
     uploadAudioClient(
       streamId,
-      objToFormData({
-        label: CF_LANG_OBJ[label] ?? 'Unknown',
-        file: uploadFile,
-      }) as unknown as BodyDashboardUploadAudioTrackType,
-      (session?.data?.user as any)?.access_token,
+      fd as unknown as BodyDashboardUploadAudioTrackType,
+      token,
     )
       // uploadAudioTrack(
       //   streamId,
@@ -350,6 +352,7 @@ function UploadAudioDialog({
       })
       .finally(() => setUploading(false));
   };
+
   return (
     <Dialog
       open={open}
