@@ -294,7 +294,7 @@ export const MediaDialogProvider: React.FC<{ children: React.ReactNode }> = ({
                           >
                             {name}
                           </p>
-                          {meta.error ? (
+                          {meta?.error ? (
                             <p
                               className="text-destructive truncate text-xs font-medium"
                               title={`Error: ${meta.error}`}
