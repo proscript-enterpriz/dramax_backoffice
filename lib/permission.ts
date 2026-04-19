@@ -102,6 +102,7 @@ const subjects = {
   genres: [],
   subscriptions: [],
   tags: [],
+  payments: [],
   streams: ['upload'],
 } as const satisfies Record<UrlEnumType, string[]>;
 
@@ -127,60 +128,45 @@ const modify = { ...restricted, create: true, read: true, update: true }; // def
 const read = { ...restricted, read: true }; // defaults to ignore
 const editRead = { ...restricted, read: true, update: true };
 
-const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
-  // Full platform admin
-  super_admin: Object.entries(subjects)
+const allPermissions = (permObj: any) =>
+  Object.entries(subjects)
     .map((c) => {
       const [main, subs] = c;
       if (subs.length === 0)
-        return { [main]: full } as unknown as Record<
+        return { [main]: permObj } as unknown as Record<
           Subject,
           Record<Action, boolean>
         >;
       const obj: Record<string, Record<Action, boolean>> = {};
       subs.forEach((s) => {
-        obj[`${main}.${s}`] = full;
+        obj[`${main}.${s}`] = permObj;
       });
       return {
-        [main]: full,
+        [main]: permObj,
         ...obj,
       } as unknown as Record<Subject, Record<Action, boolean>>;
     })
     .reduce(
       (acc, cur) => ({ ...acc, ...cur }),
       {} as unknown as Record<Subject, Record<Action, boolean>>,
-    ),
+    );
+
+const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
+  // Full platform admin
+  super_admin: allPermissions(full),
 
   // Normal admin
   admin: {
-    '': full,
-    batches: full,
-    'content-plans': full,
-    'content-plans.movies': full,
+    ...allPermissions(full),
     employees: modify,
     promo_banner: editRead,
-    hero_banner: full,
     rentals: read,
     'rentals.users': read,
-    medias: full,
-    movies: full,
-    'movies.detail': full,
-    'movies.seasons': full,
-    'movies.season-detail': full,
-    'movies.episodes': full,
-    'movies.episode-detail': full,
-    'movies.movie-episodes': full,
-    'movies.movie-episode-detail': full,
-    categories: full,
-    genres: full,
-    subscriptions: full,
-    tags: full,
-    streams: full,
-    'streams.upload': full,
   },
 
   // Editor role
   editor: {
+    ...allPermissions(restricted),
     '': full,
     batches: full,
     categories: modify,
@@ -201,19 +187,15 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     streams: modify,
     'streams.upload': modify,
     tags: modify,
-    employees: restricted,
-    rentals: restricted,
-    'rentals.users': restricted,
-    subscriptions: restricted,
   },
 
   // Moderator role
   moderator: {
+    ...allPermissions(restricted),
     '': full,
     batches: read,
     categories: read,
     'content-plans': read,
-    'content-plans.movies': restricted,
     promo_banner: editRead,
     hero_banner: read,
     genres: read,
@@ -227,7 +209,6 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     'movies.movie-episodes': read,
     'movies.movie-episode-detail': read,
     tags: read,
-    employees: restricted,
     rentals: read,
     'rentals.users': read,
     subscriptions: read,
@@ -237,11 +218,10 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
 
   // Support role
   support: {
+    ...allPermissions(restricted),
     '': full,
-    batches: restricted,
     categories: read,
     'content-plans': read,
-    'content-plans.movies': restricted,
     promo_banner: editRead,
     hero_banner: read,
     genres: read,
@@ -255,25 +235,15 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     'movies.movie-episodes': read,
     'movies.movie-episode-detail': read,
     tags: read,
-    employees: restricted,
-    rentals: restricted,
-    'rentals.users': restricted,
-    subscriptions: restricted,
-    streams: restricted,
-    'streams.upload': restricted,
   },
 
   // Content owner: only full control over own movies/media
   content_owner: {
+    ...allPermissions(restricted),
     '': full,
-    batches: restricted,
-    'content-plans': restricted,
-    'content-plans.movies': restricted,
-    employees: restricted,
     promo_banner: editRead,
     hero_banner: read,
     rentals: read, // can see rentals related to their content
-    'rentals.users': restricted,
     medias: modify, // own media
     movies: modify, // own movies
     'movies.detail': modify,
@@ -286,7 +256,6 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     categories: read,
     genres: read,
     tags: read,
-    subscriptions: restricted,
     streams: modify,
     'streams.upload': modify,
   },

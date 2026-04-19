@@ -1,4 +1,5 @@
 import {
+  ChartPie,
   Clapperboard,
   FilmIcon,
   GalleryVerticalEnd,
@@ -85,11 +86,11 @@ export const organizationRoutes = [
     url: '/rentals',
     icon: Clapperboard,
   },
-  // {
-  //   title: 'Борлуулалт',
-  //   url: '/sales',
-  //   icon: ChartPie,
-  // },
+  {
+    title: 'Гүйлгээ',
+    url: '/payments',
+    icon: ChartPie,
+  },
   {
     title: 'Media manager',
     url: '/medias',

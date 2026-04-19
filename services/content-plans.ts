@@ -61,7 +61,12 @@ export async function createContentPlan(body: ContentPlanCreateType) {
     const { body: response, error } = res;
     if (error) throw new Error(error);
 
-    executeRevalidate([RVK_CONTENT_PLANS, { tag: RVK_CONTENT_PLANS }]);
+    executeRevalidate([
+      RVK_CONTENT_PLANS,
+      RVK_MOVIES,
+      { tag: RVK_CONTENT_PLANS },
+      { tag: RVK_MOVIES },
+    ]);
 
     return response;
   } catch (error) {
