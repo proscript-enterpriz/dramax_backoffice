@@ -76,8 +76,8 @@ export const organizationRoutes = [
     icon: Package,
   },
   {
-    title: 'Багцтэй хэрэглэгчид',
-    url: '/subscriptions',
+    title: 'Гүйлгээ',
+    url: '/payments',
     icon: GemIcon,
   },
   {
