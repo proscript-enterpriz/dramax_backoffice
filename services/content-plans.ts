@@ -1,6 +1,9 @@
 'use server';
 
-import { FILMORARevalidateParams } from '@/services/api/types';
+import {
+  FILMORARevalidateParams,
+  PaginatedResType,
+} from '@/services/api/types';
 
 import * as actions from './api/actions';
 import { executeRevalidate, truncateErrorMessage } from './api/helpers';
@@ -18,6 +21,9 @@ import {
 
 export type ListContentPlansSearchParams = {
   include_inactive?: boolean;
+  return_columns?: (keyof NonNullable<
+    BaseResponseContentPlanListResponseType['data']
+  >['items']['0'])[];
 };
 
 export async function listContentPlans(
@@ -29,7 +35,10 @@ export async function listContentPlans(
       {
         searchParams,
         next: {
-          tags: [RVK_CONTENT_PLANS],
+          tags: [
+            RVK_CONTENT_PLANS,
+            RVK_CONTENT_PLANS + `_${JSON.stringify(searchParams ?? '')}`,
+          ],
         },
       },
     );
@@ -335,6 +344,52 @@ export async function getMoviesAvailableForContentPlan(
         (error as Error)?.message ??
           'Failed to fetch available movies for content plan',
       ),
+      data: [],
+      total_count: 0,
+    };
+  }
+}
+
+export type ContentPlanSubscriberItem = {
+  id: string;
+  months_purchased: number;
+  started_at: string;
+  expires_at: string;
+  status: string;
+  amount_paid: number;
+
+  plan_id: string;
+  plan_name: string;
+  plan_active: boolean;
+  plan_image?: string | null;
+
+  user_id: string;
+  user_contact: string;
+  user_name?: string | null;
+};
+
+export type ContentPlanSubscribersSearchParams = {
+  plan_id?: string;
+  page?: number;
+  page_size?: number;
+};
+
+export async function getContentPlanSubscribers(
+  sp?: ContentPlanSubscribersSearchParams,
+) {
+  try {
+    const { body: response, error } = await actions.get<
+      PaginatedResType<ContentPlanSubscriberItem[]>
+    >('/content-plans/users', { searchParams: sp });
+    if (error) throw new Error(error);
+
+    return response;
+  } catch (e) {
+    console.error(e);
+
+    return {
+      status: 'error',
+      message: (e as Error)?.message ?? 'Failed to fetch content plan',
       data: [],
       total_count: 0,
     };
