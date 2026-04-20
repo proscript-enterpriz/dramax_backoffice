@@ -432,3 +432,9 @@ export async function uploadAudioTrack(
     };
   }
 }
+
+export async function revalidateStreams(streamId?: string) {
+  if (streamId) await actions.revalidate(`${RVK_CF}_stream_id_${streamId}`);
+  await actions.revalidate(RVK_CF);
+  return;
+}
