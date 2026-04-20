@@ -53,7 +53,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { audioList, updateAudioTrack } from '@/services/cf';
+import { audioList, revalidateStreams, updateAudioTrack } from '@/services/cf';
 import { captionLanguageSchema, StreamAudioType } from '@/services/schema';
 
 const CLOUDFLARE_LANGUAGES: {
@@ -94,6 +94,7 @@ export default function AudioTab({ streamId }: { streamId: string }) {
     audioList(streamId)
       .then((response) => {
         setTracks(response?.result ?? []);
+        revalidateStreams();
       })
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));
