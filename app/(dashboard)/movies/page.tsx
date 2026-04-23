@@ -95,7 +95,6 @@ export default async function MoviesPage(props: {
             plans: Object.values(plans ?? {}) ?? [],
           }))}
           rowCount={total_count ?? data?.length}
-          disableUrlUpdates={true}
         >
           {/* Filters Section */}
           <div className="flex flex-wrap items-center gap-4">
