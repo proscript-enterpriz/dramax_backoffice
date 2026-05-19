@@ -12,6 +12,7 @@ import {
   MonitorUp,
   Package,
   Tag,
+  Ticket,
   TvMinimalPlay,
   UsersRoundIcon,
   VideoIcon,
@@ -85,6 +86,11 @@ export const organizationRoutes = [
     title: 'Түрээсийн кино',
     url: '/rentals',
     icon: Clapperboard,
+  },
+  {
+    title: 'Зочин токен',
+    url: '/guest-tokens',
+    icon: Ticket,
   },
   {
     title: 'Гүйлгээ',

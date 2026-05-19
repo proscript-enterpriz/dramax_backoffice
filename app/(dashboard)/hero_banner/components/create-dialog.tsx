@@ -7,7 +7,10 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import { MediaPickerItem, MovieSelectItem } from '@/components/custom/form-fields';
+import {
+  MediaPickerItem,
+  MovieSelectItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -59,8 +62,10 @@ function normalizeSingleImageLink(value: unknown): string | null {
 
   if (value && typeof value === 'object') {
     const candidate =
-      (value as { url?: string }).url || (value as { media_url?: string }).media_url;
-    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+      (value as { url?: string }).url ||
+      (value as { media_url?: string }).media_url;
+    if (typeof candidate === 'string' && candidate.trim())
+      return candidate.trim();
   }
 
   return null;
@@ -86,8 +91,10 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   function onSubmit(values: CreateHeroBannerFormType) {
     startTransition(() => {
       createHeroBanner({
-        image_url_desktop: normalizeSingleImageLink(values.image_url_desktop) ?? '',
-        image_url_mobile: normalizeSingleImageLink(values.image_url_mobile) ?? '',
+        image_url_desktop:
+          normalizeSingleImageLink(values.image_url_desktop) ?? '',
+        image_url_mobile:
+          normalizeSingleImageLink(values.image_url_mobile) ?? '',
         title: values.title.trim(),
         description: values.description.trim(),
         movie_id: values.movie_id?.trim() || null,
@@ -180,10 +187,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
           <FormItem className="flex flex-col gap-1">
             <FormLabel>Кино (сонголттой)</FormLabel>
             <FormControl>
-              <MovieSelectItem
-                field={field}
-                placeholder="Кино сонгох"
-              />
+              <MovieSelectItem field={field} placeholder="Кино сонгох" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -202,7 +206,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
                 min={0}
                 {...field}
                 onChange={(e) =>
-                  field.onChange(Number.isNaN(+e.target.value) ? 0 : +e.target.value)
+                  field.onChange(
+                    Number.isNaN(+e.target.value) ? 0 : +e.target.value,
+                  )
                 }
               />
             </FormControl>

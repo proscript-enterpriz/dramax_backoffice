@@ -40,7 +40,9 @@ export type GetHeroBannersSearchParams = {
   is_active?: boolean;
 };
 
-export async function getHeroBanners(searchParams?: GetHeroBannersSearchParams) {
+export async function getHeroBanners(
+  searchParams?: GetHeroBannersSearchParams,
+) {
   try {
     const res = await actions.get<HeroBannerListResponseType>(`/hero-banners`, {
       cache: 'no-store',

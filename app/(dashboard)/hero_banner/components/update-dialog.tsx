@@ -8,7 +8,10 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import FormDialog, { FormDialogRef } from '@/components/custom/form-dialog';
-import { MediaPickerItem, MovieSelectItem } from '@/components/custom/form-fields';
+import {
+  MediaPickerItem,
+  MovieSelectItem,
+} from '@/components/custom/form-fields';
 import {
   FormControl,
   FormField,
@@ -18,7 +21,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { HeroBannerResponseType, updateHeroBanner } from '@/services/hero-banners';
+import {
+  HeroBannerResponseType,
+  updateHeroBanner,
+} from '@/services/hero-banners';
 
 const updateHeroBannerSchema = z.object({
   image_url_desktop: z.any().nullish(),
@@ -56,8 +62,10 @@ function normalizeSingleImageLink(value: unknown): string | null {
 
   if (value && typeof value === 'object') {
     const candidate =
-      (value as { url?: string }).url || (value as { media_url?: string }).media_url;
-    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+      (value as { url?: string }).url ||
+      (value as { media_url?: string }).media_url;
+    if (typeof candidate === 'string' && candidate.trim())
+      return candidate.trim();
   }
 
   return null;
@@ -111,7 +119,8 @@ export function UpdateDialog({
       }
 
       if (dirty.title) payload.title = values.title?.trim() || '';
-      if (dirty.description) payload.description = values.description?.trim() || '';
+      if (dirty.description)
+        payload.description = values.description?.trim() || '';
       if (dirty.movie_id) payload.movie_id = values.movie_id?.trim() || null;
       if (dirty.is_active) payload.is_active = values.is_active;
       if (dirty.sort_order) payload.sort_order = values.sort_order;
@@ -231,10 +240,7 @@ export function UpdateDialog({
           <FormItem className="flex flex-col gap-1">
             <FormLabel>Кино (сонголттой)</FormLabel>
             <FormControl>
-              <MovieSelectItem
-                field={field}
-                placeholder="Кино сонгох"
-              />
+              <MovieSelectItem field={field} placeholder="Кино сонгох" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -253,7 +259,9 @@ export function UpdateDialog({
                 min={0}
                 {...field}
                 onChange={(e) =>
-                  field.onChange(Number.isNaN(+e.target.value) ? 0 : +e.target.value)
+                  field.onChange(
+                    Number.isNaN(+e.target.value) ? 0 : +e.target.value,
+                  )
                 }
               />
             </FormControl>

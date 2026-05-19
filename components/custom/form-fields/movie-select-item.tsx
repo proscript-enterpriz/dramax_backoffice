@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
 import { Check, ChevronsUpDown, Film, X } from 'lucide-react';
 import Image from 'next/image';
 
@@ -21,8 +22,6 @@ import {
 import { cn } from '@/lib/utils';
 import { getMovie, getMovies } from '@/services/movies-generated';
 import { MovieListResponseType } from '@/services/schema';
-
-import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
 
 type MovieSelectItemProps<T extends FieldValues> = {
   field: ControllerRenderProps<T, Path<T>>;
@@ -83,7 +82,8 @@ export function MovieSelectItem<T extends FieldValues>({
       .then((res) => {
         if (res?.status === 'success' && res?.data) {
           const d = res.data;
-          const id = (d as { movie_id?: string }).movie_id ?? (d as { id?: string }).id;
+          const id =
+            (d as { movie_id?: string }).movie_id ?? (d as { id?: string }).id;
           const title = (d as { title?: string }).title ?? '';
           if (id) setSelectedMovie({ id, title });
         } else {
@@ -130,7 +130,7 @@ export function MovieSelectItem<T extends FieldValues>({
                 tabIndex={0}
                 onClick={handleClear}
                 onKeyDown={(e) => e.key === 'Enter' && handleClear(e as any)}
-                className="rounded p-0.5 hover:bg-muted"
+                className="hover:bg-muted rounded p-0.5"
                 aria-label="Clear selection"
               >
                 <X className="h-4 w-4" />
@@ -140,7 +140,10 @@ export function MovieSelectItem<T extends FieldValues>({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Кино хайх..."
