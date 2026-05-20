@@ -1313,6 +1313,8 @@ export const guestTokenResponseSchema = z.object({
   expires_at: z.iso.datetime(),
   is_active: z.boolean(),
   notes: z.string().nullish(),
+  pin: z.string().nullish(),
+  movie_name: z.string().nullish(),
 });
 
 export type GuestTokenResponseType = z.infer<typeof guestTokenResponseSchema>;

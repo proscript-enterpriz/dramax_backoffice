@@ -13,6 +13,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 
+import { getChatText } from '@/app/(dashboard)/guest-tokens/components/constants';
 import {
   DeleteDialog,
   DeleteDialogRef,
@@ -62,15 +63,13 @@ const Action = ({ row }: CellContext<GuestTokenListItemType, unknown>) => {
         <DropdownMenuLabel>Үйлдлүүд</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => {
-            const url = `
-${row.original.movie_title ? '🎬 Кино: ' + row.original.movie_title : ''}
-
-⏰ Энэ линк 12 цагийн хугацаанд хүчинтэй
-
-👉 Үзэх линк:
-https://dramax.mn?ot=${row.original.token}
-            `;
-            handleCopy(url, () => toast.success('Chat хууллаа'));
+            handleCopy(
+              getChatText({
+                title: row.original.movie_title,
+                token: row.original.token,
+              }),
+              () => toast.success('Chat хууллаа'),
+            );
           }}
         >
           <Copy className="mr-2 h-4 w-4" />
