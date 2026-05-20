@@ -1295,7 +1295,10 @@ export type BaseResponseListRawMovieOutType = z.infer<
 // Guest Tokens schemas
 export const guestTokenCreateSchema = z.object({
   movie_id: z.uuid(),
-  pin: z.string().min(4).max(6).regex(/^\d+$/),
+  pin: z
+    .string()
+    .length(6)
+    .regex(/^[A-Za-z0-9]{6}$/),
   duration_hours: z.number().int().min(1).max(24).default(12).nullish(),
   notes: z.string().nullish(),
 });

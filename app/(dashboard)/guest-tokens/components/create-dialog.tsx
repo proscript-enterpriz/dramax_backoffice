@@ -61,7 +61,12 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const [totalPages, setTotalPages] = useState(1);
 
   const generatePinCode = () => {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let pin = '';
+    for (let i = 0; i < 6; i++) {
+      pin += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pin;
   };
 
   const form = useForm<GuestTokenCreateType>({
@@ -173,8 +178,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="4 оронтой код"
-                          maxLength={4}
+                          placeholder="6 оронтой код"
+                          maxLength={6}
+                          minLength={6}
                           className="flex-1"
                         />
                       </FormControl>
@@ -186,7 +192,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
                         Шинэчлэх
                       </Button>
                     </div>
-                    <FormDescription>4 оронтой тоон код</FormDescription>
+                    <FormDescription>6 оронтой үсэг, тоон код</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
