@@ -2,21 +2,16 @@ export const getChatText = (data: {
   title?: string | null;
   pin?: string | null;
   token: string;
-}) => {
-  let chat = `
-${data.title ? '🎬 Кино: ' + data.title : ''}
+}) => `${data.title ? '🎬 ' + data.title + ' киног үзэх заавар' : ''}
 
-⏰ Энэ линк 12 цагийн хугацаанд хүчинтэй
+1️⃣ Доорх линк дээр дарна уу 👇
 
-👉 Үзэх линк:
-https://dramax.mn?ot=${data.token}
-            `;
+👉 https://dramax.mn?ot=${data.token}
 
-  if (data.pin) {
-    chat += `
+2️⃣ Сайт нээгдэхээр PIN код асуувал энэ кодыг бичнэ үү:
 
-PIN: ${data.pin}`;
-  }
+🔑 ${data.pin || 'PIN код админаас авна уу'}
 
-  return chat;
-};
+3️⃣ Дараа нь “▶️ Тоглуулах” товч дээр дараад киногоо үзээрэй 😊
+
+⏰ Анхаар: Энэ линк 12 цагийн хугацаанд хүчинтэй`;
