@@ -89,6 +89,7 @@ const subjects = {
   hero_banner: [],
   employees: [],
   rentals: ['users'],
+  'guest-tokens': [],
   medias: [],
   movies: [
     'detail',
@@ -162,6 +163,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     promo_banner: editRead,
     rentals: read,
     'rentals.users': read,
+    'guest-tokens': full,
   },
 
   // Editor role
@@ -235,6 +237,7 @@ const roles: Record<Role, Record<Subject, Record<Action, boolean>>> = {
     'movies.movie-episodes': read,
     'movies.movie-episode-detail': read,
     tags: read,
+    'guest-tokens': modify,
   },
 
   // Content owner: only full control over own movies/media

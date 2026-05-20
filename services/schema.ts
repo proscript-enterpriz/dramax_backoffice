@@ -1291,3 +1291,87 @@ export const baseResponseListRawMovieOutSchema = z.object({
 export type BaseResponseListRawMovieOutType = z.infer<
   typeof baseResponseListRawMovieOutSchema
 >;
+
+// Guest Tokens schemas
+export const guestTokenCreateSchema = z.object({
+  movie_id: z.uuid(),
+  pin: z
+    .string()
+    .length(6)
+    .regex(/^[A-Za-z0-9]{6}$/),
+  duration_hours: z.number().int().min(1).max(24).default(12).nullish(),
+  notes: z.string().nullish(),
+});
+
+export type GuestTokenCreateType = z.infer<typeof guestTokenCreateSchema>;
+
+export const guestTokenResponseSchema = z.object({
+  id: z.uuid(),
+  token: z.string(),
+  movie_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  expires_at: z.iso.datetime(),
+  is_active: z.boolean(),
+  notes: z.string().nullish(),
+});
+
+export type GuestTokenResponseType = z.infer<typeof guestTokenResponseSchema>;
+
+export const guestTokenCreateResponseSchema = z.object({
+  status: z.string().default('success'),
+  message: z.string(),
+  data: guestTokenResponseSchema,
+});
+
+export type GuestTokenCreateResponseType = z.infer<
+  typeof guestTokenCreateResponseSchema
+>;
+
+export const guestTokenListItemSchema = z.object({
+  id: z.uuid(),
+  token: z.string(),
+  movie_id: z.uuid(),
+  movie_title: z.string().nullish(),
+  created_at: z.iso.datetime(),
+  expires_at: z.iso.datetime(),
+  is_active: z.boolean(),
+  session_count: z.number().int().default(0),
+  notes: z.string().nullish(),
+  failed_pin_attempts: z.number().int().default(0),
+  locked_until: z.iso.datetime().nullish(),
+});
+
+export type GuestTokenListItemType = z.infer<typeof guestTokenListItemSchema>;
+
+export const guestTokenListResponseSchema = z.object({
+  status: z.string().default('success'),
+  data: z.array(guestTokenListItemSchema),
+  total: z.number().int(),
+});
+
+export type GuestTokenListResponseType = z.infer<
+  typeof guestTokenListResponseSchema
+>;
+
+export const baseResponseGuestTokenResponseSchema = z.object({
+  status: z.string(),
+  message: z.string(),
+  data: guestTokenResponseSchema.nullish(),
+  total_count: z.number().int().nullish(),
+  total: z.number().int().nullish(),
+  success: z.boolean().nullish(),
+  cursor: z.string().nullish(),
+});
+
+export type BaseResponseGuestTokenResponseType = z.infer<
+  typeof baseResponseGuestTokenResponseSchema
+>;
+
+export const guestTokenStatsResponseSchema = z.object({
+  status: z.string().default('success'),
+  data: z.record(z.string(), z.any()),
+});
+
+export type GuestTokenStatsResponseType = z.infer<
+  typeof guestTokenStatsResponseSchema
+>;

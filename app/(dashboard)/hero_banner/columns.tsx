@@ -24,7 +24,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { hasPermission } from '@/lib/permission';
-import { deleteHeroBanner, HeroBannerResponseType } from '@/services/hero-banners';
+import {
+  deleteHeroBanner,
+  HeroBannerResponseType,
+} from '@/services/hero-banners';
 
 import { UpdateDialog } from './components/update-dialog';
 
