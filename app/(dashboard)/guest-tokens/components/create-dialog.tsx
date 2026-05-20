@@ -183,7 +183,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-1 flex-col gap-4"
+            className="flex min-h-0 flex-1 flex-col gap-4"
           >
             <div className="space-y-4">
               <FormField
@@ -247,7 +247,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
               />
             </div>
 
-            <ScrollArea className="flex-1 border-t pt-4">
+            <ScrollArea className="min-h-0 flex-1 border-t pt-4">
               {loadingMovies ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin" />
