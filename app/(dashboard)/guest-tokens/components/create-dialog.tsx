@@ -247,7 +247,7 @@ export function CreateDialog({ children }: { children: ReactNode }) {
               />
             </div>
 
-            <ScrollArea className="min-h-0 flex-1 border-t pt-4">
+            <ScrollArea className="min-h-0 flex-1 overflow-y-auto border-t pt-4">
               {loadingMovies ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin" />
