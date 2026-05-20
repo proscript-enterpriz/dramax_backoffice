@@ -3,6 +3,7 @@
 import { ReactNode, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { handleCopy } from '@interpriz/lib/utils';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -12,6 +13,7 @@ import {
 import { Check, Film, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { getChatText } from '@/app/(dashboard)/guest-tokens/components/constants';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -133,6 +135,17 @@ export function CreateDialog({ children }: { children: ReactNode }) {
             toast.error(res?.message || 'Токен үүсгэхэд алдаа гарлаа');
           } else {
             toast.success('Токен амжилттай үүсгэгдлээ');
+
+            if (res.data) {
+              handleCopy(
+                getChatText({
+                  pin: res.data.pin,
+                  token: res.data.token,
+                  title: res.data.movie_name,
+                }),
+                () => toast.success('Chat хууллаа'),
+              );
+            }
             form.reset();
             setOpen(false);
           }
