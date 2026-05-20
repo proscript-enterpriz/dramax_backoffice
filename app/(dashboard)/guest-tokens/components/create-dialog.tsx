@@ -61,12 +61,28 @@ export function CreateDialog({ children }: { children: ReactNode }) {
   const [totalPages, setTotalPages] = useState(1);
 
   const generatePinCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const chars = letters + numbers;
+
     let pin = '';
-    for (let i = 0; i < 6; i++) {
+
+    // Ensure at least 1 letter
+    pin += letters.charAt(Math.floor(Math.random() * letters.length));
+
+    // Ensure at least 1 number
+    pin += numbers.charAt(Math.floor(Math.random() * numbers.length));
+
+    // Fill the rest randomly
+    for (let i = 2; i < 6; i++) {
       pin += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return pin;
+
+    // Shuffle the PIN to randomize the position of the guaranteed letter and number
+    return pin
+      .split('')
+      .sort(() => Math.random() - 0.5)
+      .join('');
   };
 
   const form = useForm<GuestTokenCreateType>({
@@ -158,7 +174,9 @@ export function CreateDialog({ children }: { children: ReactNode }) {
         <DialogHeader>
           <DialogTitle>Шинэ зочин токен үүсгэх</DialogTitle>
           <DialogDescription>
-            PIN код оруулж, доорх жагсаалтаас кино сонгоно уу
+            Шинэ токен үүсгэхээс өмнө PIN код оо хуулан, хадгална уу! Токеныг
+            үүсгэсний дараа PIN кодыг дахин харуулах боломжгүй бөгөөд хэрэв
+            алдаж устгасан тохиолдолд токеныг дахин үүсгэх шаардлагатай болно.
           </DialogDescription>
         </DialogHeader>
 

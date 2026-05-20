@@ -178,3 +178,70 @@ export async function getActiveSessionsForToken(tokenId: string) {
     };
   }
 }
+
+export async function unlockGuestToken(tokenId: string) {
+  try {
+    const res = await actions.post<BaseResponseDictType>(
+      `/guest-tokens/${tokenId}/unlock`,
+      {},
+    );
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    executeRevalidate([
+      RVK_GUEST_TOKENS,
+      { tag: RVK_GUEST_TOKENS },
+      `${RVK_GUEST_TOKENS}_token_id_${tokenId}`,
+    ]);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to unlock guest token',
+      ),
+      data: null,
+    };
+  }
+}
+
+export type ResetGuestTokenResponse = {
+  token_id: string;
+  token: string;
+  new_pin: string;
+  reset_at: string; // ISO datetime string
+  expires_at: string; // ISO datetime string
+  reset_by: string;
+  instructions: string;
+};
+
+export async function resetPin(tokenId: string) {
+  try {
+    const res = await actions.post<
+      BaseResponseDictType & { data: ResetGuestTokenResponse }
+    >(`/guest-tokens/${tokenId}/reset-pin`, {});
+
+    const { body: response, error } = res;
+    if (error) throw new Error(error);
+
+    executeRevalidate([
+      RVK_GUEST_TOKENS,
+      { tag: RVK_GUEST_TOKENS },
+      `${RVK_GUEST_TOKENS}_token_id_${tokenId}`,
+    ]);
+
+    return response;
+  } catch (error) {
+    console.error(error);
+    return {
+      status: 'error',
+      message: truncateErrorMessage(
+        (error as Error)?.message ?? 'Failed to reset PIN',
+      ),
+      data: null,
+    };
+  }
+}

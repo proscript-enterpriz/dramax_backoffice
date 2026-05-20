@@ -1337,6 +1337,8 @@ export const guestTokenListItemSchema = z.object({
   is_active: z.boolean(),
   session_count: z.number().int().default(0),
   notes: z.string().nullish(),
+  failed_pin_attempts: z.number().int().default(0),
+  locked_until: z.iso.datetime().nullish(),
 });
 
 export type GuestTokenListItemType = z.infer<typeof guestTokenListItemSchema>;
